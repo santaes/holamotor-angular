@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { StorageService } from '../../../../core/services/storage.service';
 
 @Component({
   selector: 'app-invoice-form',
@@ -18,12 +19,14 @@ export class InvoiceFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private storage: StorageService,
     private router: Router,
     private route: ActivatedRoute,
     private billingService: BillingService,
     private snackBar: MatSnackBar
   ) {
     this.invoiceForm = this.createForm();
+    this.setupCustomerPicker();
   }
 
   ngOnInit(): void {
@@ -34,6 +37,20 @@ export class InvoiceFormComponent implements OnInit {
       this.pageTitle = 'Editar Factura';
       this.loadInvoice(this.invoiceId);
     }
+  }
+
+  customers: any[] = [];
+  vehicles: any[] = [];
+
+  private setupCustomerPicker(): void {
+    this.customers = this.storage.getItem<any[]>('customers') || [];
+    this.invoiceForm.get('clienteId')?.valueChanges.subscribe(id => {
+      const customer = this.customers.find(c => c.id === +id);
+      this.vehicles = customer?.vehiculos || [];
+      if (customer) {
+        this.invoiceForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
+      }
+    });
   }
 
   createForm(): FormGroup {

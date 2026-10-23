@@ -1,47 +1,70 @@
 <mat-sidenav-container class="app-container">
   <mat-sidenav
-    [opened]="isSidebarOpen"
-    mode="side"
     class="sidebar"
-    [class.collapsed]="!isSidebarOpen">
-    <div class="sidebar-header">
-      <mat-icon class="logo-icon">directions_car</mat-icon>
-      <h2 *ngIf="isSidebarOpen">HolaMotor</h2>
-    </div>
-    <mat-nav-list>
-      <a mat-list-item
-         *ngFor="let item of menuItems"
-         (click)="navigate(item.route)"
-         [class.mat-list-item-active]="isActive(item.route)">
-        <mat-icon mat-list-icon>{{ item.icon }}</mat-icon>
-        <span *ngIf="isSidebarOpen">{{ item.label }}</span>
+    [class.collapsed]="isCollapsed"
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="isSidebarOpen"
+    (closedStart)="isMobile && (isSidebarOpen = false)">
+
+    <a class="brand" routerLink="/dashboard">
+      <span class="brand-logo"><mat-icon>two_wheeler</mat-icon></span>
+      <span class="brand-text" *ngIf="!isCollapsed">
+        <strong>HolaMotor</strong>
+        <small>Gestión de taller</small>
+      </span>
+    </a>
+
+    <nav class="nav">
+      <span class="nav-label" *ngIf="!isCollapsed">Menú</span>
+      <a
+        *ngFor="let item of menuItems"
+        class="nav-item"
+        [routerLink]="item.route"
+        [class.active]="isActive(item.route)"
+        [matTooltip]="isCollapsed ? item.label : ''"
+        matTooltipPosition="right">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span *ngIf="!isCollapsed">{{ item.label }}</span>
       </a>
-    </mat-nav-list>
+    </nav>
+
+    <div class="sidebar-footer" *ngIf="!isCollapsed">
+      <div class="avatar">HM</div>
+      <div class="user-info">
+        <strong>Taller HolaMotor</strong>
+        <small>&copy; {{ currentYear }}</small>
+      </div>
+    </div>
   </mat-sidenav>
 
   <mat-sidenav-content class="main-content">
-    <mat-toolbar class="app-toolbar" color="primary">
-      <button
-        mat-icon-button
-        (click)="toggleSidebar()"
-        aria-label="Toggle sidebar">
-        <mat-icon>menu</mat-icon>
+    <header class="topbar">
+      <button mat-icon-button class="menu-btn" (click)="toggleSidebar()" aria-label="Alternar menú">
+        <mat-icon>{{ isMobile ? 'menu' : (isCollapsed ? 'menu_open' : 'menu') }}</mat-icon>
       </button>
-      <span class="toolbar-spacer"></span>
-      <button mat-icon-button aria-label="Notifications">
-        <mat-icon>notifications</mat-icon>
+
+      <div class="breadcrumb">
+        <a [routerLink]="currentSection.route">{{ currentSection.label }}</a>
+        <ng-container *ngIf="currentAction">
+          <mat-icon>chevron_right</mat-icon>
+          <span>{{ currentAction }}</span>
+        </ng-container>
+      </div>
+
+      <span class="spacer"></span>
+
+      <span class="today">{{ today | date:'EEEE d MMM':'':'es' }}</span>
+
+      <button mat-icon-button matTooltip="Notificaciones" aria-label="Notificaciones">
+        <mat-icon>notifications_none</mat-icon>
       </button>
-      <button mat-icon-button aria-label="Settings">
+      <button mat-icon-button matTooltip="Configuración" aria-label="Configuración">
         <mat-icon>settings</mat-icon>
       </button>
-    </mat-toolbar>
+    </header>
 
-    <div class="content-wrapper">
+    <main class="content-wrapper">
       <router-outlet></router-outlet>
-    </div>
-
-    <footer class="app-footer">
-      <p>&copy; {{ currentYear }} HolaMotor Taller - Sistema de Gestión de Taller Mecánico</p>
-    </footer>
+    </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

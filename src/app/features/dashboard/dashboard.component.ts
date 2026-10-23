@@ -17,10 +17,10 @@ export class DashboardComponent implements OnInit {
 
   recentActivities = [
     { type: 'order', icon: 'build', message: 'Nueva orden #1234 creada - Ford Focus', time: 'Hace 5 min', color: 'primary' },
-    { type: 'invoice', icon: 'receipt', message: 'Factura #5678 pagada - $2,500', time: 'Hace 15 min', color: 'accent' },
-    { type: 'appointment', icon: 'calendar_today', message: 'Cita agendada para mañana - 10:00 AM', time: 'Hace 30 min', color: 'warn' },
+    { type: 'invoice', icon: 'receipt_long', message: 'Factura #5678 pagada - $2,500', time: 'Hace 15 min', color: 'accent' },
+    { type: 'appointment', icon: 'event', message: 'Cita agendada para mañana - 10:00 AM', time: 'Hace 30 min', color: 'warn' },
     { type: 'customer', icon: 'person_add', message: 'Nuevo cliente registrado: María García', time: 'Hace 1 hora', color: 'primary' },
-    { type: 'inventory', icon: 'inventory', message: 'Stock bajo: Filtros de aceite (5 unidades)', time: 'Hace 2 horas', color: 'warn' }
+    { type: 'inventory', icon: 'inventory_2', message: 'Stock bajo: Filtros de aceite (5 unidades)', time: 'Hace 2 horas', color: 'warn' }
   ];
 
   topServices = [
@@ -39,11 +39,24 @@ export class DashboardComponent implements OnInit {
   ];
 
   quickActions = [
-    { icon: 'add_circle', label: 'Nueva Orden', route: '/ordenes/new', color: 'primary' },
-    { icon: 'person_add', label: 'Nuevo Cliente', route: '/clientes/new', color: 'accent' },
-    { icon: 'event', label: 'Agendar Cita', route: '/citas/new', color: 'warn' },
-    { icon: 'receipt_long', label: 'Nueva Factura', route: '/facturacion/new', color: 'primary' }
+    { icon: 'add_task', label: 'Nueva orden', hint: 'Registrar reparación', route: '/ordenes/new', tone: 'blue' },
+    { icon: 'person_add', label: 'Nuevo cliente', hint: 'Alta de cliente', route: '/clientes/new', tone: 'green' },
+    { icon: 'event_available', label: 'Agendar cita', hint: 'Reservar hueco', route: '/citas/new', tone: 'violet' },
+    { icon: 'request_quote', label: 'Nueva factura', hint: 'Emitir factura', route: '/facturacion/new', tone: 'orange' }
   ];
+
+  today = new Date();
+
+  get maxServiceCount(): number {
+    return Math.max(...this.topServices.map(s => s.count));
+  }
+
+  get greeting(): string {
+    const h = this.today.getHours();
+    if (h < 12) return 'Buenos días';
+    if (h < 20) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
 
   constructor() {}
 

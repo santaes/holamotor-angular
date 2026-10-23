@@ -45,13 +45,21 @@
 
         <h2>Cliente y Vehículo</h2>
         <div class="form-row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" *ngIf="customers.length; else manualClienteId">
+            <mat-label>Cliente</mat-label>
+            <mat-select formControlName="clienteId" required>
+              <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
+          </mat-form-field>
+          <ng-template #manualClienteId><mat-form-field appearance="outline">
             <mat-label>ID Cliente</mat-label>
             <input matInput formControlName="clienteId" required type="number">
             <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
-          </mat-form-field>
+          </mat-form-field></ng-template>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" *ngIf="!customers.length">
             <mat-label>Nombre Cliente</mat-label>
             <input matInput formControlName="clienteNombre" required>
             <mat-error>{{ getErrorMessage('clienteNombre') }}</mat-error>
@@ -59,13 +67,21 @@
         </div>
 
         <div class="form-row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" *ngIf="vehicles.length; else manualVehiculoId">
+            <mat-label>Vehículo</mat-label>
+            <mat-select formControlName="vehiculoId" required>
+              <mat-option *ngFor="let v of vehicles" [value]="v.id">{{ v.marca }} {{ v.modelo }} {{ v.anio }} · {{ v.placa }}</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>directions_car</mat-icon>
+            <mat-error>{{ getErrorMessage('vehiculoId') }}</mat-error>
+          </mat-form-field>
+          <ng-template #manualVehiculoId><mat-form-field appearance="outline">
             <mat-label>ID Vehículo</mat-label>
             <input matInput formControlName="vehiculoId" required type="number">
             <mat-error>{{ getErrorMessage('vehiculoId') }}</mat-error>
-          </mat-form-field>
+          </mat-form-field></ng-template>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" *ngIf="!vehicles.length">
             <mat-label>Información Vehículo</mat-label>
             <input matInput formControlName="vehiculoInfo" required placeholder="Marca, Modelo, Año">
             <mat-error>{{ getErrorMessage('vehiculoInfo') }}</mat-error>

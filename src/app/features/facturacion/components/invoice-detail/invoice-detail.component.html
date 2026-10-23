@@ -29,21 +29,19 @@
           </div>
           <div class="info-item">
             <label>Fecha Emisión:</label>
-            <span>{{ invoice?.fechaEmision | date:'medium' }}</span>
+            <span>{{ invoice?.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
           <div class="info-item">
             <label>Fecha Vencimiento:</label>
-            <span>{{ invoice?.fechaVencimiento | date:'medium' }}</span>
+            <span>{{ invoice?.fechaVencimiento | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
           <div class="info-item">
             <label>Fecha Pago:</label>
-            <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'medium') : 'No pagada' }}</span>
+            <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'dd/MM/yyyy HH:mm') : 'No pagada' }}</span>
           </div>
           <div class="info-item">
             <label>Estado:</label>
-            <mat-chip [style.background-color]="getEstadoColor(invoice?.estado || '')" class="status-chip">
-              {{ invoice?.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado }}</span>
           </div>
           <div class="info-item">
             <label>Método de Pago:</label>
@@ -63,19 +61,19 @@
         <div class="amounts-grid">
           <div class="amount-item">
             <label>Subtotal:</label>
-            <span>${{ invoice?.subtotal.toFixed(2) }}</span>
+            <span>{{ (invoice?.subtotal || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
           </div>
           <div class="amount-item">
             <label>Impuestos:</label>
-            <span>${{ invoice?.impuestos.toFixed(2) }}</span>
+            <span>{{ (invoice?.impuestos || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
           </div>
           <div class="amount-item">
             <label>Descuento:</label>
-            <span>-${{ invoice?.descuento.toFixed(2) }}</span>
+            <span>-{{ (invoice?.descuento || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
           </div>
           <div class="amount-item total">
             <label>Total:</label>
-            <span class="total-amount">${{ invoice?.total.toFixed(2) }}</span>
+            <span class="total-amount">{{ (invoice?.total || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
           </div>
         </div>
       </mat-card-content>
@@ -99,12 +97,12 @@
 
             <ng-container matColumnDef="precioUnitario">
               <th mat-header-cell *matHeaderCellDef>Precio Unitario</th>
-              <td mat-cell *matCellDef="let item">${{ item.precioUnitario.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let item">{{ (item.precioUnitario || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="subtotal">
               <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-              <td mat-cell *matCellDef="let item">${{ item.subtotal.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let item">{{ (item.subtotal || (item.cantidad * item.precioUnitario) || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
@@ -126,7 +124,7 @@
           <table mat-table [dataSource]="invoice.pagos" class="payments-table">
             <ng-container matColumnDef="monto">
               <th mat-header-cell *matHeaderCellDef>Monto</th>
-              <td mat-cell *matCellDef="let payment">${{ payment.monto.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let payment">{{ (payment.monto || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="metodo">
@@ -136,7 +134,7 @@
 
             <ng-container matColumnDef="fecha">
               <th mat-header-cell *matHeaderCellDef>Fecha</th>
-              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'medium' }}</td>
+              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="referencia">

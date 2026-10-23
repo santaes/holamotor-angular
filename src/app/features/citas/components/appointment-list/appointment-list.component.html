@@ -21,7 +21,7 @@
       <table mat-table [dataSource]="appointments" class="appointment-table">
         <ng-container matColumnDef="fecha">
           <th mat-header-cell *matHeaderCellDef>Fecha</th>
-          <td mat-cell *matCellDef="let appointment">{{ appointment.fecha | date:'shortDate' }}</td>
+          <td mat-cell *matCellDef="let appointment">{{ appointment.fecha | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="hora">
@@ -49,9 +49,7 @@
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let appointment">
-            <mat-chip [style.background-color]="getEstadoColor(appointment.estado)" class="status-chip">
-              {{ appointment.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getEstadoColor(appointment.estado)">{{ appointment.estado }}</span>
           </td>
         </ng-container>
 

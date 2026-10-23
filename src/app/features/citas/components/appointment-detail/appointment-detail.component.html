@@ -35,7 +35,7 @@
           </div>
           <div class="info-item">
             <label>Fecha:</label>
-            <span>{{ appointment?.fecha | date:'fullDate' }}</span>
+            <span>{{ appointment?.fecha | date:'fullDate':'':'es' }}</span>
           </div>
           <div class="info-item">
             <label>Horario:</label>
@@ -51,15 +51,11 @@
           </div>
           <div class="info-item">
             <label>Estado:</label>
-            <mat-chip [style.background-color]="getEstadoColor(appointment?.estado || '')" class="status-chip">
-              {{ appointment?.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getEstadoColor(appointment?.estado || '')">{{ appointment?.estado }}</span>
           </div>
           <div class="info-item">
             <label>Prioridad:</label>
-            <mat-chip [style.background-color]="getPrioridadColor(appointment?.prioridad || '')" class="priority-chip">
-              {{ appointment?.prioridad }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getPrioridadColor(appointment?.prioridad || '')">{{ appointment?.prioridad }}</span>
           </div>
           <div class="info-item">
             <label>Mecánico Asignado:</label>
@@ -67,9 +63,7 @@
           </div>
           <div class="info-item">
             <label>Recordatorio Enviado:</label>
-            <mat-icon [color]="appointment?.recordatorioEnviado ? 'primary' : 'warn'">
-              {{ appointment?.recordatorioEnviado ? 'check_circle' : 'cancel' }}
-            </mat-icon>
+            <span class="badge" [style.--badge]="appointment?.recordatorioEnviado ? '#16a34a' : '#64748b'">{{ appointment?.recordatorioEnviado ? 'Sí' : 'No' }}</span>
           </div>
         </div>
         <div class="description-section" *ngIf="appointment?.descripcion">

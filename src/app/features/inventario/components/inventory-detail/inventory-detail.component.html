@@ -37,9 +37,7 @@
           </div>
           <div class="info-item">
             <label>Cantidad:</label>
-            <mat-chip [style.background-color]="getStockColor()" class="stock-chip">
-              {{ item?.cantidad }} {{ item?.unidadMedida }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getStockColor()">{{ item?.cantidad }} {{ item?.unidadMedida }}</span>
           </div>
           <div class="info-item">
             <label>Rango de Stock:</label>
@@ -47,11 +45,11 @@
           </div>
           <div class="info-item">
             <label>Precio Compra:</label>
-            <span>${{ item?.precioCompra.toFixed(2) }}</span>
+            <span>{{ (item?.precioCompra || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
           </div>
           <div class="info-item">
             <label>Precio Venta:</label>
-            <span>${{ item?.precioVenta.toFixed(2) }}</span>
+            <span>{{ (item?.precioVenta || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
           </div>
           <div class="info-item">
             <label>Ubicación:</label>
@@ -59,9 +57,7 @@
           </div>
           <div class="info-item">
             <label>Estado:</label>
-            <mat-chip [color]="item?.estado === 'Activo' ? 'primary' : 'warn'">
-              {{ item?.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="item?.estado === 'Activo' ? '#16a34a' : '#64748b'">{{ item?.estado }}</span>
           </div>
         </div>
         <div class="description-section" *ngIf="item?.descripcion">

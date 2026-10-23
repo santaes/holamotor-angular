@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { RepairOrder } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { StorageService } from '../../../../core/services/storage.service';
 
 @Component({
   selector: 'app-order-form',
@@ -18,12 +19,14 @@ export class OrderFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private storage: StorageService,
     private router: Router,
     private route: ActivatedRoute,
     private orderService: OrderService,
     private snackBar: MatSnackBar
   ) {
     this.orderForm = this.createForm();
+    this.setupCustomerPicker();
   }
 
   ngOnInit(): void {
@@ -34,6 +37,26 @@ export class OrderFormComponent implements OnInit {
       this.pageTitle = 'Editar Orden de Reparación';
       this.loadOrder(this.orderId);
     }
+  }
+
+  customers: any[] = [];
+  vehicles: any[] = [];
+
+  private setupCustomerPicker(): void {
+    this.customers = this.storage.getItem<any[]>('customers') || [];
+    this.orderForm.get('clienteId')?.valueChanges.subscribe(id => {
+      const customer = this.customers.find(c => c.id === +id);
+      this.vehicles = customer?.vehiculos || [];
+      if (customer) {
+        this.orderForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
+      }
+    });
+    this.orderForm.get('vehiculoId')?.valueChanges.subscribe(id => {
+      const vehicle = this.vehicles.find(v => v.id === +id);
+      if (vehicle) {
+        this.orderForm.patchValue({ vehiculoInfo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` }, { emitEvent: false });
+      }
+    });
   }
 
   createForm(): FormGroup {

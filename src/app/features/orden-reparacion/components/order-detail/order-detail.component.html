@@ -35,23 +35,19 @@
           </div>
           <div class="info-item">
             <label>Fecha Ingreso:</label>
-            <span>{{ order?.fechaIngreso | date:'medium' }}</span>
+            <span>{{ order?.fechaIngreso | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
           <div class="info-item">
             <label>Fecha Estimada Salida:</label>
-            <span>{{ order?.fechaEstimadaSalida | date:'medium' : '-' }}</span>
+            <span>{{ order?.fechaEstimadaSalida | date:'dd/MM/yyyy HH:mm' : '-' }}</span>
           </div>
           <div class="info-item">
             <label>Estado:</label>
-            <mat-chip [style.background-color]="getEstadoColor(order?.estado || '')" class="status-chip">
-              {{ order?.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getEstadoColor(order?.estado || '')">{{ order?.estado }}</span>
           </div>
           <div class="info-item">
             <label>Prioridad:</label>
-            <mat-chip [style.background-color]="getPrioridadColor(order?.prioridad || '')" class="priority-chip">
-              {{ order?.prioridad }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getPrioridadColor(order?.prioridad || '')">{{ order?.prioridad }}</span>
           </div>
           <div class="info-item">
             <label>Mecánico Asignado:</label>
@@ -59,9 +55,7 @@
           </div>
           <div class="info-item">
             <label>Aprobado por Cliente:</label>
-            <mat-icon [color]="order?.aprobadoPorCliente ? 'primary' : 'warn'">
-              {{ order?.aprobadoPorCliente ? 'check_circle' : 'cancel' }}
-            </mat-icon>
+            <span class="badge" [style.--badge]="order?.aprobadoPorCliente ? '#16a34a' : '#64748b'">{{ order?.aprobadoPorCliente ? 'Sí' : 'No' }}</span>
           </div>
         </div>
       </mat-card-content>
@@ -110,12 +104,12 @@
 
             <ng-container matColumnDef="precioUnitario">
               <th mat-header-cell *matHeaderCellDef>Precio Unitario</th>
-              <td mat-cell *matCellDef="let part">${{ part.precioUnitario.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let part">{{ (part.precioUnitario || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="subtotal">
               <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-              <td mat-cell *matCellDef="let part">${{ part.subtotal.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let part">{{ (part.subtotal || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="['nombre', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
@@ -152,12 +146,12 @@
 
             <ng-container matColumnDef="tarifaPorHora">
               <th mat-header-cell *matHeaderCellDef>Tarifa/Hora</th>
-              <td mat-cell *matCellDef="let labor">${{ labor.tarifaPorHora.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let labor">{{ (labor.tarifaPorHora || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="subtotal">
               <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-              <td mat-cell *matCellDef="let labor">${{ labor.subtotal.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let labor">{{ (labor.subtotal || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="['mecanicoNombre', 'descripcion', 'horas', 'tarifaPorHora', 'subtotal']"></tr>
@@ -179,7 +173,7 @@
           <table mat-table [dataSource]="order.pagos" class="payments-table">
             <ng-container matColumnDef="monto">
               <th mat-header-cell *matHeaderCellDef>Monto</th>
-              <td mat-cell *matCellDef="let payment">${{ payment.monto.toFixed(2) }}</td>
+              <td mat-cell *matCellDef="let payment">{{ (payment.monto || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="metodo">
@@ -189,7 +183,7 @@
 
             <ng-container matColumnDef="fecha">
               <th mat-header-cell *matHeaderCellDef>Fecha</th>
-              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'medium' }}</td>
+              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="referencia">

@@ -87,10 +87,10 @@ export class CustomerDetailComponent implements OnInit {
 
   getLoyaltyColor(level: string): string {
     switch (level) {
-      case 'Bronce': return '#cd7f32';
-      case 'Plata': return '#c0c0c0';
-      case 'Oro': return '#ffd700';
-      case 'Platino': return '#e5e4e2';
+      case 'Bronce': return '#b45309';
+      case 'Plata': return '#64748b';
+      case 'Oro': return '#ca8a04';
+      case 'Platino': return '#7c3aed';
       default: return '#999';
     }
   }

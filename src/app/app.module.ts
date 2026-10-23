@@ -4,7 +4,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+
+registerLocaleData(localeEs);
 import { AppComponent } from './app.component';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 // Material imports
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,13 +38,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatChipsModule } from '@angular/material/chips';
 
-// Feature modules imports
-import { DashboardModule } from './features/dashboard/dashboard.module';
-import { ClienteModule } from './features/cliente/cliente.module';
-import { OrdenReparacionModule } from './features/orden-reparacion/orden-reparacion.module';
-import { InventarioModule } from './features/inventario/inventario.module';
-import { FacturacionModule } from './features/facturacion/facturacion.module';
-import { CitasModule } from './features/citas/citas.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -72,17 +70,9 @@ import { CitasModule } from './features/citas/citas.module';
     MatTooltipModule,
     MatDividerModule,
     MatGridListModule,
-    MatChipsModule,
-
-    // Feature modules
-    DashboardModule,
-    ClienteModule,
-    OrdenReparacionModule,
-    InventarioModule,
-    FacturacionModule,
-    CitasModule
+    MatChipsModule
   ],
-  providers: [],
+  providers: [{ provide: MAT_DATE_LOCALE, useValue: 'es-ES' }],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

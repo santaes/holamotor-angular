@@ -43,23 +43,19 @@
         <ng-container matColumnDef="cantidad">
           <th mat-header-cell *matHeaderCellDef>Cantidad</th>
           <td mat-cell *matCellDef="let item">
-            <mat-chip [style.background-color]="getStockColor(item)" class="stock-chip">
-              {{ item.cantidad }} {{ item.unidadMedida }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getStockColor(item)">{{ item.cantidad }} {{ item.unidadMedida }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="precioVenta">
           <th mat-header-cell *matHeaderCellDef>Precio Venta</th>
-          <td mat-cell *matCellDef="let item">${{ item.precioVenta.toFixed(2) }}</td>
+          <td mat-cell *matCellDef="let item">{{ (item.precioVenta || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let item">
-            <mat-chip [color]="item.estado === 'Activo' ? 'primary' : 'warn'">
-              {{ item.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="item?.estado === 'Activo' ? '#16a34a' : '#64748b'">{{ item.estado }}</span>
           </td>
         </ng-container>
 

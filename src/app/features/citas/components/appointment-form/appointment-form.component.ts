@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Appointment } from '../../models/appointment.model';
 import { AppointmentService } from '../../services/appointment.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { StorageService } from '../../../../core/services/storage.service';
 
 @Component({
   selector: 'app-appointment-form',
@@ -18,12 +19,14 @@ export class AppointmentFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private storage: StorageService,
     private router: Router,
     private route: ActivatedRoute,
     private appointmentService: AppointmentService,
     private snackBar: MatSnackBar
   ) {
     this.appointmentForm = this.createForm();
+    this.setupCustomerPicker();
   }
 
   ngOnInit(): void {
@@ -34,6 +37,26 @@ export class AppointmentFormComponent implements OnInit {
       this.pageTitle = 'Editar Cita';
       this.loadAppointment(this.appointmentId);
     }
+  }
+
+  customers: any[] = [];
+  vehicles: any[] = [];
+
+  private setupCustomerPicker(): void {
+    this.customers = this.storage.getItem<any[]>('customers') || [];
+    this.appointmentForm.get('clienteId')?.valueChanges.subscribe(id => {
+      const customer = this.customers.find(c => c.id === +id);
+      this.vehicles = customer?.vehiculos || [];
+      if (customer) {
+        this.appointmentForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
+      }
+    });
+    this.appointmentForm.get('vehiculoId')?.valueChanges.subscribe(id => {
+      const vehicle = this.vehicles.find(v => v.id === +id);
+      if (vehicle) {
+        this.appointmentForm.patchValue({ vehiculoInfo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` }, { emitEvent: false });
+      }
+    });
   }
 
   createForm(): FormGroup {

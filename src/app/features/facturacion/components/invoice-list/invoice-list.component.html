@@ -24,22 +24,20 @@
 
         <ng-container matColumnDef="fechaEmision">
           <th mat-header-cell *matHeaderCellDef>Fecha Emisión</th>
-          <td mat-cell *matCellDef="let invoice">{{ invoice.fechaEmision | date:'shortDate' }}</td>
+          <td mat-cell *matCellDef="let invoice">{{ invoice.fechaEmision | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="total">
           <th mat-header-cell *matHeaderCellDef>Total</th>
           <td mat-cell *matCellDef="let invoice">
-            <strong>${{ invoice.total.toFixed(2) }}</strong>
+            <strong>{{ (invoice.total || 0) | currency:'USD':'symbol':'1.2-2' }}</strong>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let invoice">
-            <mat-chip [style.background-color]="getEstadoColor(invoice.estado)" class="status-chip">
-              {{ invoice.estado }}
-            </mat-chip>
+            <span class="badge" [style.--badge]="getEstadoColor(invoice.estado)">{{ invoice.estado }}</span>
           </td>
         </ng-container>
 

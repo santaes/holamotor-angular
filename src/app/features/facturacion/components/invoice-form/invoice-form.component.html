@@ -46,13 +46,21 @@
 
         <h2>Cliente y Orden</h2>
         <div class="form-row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" *ngIf="customers.length; else manualClienteId">
+            <mat-label>Cliente</mat-label>
+            <mat-select formControlName="clienteId" required>
+              <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
+          </mat-form-field>
+          <ng-template #manualClienteId><mat-form-field appearance="outline">
             <mat-label>ID Cliente</mat-label>
             <input matInput formControlName="clienteId" required type="number">
             <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
-          </mat-form-field>
+          </mat-form-field></ng-template>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" *ngIf="!customers.length">
             <mat-label>Nombre Cliente</mat-label>
             <input matInput formControlName="clienteNombre" required>
             <mat-error>{{ getErrorMessage('clienteNombre') }}</mat-error>
