@@ -1,4 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
+import { SettingsService } from './core/services/settings.service';
+import { AppNotification, NotificationService } from './core/services/notification.service';
+import { t, LANGUAGES, currentLang, setLang, Lang } from './core/i18n/i18n';
 import { NavigationEnd, Router } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -24,7 +27,8 @@ export class AppComponent implements OnDestroy {
     { icon: 'build_circle', label: 'Órdenes de Reparación', route: '/ordenes' },
     { icon: 'inventory_2', label: 'Inventario', route: '/inventario' },
     { icon: 'receipt_long', label: 'Facturación', route: '/facturacion' },
-    { icon: 'event', label: 'Citas', route: '/citas' }
+    { icon: 'event', label: 'Citas', route: '/citas' },
+    { icon: 'settings', label: 'Configuración', route: '/configuracion' }
   ];
 
   isMobile = false;
@@ -34,14 +38,24 @@ export class AppComponent implements OnDestroy {
   currentRoute = '/dashboard';
   today = new Date();
 
+  notifications: AppNotification[] = [];
+  workshopName = '';
+  languages = LANGUAGES;
+  currentLang = currentLang;
+
   private subs = new Subscription();
 
   constructor(
     private router: Router,
     breakpoints: BreakpointObserver,
-    iconRegistry: MatIconRegistry
+    iconRegistry: MatIconRegistry,
+    private notificationService: NotificationService,
+    settingsService: SettingsService
   ) {
     iconRegistry.setDefaultFontSetClass('material-icons-round');
+
+    this.subs.add(notificationService.notifications$.subscribe(list => (this.notifications = list)));
+    this.subs.add(settingsService.settings$.subscribe(s => (this.workshopName = s.workshopName)));
 
     this.subs.add(
       breakpoints.observe('(max-width: 960px)').subscribe(state => {
@@ -75,9 +89,35 @@ export class AppComponent implements OnDestroy {
       return '';
     }
     if (parts[1] === 'new') {
-      return 'Nuevo registro';
+      return t('Nuevo registro');
     }
-    return parts[2] === 'edit' ? 'Editar' : 'Detalle';
+    return parts[2] === 'edit' ? t('Editar') : t('Detalle');
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
+
+  get initials(): string {
+    const words = (this.workshopName || 'Holamotor').trim().split(/\s+/);
+    return words.slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  openNotification(n: AppNotification): void {
+    this.notificationService.markRead(n.id);
+    this.router.navigateByUrl(n.route);
+  }
+
+  markAllRead(): void {
+    this.notificationService.markAllRead();
+  }
+
+  get currentLanguageLabel(): string {
+    return this.languages.find(l => l.code === this.currentLang)!.label;
+  }
+
+  changeLanguage(lang: Lang): void {
+    setLang(lang);
   }
 
   toggleSidebar(): void {

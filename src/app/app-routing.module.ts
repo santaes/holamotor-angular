@@ -30,6 +30,10 @@ const routes: Routes = [
   {
     path: 'citas',
     loadChildren: () => import('./features/citas/citas.module').then(m => m.CitasModule)
+  },
+  {
+    path: 'configuracion',
+    loadChildren: () => import('./features/configuracion/configuracion.module').then(m => m.ConfiguracionModule)
   }
 ];
 

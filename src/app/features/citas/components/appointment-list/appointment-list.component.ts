@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { Appointment } from '../../models/appointment.model';
 import { AppointmentService } from '../../services/appointment.service';
@@ -34,7 +35,7 @@ export class AppointmentListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading appointments:', error);
-        this.snackBar.open('Error al cargar citas', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar citas'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -60,26 +61,26 @@ export class AppointmentListComponent implements OnInit {
   confirmAppointment(id: number): void {
     this.appointmentService.confirmAppointment(id).subscribe({
       next: () => {
-        this.snackBar.open('Cita confirmada', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Cita confirmada'), t('Cerrar'), { duration: 3000 });
         this.loadAppointments();
       },
       error: (error) => {
         console.error('Error confirming appointment:', error);
-        this.snackBar.open('Error al confirmar cita', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al confirmar cita'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
 
   cancelAppointment(id: number): void {
-    if (confirm('¿Está seguro de cancelar esta cita?')) {
+    if (confirm(t('¿Está seguro de cancelar esta cita?'))) {
       this.appointmentService.cancelAppointment(id).subscribe({
         next: () => {
-          this.snackBar.open('Cita cancelada', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Cita cancelada'), t('Cerrar'), { duration: 3000 });
           this.loadAppointments();
         },
         error: (error) => {
           console.error('Error canceling appointment:', error);
-          this.snackBar.open('Error al cancelar cita', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al cancelar cita'), t('Cerrar'), { duration: 3000 });
         }
       });
     }

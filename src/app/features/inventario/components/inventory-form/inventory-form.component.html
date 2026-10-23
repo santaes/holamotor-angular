@@ -1,25 +1,25 @@
 <div class="inventory-form-container">
   <div class="header-section">
-    <h1>{{ pageTitle }}</h1>
+    <h1>{{ pageTitle | t }}</h1>
     <button mat-button (click)="cancel()">
       <mat-icon>arrow_back</mat-icon>
-      Volver
+      {{ 'Volver' | t }}
     </button>
   </div>
 
   <mat-card class="form-card">
     <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
-        <h2>Información General</h2>
+        <h2>{{ 'Información General' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Código</mat-label>
+            <mat-label>{{ 'Código' | t }}</mat-label>
             <input matInput formControlName="codigo" required>
             <mat-error>{{ getErrorMessage('codigo') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Nombre</mat-label>
+            <mat-label>{{ 'Nombre' | t }}</mat-label>
             <input matInput formControlName="nombre" required>
             <mat-error>{{ getErrorMessage('nombre') }}</mat-error>
           </mat-form-field>
@@ -27,40 +27,40 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Categoría</mat-label>
+            <mat-label>{{ 'Categoría' | t }}</mat-label>
             <input matInput formControlName="categoria" required>
             <mat-error>{{ getErrorMessage('categoria') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Marca</mat-label>
+            <mat-label>{{ 'Marca' | t }}</mat-label>
             <input matInput formControlName="marca" required>
             <mat-error>{{ getErrorMessage('marca') }}</mat-error>
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descripción</mat-label>
+          <mat-label>{{ 'Descripción' | t }}</mat-label>
           <textarea matInput formControlName="descripcion" rows="3" required></textarea>
           <mat-error>{{ getErrorMessage('descripcion') }}</mat-error>
         </mat-form-field>
 
-        <h2>Inventario y Stock</h2>
+        <h2>{{ 'Inventario y Stock' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Cantidad</mat-label>
+            <mat-label>{{ 'Cantidad' | t }}</mat-label>
             <input matInput formControlName="cantidad" type="number" min="0" required>
             <mat-error>{{ getErrorMessage('cantidad') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Cantidad Mínima</mat-label>
+            <mat-label>{{ 'Cantidad Mínima' | t }}</mat-label>
             <input matInput formControlName="cantidadMinima" type="number" min="0" required>
             <mat-error>{{ getErrorMessage('cantidadMinima') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Cantidad Máxima</mat-label>
+            <mat-label>{{ 'Cantidad Máxima' | t }}</mat-label>
             <input matInput formControlName="cantidadMaxima" type="number" min="0" required>
             <mat-error>{{ getErrorMessage('cantidadMaxima') }}</mat-error>
           </mat-form-field>
@@ -68,63 +68,63 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Unidad de Medida</mat-label>
-            <input matInput formControlName="unidadMedida" required placeholder="unidad, kg, litros...">
+            <mat-label>{{ 'Unidad de Medida' | t }}</mat-label>
+            <input matInput formControlName="unidadMedida" required [placeholder]="'unidad, kg, litros...' | t">
             <mat-error>{{ getErrorMessage('unidadMedida') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Ubicación</mat-label>
-            <input matInput formControlName="ubicacion" required placeholder="Estante, pasillo...">
+            <mat-label>{{ 'Ubicación' | t }}</mat-label>
+            <input matInput formControlName="ubicacion" required [placeholder]="'Estante, pasillo...' | t">
             <mat-error>{{ getErrorMessage('ubicacion') }}</mat-error>
           </mat-form-field>
         </div>
 
-        <h2>Precios</h2>
+        <h2>{{ 'Precios' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Precio de Compra</mat-label>
+            <mat-label>{{ 'Precio de Compra' | t }}</mat-label>
             <input matInput formControlName="precioCompra" type="number" min="0" required>
             <span matPrefix>$</span>
             <mat-error>{{ getErrorMessage('precioCompra') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Precio de Venta</mat-label>
+            <mat-label>{{ 'Precio de Venta' | t }}</mat-label>
             <input matInput formControlName="precioVenta" type="number" min="0" required>
             <span matPrefix>$</span>
             <mat-error>{{ getErrorMessage('precioVenta') }}</mat-error>
           </mat-form-field>
         </div>
 
-        <h2>Proveedor</h2>
+        <h2>{{ 'Proveedor' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>ID Proveedor</mat-label>
+            <mat-label>{{ 'ID Proveedor' | t }}</mat-label>
             <input matInput formControlName="proveedorId" type="number">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Nombre Proveedor</mat-label>
+            <mat-label>{{ 'Nombre Proveedor' | t }}</mat-label>
             <input matInput formControlName="proveedorNombre">
           </mat-form-field>
         </div>
 
-        <h2>Estado</h2>
+        <h2>{{ 'Estado' | t }}</h2>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Estado</mat-label>
+          <mat-label>{{ 'Estado' | t }}</mat-label>
           <mat-select formControlName="estado">
-            <mat-option value="Activo">Activo</mat-option>
-            <mat-option value="Inactivo">Inactivo</mat-option>
+            <mat-option value="Activo">{{ 'Activo' | t }}</mat-option>
+            <mat-option value="Inactivo">{{ 'Inactivo' | t }}</mat-option>
           </mat-select>
         </mat-form-field>
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="inventoryForm.invalid">
           <mat-icon>save</mat-icon>
-          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+          {{ isEditMode ? ('Actualizar' | t) : ('Guardar' | t) }}
         </button>
       </mat-card-actions>
     </form>

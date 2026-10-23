@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Appointment } from '../../models/appointment.model';
 import { AppointmentService } from '../../services/appointment.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../../../core/services/storage.service';
+import { SettingsService } from '../../../../core/services/settings.service';
+import { MatDialog } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
+import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
 
 @Component({
   selector: 'app-appointment-form',
@@ -20,6 +26,8 @@ export class AppointmentFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private storage: StorageService,
+    private dialog: MatDialog,
+    private settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute,
     private appointmentService: AppointmentService,
@@ -44,6 +52,13 @@ export class AppointmentFormComponent implements OnInit {
 
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
+    this.storage.changes$.pipe(takeUntilDestroyed()).subscribe(key => {
+      if (key === 'customers') {
+        this.customers = this.storage.getItem<any[]>('customers') || [];
+        const selected = this.customers.find(c => c.id === +this.appointmentForm.get('clienteId')?.value);
+        this.vehicles = selected?.vehiculos || [];
+      }
+    });
     this.appointmentForm.get('clienteId')?.valueChanges.subscribe(id => {
       const customer = this.customers.find(c => c.id === +id);
       this.vehicles = customer?.vehiculos || [];
@@ -59,6 +74,23 @@ export class AppointmentFormComponent implements OnInit {
     });
   }
 
+  addCustomer(): void {
+    this.dialog
+      .open(QuickCustomerDialogComponent, { width: '560px', maxWidth: '95vw' })
+      .afterClosed()
+      .subscribe(customer => {
+        if (!customer) {
+          return;
+        }
+        this.customers = this.storage.getItem<any[]>('customers') || [];
+        this.appointmentForm.patchValue({ clienteId: customer.id });
+        if (customer.vehiculos?.length) {
+          this.appointmentForm.patchValue({ vehiculoId: customer.vehiculos[0].id });
+        }
+        this.snackBar.open(t('Cliente creado y seleccionado'), t('Cerrar'), { duration: 3000 });
+      });
+  }
+
   createForm(): FormGroup {
     return this.fb.group({
       clienteId: ['', [Validators.required]],
@@ -68,7 +100,7 @@ export class AppointmentFormComponent implements OnInit {
       fecha: [new Date(), [Validators.required]],
       horaInicio: ['', [Validators.required]],
       horaFin: ['', [Validators.required]],
-      duracionMinutos: [60, [Validators.required, Validators.min(15)]],
+      duracionMinutos: [this.settingsService.value.appointmentDuration, [Validators.required, Validators.min(15)]],
       tipo: ['Mantenimiento', [Validators.required]],
       descripcion: ['', [Validators.required]],
       mecanicoId: [''],
@@ -88,7 +120,7 @@ export class AppointmentFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading appointment:', error);
-        this.snackBar.open('Error al cargar cita', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar cita'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
@@ -104,23 +136,23 @@ export class AppointmentFormComponent implements OnInit {
       if (this.isEditMode && this.appointmentId) {
         this.appointmentService.updateAppointment(this.appointmentId, appointment).subscribe({
           next: () => {
-            this.snackBar.open('Cita actualizada exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Cita actualizada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/citas']);
           },
           error: (error) => {
             console.error('Error updating appointment:', error);
-            this.snackBar.open('Error al actualizar cita', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al actualizar cita'), t('Cerrar'), { duration: 3000 });
           }
         });
       } else {
         this.appointmentService.createAppointment(appointment).subscribe({
           next: () => {
-            this.snackBar.open('Cita creada exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Cita creada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/citas']);
           },
           error: (error) => {
             console.error('Error creating appointment:', error);
-            this.snackBar.open('Error al crear cita', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al crear cita'), t('Cerrar'), { duration: 3000 });
           }
         });
       }
@@ -134,10 +166,10 @@ export class AppointmentFormComponent implements OnInit {
   getErrorMessage(field: string): string {
     const control = this.appointmentForm.get(field);
     if (control?.hasError('required')) {
-      return 'Este campo es requerido';
+      return t('Este campo es requerido');
     }
     if (control?.hasError('min')) {
-      return 'Valor mínimo es 15 minutos';
+      return t('Valor mínimo es 15 minutos');
     }
     return '';
   }

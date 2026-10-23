@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Customer, Vehicle, Communication } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
@@ -41,7 +42,7 @@ export class CustomerDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading customer:', error);
-        this.snackBar.open('Error al cargar cliente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar cliente'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -77,12 +78,12 @@ export class CustomerDetailComponent implements OnInit {
 
   addVehicle(): void {
     // Implement add vehicle dialog
-    this.snackBar.open('Funcionalidad de agregar vehículo en desarrollo', 'Cerrar', { duration: 3000 });
+    this.snackBar.open(t('Funcionalidad de agregar vehículo en desarrollo'), t('Cerrar'), { duration: 3000 });
   }
 
   addCommunication(): void {
     // Implement add communication dialog
-    this.snackBar.open('Funcionalidad de agregar comunicación en desarrollo', 'Cerrar', { duration: 3000 });
+    this.snackBar.open(t('Funcionalidad de agregar comunicación en desarrollo'), t('Cerrar'), { duration: 3000 });
   }
 
   getLoyaltyColor(level: string): string {

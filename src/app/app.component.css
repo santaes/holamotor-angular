@@ -184,3 +184,7 @@
   .content-wrapper { padding: 20px 16px 32px; }
   .today { display: none; }
 }
+
+.lang-btn { color: var(--hm-text-2); font-weight: 500; margin-right: 4px; }
+.lang-btn mat-icon { margin-right: 6px; }
+@media (max-width: 600px) { .lang-label { display: none; } .lang-btn mat-icon { margin-right: 0; } }

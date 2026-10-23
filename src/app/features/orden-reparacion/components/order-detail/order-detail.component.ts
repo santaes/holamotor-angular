@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RepairOrder } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
@@ -37,7 +38,7 @@ export class OrderDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading order:', error);
-        this.snackBar.open('Error al cargar orden', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar orden'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -53,12 +54,12 @@ export class OrderDetailComponent implements OnInit {
     if (this.order?.id) {
       this.orderService.approveOrder(this.order.id).subscribe({
         next: () => {
-          this.snackBar.open('Orden aprobada', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Orden aprobada'), t('Cerrar'), { duration: 3000 });
           this.loadOrder(this.order.id!);
         },
         error: (error) => {
           console.error('Error approving order:', error);
-          this.snackBar.open('Error al aprobar orden', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al aprobar orden'), t('Cerrar'), { duration: 3000 });
         }
       });
     }

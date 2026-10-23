@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RepairOrder } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../../../core/services/storage.service';
+import { SettingsService } from '../../../../core/services/settings.service';
+import { MatDialog } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
+import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
 
 @Component({
   selector: 'app-order-form',
@@ -20,6 +26,8 @@ export class OrderFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private storage: StorageService,
+    private dialog: MatDialog,
+    private settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute,
     private orderService: OrderService,
@@ -44,6 +52,13 @@ export class OrderFormComponent implements OnInit {
 
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
+    this.storage.changes$.pipe(takeUntilDestroyed()).subscribe(key => {
+      if (key === 'customers') {
+        this.customers = this.storage.getItem<any[]>('customers') || [];
+        const selected = this.customers.find(c => c.id === +this.orderForm.get('clienteId')?.value);
+        this.vehicles = selected?.vehiculos || [];
+      }
+    });
     this.orderForm.get('clienteId')?.valueChanges.subscribe(id => {
       const customer = this.customers.find(c => c.id === +id);
       this.vehicles = customer?.vehiculos || [];
@@ -57,6 +72,23 @@ export class OrderFormComponent implements OnInit {
         this.orderForm.patchValue({ vehiculoInfo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` }, { emitEvent: false });
       }
     });
+  }
+
+  addCustomer(): void {
+    this.dialog
+      .open(QuickCustomerDialogComponent, { width: '560px', maxWidth: '95vw' })
+      .afterClosed()
+      .subscribe(customer => {
+        if (!customer) {
+          return;
+        }
+        this.customers = this.storage.getItem<any[]>('customers') || [];
+        this.orderForm.patchValue({ clienteId: customer.id });
+        if (customer.vehiculos?.length) {
+          this.orderForm.patchValue({ vehiculoId: customer.vehiculos[0].id });
+        }
+        this.snackBar.open(t('Cliente creado y seleccionado'), t('Cerrar'), { duration: 3000 });
+      });
   }
 
   createForm(): FormGroup {
@@ -90,7 +122,7 @@ export class OrderFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading order:', error);
-        this.snackBar.open('Error al cargar orden', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar orden'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
@@ -107,23 +139,23 @@ export class OrderFormComponent implements OnInit {
       if (this.isEditMode && this.orderId) {
         this.orderService.updateOrder(this.orderId, order).subscribe({
           next: () => {
-            this.snackBar.open('Orden actualizada exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Orden actualizada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/ordenes']);
           },
           error: (error) => {
             console.error('Error updating order:', error);
-            this.snackBar.open('Error al actualizar orden', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al actualizar orden'), t('Cerrar'), { duration: 3000 });
           }
         });
       } else {
         this.orderService.createOrder(order).subscribe({
           next: () => {
-            this.snackBar.open('Orden creada exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Orden creada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/ordenes']);
           },
           error: (error) => {
             console.error('Error creating order:', error);
-            this.snackBar.open('Error al crear orden', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al crear orden'), t('Cerrar'), { duration: 3000 });
           }
         });
       }
@@ -137,10 +169,10 @@ export class OrderFormComponent implements OnInit {
   getErrorMessage(field: string): string {
     const control = this.orderForm.get(field);
     if (control?.hasError('required')) {
-      return 'Este campo es requerido';
+      return t('Este campo es requerido');
     }
     if (control?.hasError('min')) {
-      return 'Valor mínimo es 0';
+      return t('Valor mínimo es 0');
     }
     return '';
   }

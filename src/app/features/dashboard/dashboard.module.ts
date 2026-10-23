@@ -1,3 +1,6 @@
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { MoneyPipe } from '../../core/pipes/money.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -15,6 +18,9 @@ import { MatChipsModule } from '@angular/material/chips';
 @NgModule({
   declarations: [DashboardComponent],
   imports: [
+    MatTooltipModule,
+    TranslatePipe,
+    MoneyPipe,
     CommonModule,
     RouterModule.forChild([
       { path: '', component: DashboardComponent }

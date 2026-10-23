@@ -4,16 +4,16 @@
       <button mat-button (click)="router.navigate(['/citas'])">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>Detalle de Cita</h1>
+      <h1>{{ 'Detalle de Cita' | t }}</h1>
     </div>
     <div class="header-actions">
       <button mat-raised-button color="accent" (click)="sendReminder()" *ngIf="!appointment?.recordatorioEnviado">
         <mat-icon>notifications</mat-icon>
-        Enviar Recordatorio
+        {{ 'Enviar Recordatorio' | t }}
       </button>
       <button mat-raised-button color="primary" (click)="editAppointment()">
         <mat-icon>edit</mat-icon>
-        Editar
+        {{ 'Editar' | t }}
       </button>
     </div>
   </div>
@@ -21,57 +21,57 @@
   <div class="appointment-info-section">
     <mat-card class="info-card">
       <mat-card-header>
-        <mat-card-title>Información de la Cita</mat-card-title>
+        <mat-card-title>{{ 'Información de la Cita' | t }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="info-grid">
           <div class="info-item">
-            <label>Cliente:</label>
+            <label>{{ 'Cliente:' | t }}</label>
             <span>{{ appointment?.clienteNombre }}</span>
           </div>
           <div class="info-item">
-            <label>Vehículo:</label>
+            <label>{{ 'Vehículo:' | t }}</label>
             <span>{{ appointment?.vehiculoInfo }}</span>
           </div>
           <div class="info-item">
-            <label>Fecha:</label>
-            <span>{{ appointment?.fecha | date:'fullDate':'':'es' }}</span>
+            <label>{{ 'Fecha:' | t }}</label>
+            <span>{{ appointment?.fecha | date:'fullDate' }}</span>
           </div>
           <div class="info-item">
-            <label>Horario:</label>
+            <label>{{ 'Horario:' | t }}</label>
             <span>{{ appointment?.horaInicio }} - {{ appointment?.horaFin }}</span>
           </div>
           <div class="info-item">
-            <label>Duración:</label>
-            <span>{{ appointment?.duracionMinutos }} minutos</span>
+            <label>{{ 'Duración:' | t }}</label>
+            <span>{{ appointment?.duracionMinutos }} {{ 'minutos' | t }}</span>
           </div>
           <div class="info-item">
-            <label>Tipo:</label>
-            <span>{{ appointment?.tipo }}</span>
+            <label>{{ 'Tipo:' | t }}</label>
+            <span>{{ appointment?.tipo | t }}</span>
           </div>
           <div class="info-item">
-            <label>Estado:</label>
-            <span class="badge" [style.--badge]="getEstadoColor(appointment?.estado || '')">{{ appointment?.estado }}</span>
+            <label>{{ 'Estado:' | t }}</label>
+            <span class="badge" [style.--badge]="getEstadoColor(appointment?.estado || '')">{{ appointment?.estado | t }}</span>
           </div>
           <div class="info-item">
-            <label>Prioridad:</label>
-            <span class="badge" [style.--badge]="getPrioridadColor(appointment?.prioridad || '')">{{ appointment?.prioridad }}</span>
+            <label>{{ 'Prioridad:' | t }}</label>
+            <span class="badge" [style.--badge]="getPrioridadColor(appointment?.prioridad || '')">{{ appointment?.prioridad | t }}</span>
           </div>
           <div class="info-item">
-            <label>Mecánico Asignado:</label>
+            <label>{{ 'Mecánico Asignado:' | t }}</label>
             <span>{{ appointment?.mecanicoNombre || 'No asignado' }}</span>
           </div>
           <div class="info-item">
-            <label>Recordatorio Enviado:</label>
-            <span class="badge" [style.--badge]="appointment?.recordatorioEnviado ? '#16a34a' : '#64748b'">{{ appointment?.recordatorioEnviado ? 'Sí' : 'No' }}</span>
+            <label>{{ 'Recordatorio Enviado:' | t }}</label>
+            <span class="badge" [style.--badge]="appointment?.recordatorioEnviado ? '#16a34a' : '#64748b'">{{ appointment?.recordatorioEnviado ? ('Sí' | t) : ('No' | t) }}</span>
           </div>
         </div>
         <div class="description-section" *ngIf="appointment?.descripcion">
-          <label>Descripción:</label>
+          <label>{{ 'Descripción:' | t }}</label>
           <p>{{ appointment.descripcion }}</p>
         </div>
         <div class="notes-section" *ngIf="appointment?.notas">
-          <label>Notas:</label>
+          <label>{{ 'Notas:' | t }}</label>
           <p>{{ appointment.notas }}</p>
         </div>
       </mat-card-content>
@@ -81,17 +81,17 @@
   <div class="actions-section">
     <mat-card class="actions-card">
       <mat-card-header>
-        <mat-card-title>Acciones</mat-card-title>
+        <mat-card-title>{{ 'Acciones' | t }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="action-buttons">
           <button mat-raised-button color="primary" (click)="confirmAppointment()" *ngIf="appointment?.estado === 'Programada'">
             <mat-icon>check_circle</mat-icon>
-            Confirmar Cita
+            {{ 'Confirmar Cita' | t }}
           </button>
           <button mat-raised-button color="warn" (click)="cancelAppointment()" *ngIf="appointment?.estado !== 'Cancelada' && appointment?.estado !== 'Completada'">
             <mat-icon>cancel</mat-icon>
-            Cancelar Cita
+            {{ 'Cancelar Cita' | t }}
           </button>
         </div>
       </mat-card-content>
@@ -102,6 +102,6 @@
 <ng-template #loading>
   <div class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Cargando información de la cita...</p>
+    <p>{{ 'Cargando información de la cita...' | t }}</p>
   </div>
 </ng-template>

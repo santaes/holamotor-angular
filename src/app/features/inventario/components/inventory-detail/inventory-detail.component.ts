@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InventoryItem } from '../../models/inventory.model';
 import { InventoryService } from '../../services/inventory.service';
@@ -36,7 +37,7 @@ export class InventoryDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading item:', error);
-        this.snackBar.open('Error al cargar item', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar item'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });

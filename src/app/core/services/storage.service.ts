@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
+import { Subject } from 'rxjs';
+import { currentLang } from '../i18n/i18n';
 
 /**
  * Key/value store for all app data.
@@ -13,6 +15,16 @@ export class StorageService {
   private readonly api = 'api/data';
   private cache: Record<string, unknown> = {};
   private serverMode = false;
+  private readonly clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  /** Per-device keys that must never be uploaded or exported. */
+  private readonly deviceKeys = ['lang', 'notifications_read'];
+
+  /** Emits the key of every collection that changed (local or remote). */
+  readonly changes$ = new Subject<string>();
+  /** Emits only for changes made on another device. */
+  readonly remoteChanges$ = new Subject<string>();
+
+  constructor(private zone: NgZone) {}
 
   get isServerMode(): boolean {
     return this.serverMode;
@@ -28,6 +40,7 @@ export class StorageService {
       this.cache = await res.json();
       this.serverMode = true;
       this.migrateLocalData();
+      this.listenForChanges();
     } catch {
       this.serverMode = false;
       console.warn('HolaMotor server not reachable, using browser storage.');
@@ -41,7 +54,7 @@ export class StorageService {
       return;
     }
     Object.keys(localStorage)
-      .filter(key => key.startsWith(this.prefix))
+      .filter(key => key.startsWith(this.prefix) && !this.deviceKeys.includes(key.slice(this.prefix.length)))
       .forEach(key => {
         const value = localStorage.getItem(key);
         if (value) {
@@ -78,18 +91,20 @@ export class StorageService {
     if (this.serverMode) {
       this.cache[key] = JSON.parse(JSON.stringify(value));
       this.send('PUT', key, value);
-      return;
+    } else {
+      localStorage.setItem(this.prefix + key, JSON.stringify(value));
     }
-    localStorage.setItem(this.prefix + key, JSON.stringify(value));
+    this.changes$.next(key);
   }
 
   removeItem(key: string): void {
     if (this.serverMode) {
       delete this.cache[key];
       this.send('DELETE', key);
-      return;
+    } else {
+      localStorage.removeItem(this.prefix + key);
     }
-    localStorage.removeItem(this.prefix + key);
+    this.changes$.next(key);
   }
 
   clear(): void {
@@ -102,10 +117,103 @@ export class StorageService {
       .forEach(key => localStorage.removeItem(key));
   }
 
+  /** All collections, for backups. */
+  exportAll(): Record<string, unknown> {
+    if (this.serverMode) {
+      return JSON.parse(JSON.stringify(this.cache));
+    }
+    const out: Record<string, unknown> = {};
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(this.prefix) && !this.deviceKeys.includes(key.slice(this.prefix.length)))
+      .forEach(key => (out[key.slice(this.prefix.length)] = JSON.parse(localStorage.getItem(key) || 'null')));
+    return out;
+  }
+
+  importAll(data: Record<string, unknown>): void {
+    Object.entries(data)
+      .filter(([key]) => /^[a-zA-Z0-9_-]{1,64}$/.test(key) && !this.deviceKeys.includes(key))
+      .forEach(([key, value]) => this.setItem(key, value));
+  }
+
+  /** Replaces the business data with the demo data (settings are kept). */
+  resetDemo(): void {
+    ['customers', 'orders', 'inventory', 'invoices', 'appointments'].forEach(key => this.removeItem(key));
+    this.initializeData();
+  }
+
+  /** Live updates: the server pushes the key of every collection saved by any device. */
+  private listenForChanges(): void {
+    if (typeof EventSource === 'undefined') {
+      return;
+    }
+    let connectedBefore = false;
+    const events = new EventSource('api/events');
+    events.onopen = () => {
+      if (connectedBefore) {
+        this.resync();
+      }
+      connectedBefore = true;
+    };
+    events.onmessage = msg => {
+      try {
+        this.applyRemoteChange(JSON.parse(msg.data));
+      } catch {
+        // ignore malformed events
+      }
+    };
+  }
+
+  private async applyRemoteChange(event: { key?: string; origin?: string; deleted?: boolean }): Promise<void> {
+    if (!event?.key || event.origin === this.clientId) {
+      return;
+    }
+    if (event.deleted) {
+      delete this.cache[event.key];
+    } else {
+      try {
+        const res = await fetch(`${this.api}/${encodeURIComponent(event.key)}`, { cache: 'no-store' });
+        if (!res.ok) {
+          return;
+        }
+        this.cache[event.key] = await res.json();
+      } catch {
+        return;
+      }
+    }
+    this.emitRemote(event.key);
+  }
+
+  /** Remote events arrive outside Angular's zone; re-enter it so views refresh. */
+  private emitRemote(key: string): void {
+    this.zone.run(() => {
+      this.changes$.next(key);
+      this.remoteChanges$.next(key);
+    });
+  }
+
+  /** After a reconnection (e.g. server restart) pick up anything missed while offline. */
+  private async resync(): Promise<void> {
+    try {
+      const res = await fetch(this.api, { cache: 'no-store' });
+      if (!res.ok) {
+        return;
+      }
+      const data: Record<string, unknown> = await res.json();
+      for (const key of Object.keys(data)) {
+        if (JSON.stringify(data[key]) !== JSON.stringify(this.cache[key])) {
+          this.cache[key] = data[key];
+          this.emitRemote(key);
+        }
+      }
+    } catch {
+      // still offline; EventSource keeps retrying
+    }
+  }
+
   private send(method: 'PUT' | 'DELETE', key: string, value?: unknown): void {
     fetch(`${this.api}/${encodeURIComponent(key)}`, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Client-Id': this.clientId, 'X-Lang': currentLang },
       body: value === undefined ? undefined : JSON.stringify(value),
       keepalive: true
     })

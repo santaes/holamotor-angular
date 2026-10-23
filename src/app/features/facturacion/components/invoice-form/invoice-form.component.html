@@ -1,25 +1,25 @@
 <div class="invoice-form-container">
   <div class="header-section">
-    <h1>{{ pageTitle }}</h1>
+    <h1>{{ pageTitle | t }}</h1>
     <button mat-button (click)="cancel()">
       <mat-icon>arrow_back</mat-icon>
-      Volver
+      {{ 'Volver' | t }}
     </button>
   </div>
 
   <mat-card class="form-card">
     <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
-        <h2>Información de la Factura</h2>
+        <h2>{{ 'Información de la Factura' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Número de Factura</mat-label>
+            <mat-label>{{ 'Número de Factura' | t }}</mat-label>
             <input matInput formControlName="numeroFactura" required>
             <mat-error>{{ getErrorMessage('numeroFactura') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Fecha de Emisión</mat-label>
+            <mat-label>{{ 'Fecha de Emisión' | t }}</mat-label>
             <input matInput [matDatepicker]="fechaEmisionPicker" formControlName="fechaEmision" required>
             <mat-datepicker-toggle matSuffix [for]="fechaEmisionPicker"></mat-datepicker-toggle>
             <mat-datepicker #fechaEmisionPicker></mat-datepicker>
@@ -29,7 +29,7 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Fecha de Vencimiento</mat-label>
+            <mat-label>{{ 'Fecha de Vencimiento' | t }}</mat-label>
             <input matInput [matDatepicker]="fechaVencimientoPicker" formControlName="fechaVencimiento" required>
             <mat-datepicker-toggle matSuffix [for]="fechaVencimientoPicker"></mat-datepicker-toggle>
             <mat-datepicker #fechaVencimientoPicker></mat-datepicker>
@@ -37,17 +37,17 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Fecha de Pago</mat-label>
+            <mat-label>{{ 'Fecha de Pago' | t }}</mat-label>
             <input matInput [matDatepicker]="fechaPagoPicker" formControlName="fechaPago">
             <mat-datepicker-toggle matSuffix [for]="fechaPagoPicker"></mat-datepicker-toggle>
             <mat-datepicker #fechaPagoPicker></mat-datepicker>
           </mat-form-field>
         </div>
 
-        <h2>Cliente y Orden</h2>
+        <h2>{{ 'Cliente y Orden' | t }}<button type="button" mat-stroked-button color="primary" class="h2-action" (click)="addCustomer()"><mat-icon>person_add</mat-icon> {{ 'Nuevo cliente' | t }}</button></h2>
         <div class="form-row">
           <mat-form-field appearance="outline" *ngIf="customers.length; else manualClienteId">
-            <mat-label>Cliente</mat-label>
+            <mat-label>{{ 'Cliente' | t }}</mat-label>
             <mat-select formControlName="clienteId" required>
               <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}</mat-option>
             </mat-select>
@@ -55,13 +55,13 @@
             <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
           </mat-form-field>
           <ng-template #manualClienteId><mat-form-field appearance="outline">
-            <mat-label>ID Cliente</mat-label>
+            <mat-label>{{ 'ID Cliente' | t }}</mat-label>
             <input matInput formControlName="clienteId" required type="number">
             <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
           </mat-form-field></ng-template>
 
           <mat-form-field appearance="outline" *ngIf="!customers.length">
-            <mat-label>Nombre Cliente</mat-label>
+            <mat-label>{{ 'Nombre Cliente' | t }}</mat-label>
             <input matInput formControlName="clienteNombre" required>
             <mat-error>{{ getErrorMessage('clienteNombre') }}</mat-error>
           </mat-form-field>
@@ -69,66 +69,66 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>ID Orden de Reparación</mat-label>
+            <mat-label>{{ 'ID Orden de Reparación' | t }}</mat-label>
             <input matInput formControlName="ordenReparacionId" type="number">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Número de Orden</mat-label>
+            <mat-label>{{ 'Número de Orden' | t }}</mat-label>
             <input matInput formControlName="numeroOrden">
           </mat-form-field>
         </div>
 
-        <h2>Estado y Método de Pago</h2>
+        <h2>{{ 'Estado y Método de Pago' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
+            <mat-label>{{ 'Estado' | t }}</mat-label>
             <mat-select formControlName="estado">
-              <mat-option value="Borrador">Borrador</mat-option>
-              <mat-option value="Enviada">Enviada</mat-option>
-              <mat-option value="Pagada">Pagada</mat-option>
-              <mat-option value="Vencida">Vencida</mat-option>
-              <mat-option value="Cancelada">Cancelada</mat-option>
+              <mat-option value="Borrador">{{ 'Borrador' | t }}</mat-option>
+              <mat-option value="Enviada">{{ 'Enviada' | t }}</mat-option>
+              <mat-option value="Pagada">{{ 'Pagada' | t }}</mat-option>
+              <mat-option value="Vencida">{{ 'Vencida' | t }}</mat-option>
+              <mat-option value="Cancelada">{{ 'Cancelada' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Método de Pago</mat-label>
+            <mat-label>{{ 'Método de Pago' | t }}</mat-label>
             <mat-select formControlName="metodoPago">
-              <mat-option value="">Seleccionar</mat-option>
-              <mat-option value="Efectivo">Efectivo</mat-option>
-              <mat-option value="Tarjeta">Tarjeta</mat-option>
-              <mat-option value="Transferencia">Transferencia</mat-option>
-              <mat-option value="Cheque">Cheque</mat-option>
+              <mat-option value="">{{ 'Seleccionar' | t }}</mat-option>
+              <mat-option value="Efectivo">{{ 'Efectivo' | t }}</mat-option>
+              <mat-option value="Tarjeta">{{ 'Tarjeta' | t }}</mat-option>
+              <mat-option value="Transferencia">{{ 'Transferencia' | t }}</mat-option>
+              <mat-option value="Cheque">{{ 'Cheque' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
-        <h2>Montos</h2>
+        <h2>{{ 'Montos' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Subtotal</mat-label>
+            <mat-label>{{ 'Subtotal' | t }}</mat-label>
             <input matInput formControlName="subtotal" type="number" min="0" required>
             <span matPrefix>$</span>
             <mat-error>{{ getErrorMessage('subtotal') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Impuestos</mat-label>
+            <mat-label>{{ 'Impuestos' | t }}</mat-label>
             <input matInput formControlName="impuestos" type="number" min="0" required>
             <span matPrefix>$</span>
             <mat-error>{{ getErrorMessage('impuestos') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Descuento</mat-label>
+            <mat-label>{{ 'Descuento' | t }}</mat-label>
             <input matInput formControlName="descuento" type="number" min="0" required>
             <span matPrefix>$</span>
             <mat-error>{{ getErrorMessage('descuento') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Total</mat-label>
+            <mat-label>{{ 'Total' | t }}</mat-label>
             <input matInput formControlName="total" type="number" min="0" required>
             <span matPrefix>$</span>
             <mat-error>{{ getErrorMessage('total') }}</mat-error>
@@ -136,16 +136,16 @@
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notas</mat-label>
+          <mat-label>{{ 'Notas' | t }}</mat-label>
           <textarea matInput formControlName="notas" rows="3"></textarea>
         </mat-form-field>
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="invoiceForm.invalid">
           <mat-icon>save</mat-icon>
-          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+          {{ isEditMode ? ('Actualizar' | t) : ('Guardar' | t) }}
         </button>
       </mat-card-actions>
     </form>

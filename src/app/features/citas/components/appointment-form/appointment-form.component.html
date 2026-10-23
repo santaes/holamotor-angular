@@ -1,19 +1,19 @@
 <div class="appointment-form-container">
   <div class="header-section">
-    <h1>{{ pageTitle }}</h1>
+    <h1>{{ pageTitle | t }}</h1>
     <button mat-button (click)="cancel()">
       <mat-icon>arrow_back</mat-icon>
-      Volver
+      {{ 'Volver' | t }}
     </button>
   </div>
 
   <mat-card class="form-card">
     <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
-        <h2>Información de la Cita</h2>
+        <h2>{{ 'Información de la Cita' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Fecha</mat-label>
+            <mat-label>{{ 'Fecha' | t }}</mat-label>
             <input matInput [matDatepicker]="fechaPicker" formControlName="fecha" required>
             <mat-datepicker-toggle matSuffix [for]="fechaPicker"></mat-datepicker-toggle>
             <mat-datepicker #fechaPicker></mat-datepicker>
@@ -21,7 +21,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Duración (minutos)</mat-label>
+            <mat-label>{{ 'Duración (minutos)' | t }}</mat-label>
             <input matInput formControlName="duracionMinutos" type="number" min="15" required>
             <mat-error>{{ getErrorMessage('duracionMinutos') }}</mat-error>
           </mat-form-field>
@@ -29,22 +29,22 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Hora Inicio</mat-label>
+            <mat-label>{{ 'Hora Inicio' | t }}</mat-label>
             <input matInput formControlName="horaInicio" type="time" required>
             <mat-error>{{ getErrorMessage('horaInicio') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Hora Fin</mat-label>
+            <mat-label>{{ 'Hora Fin' | t }}</mat-label>
             <input matInput formControlName="horaFin" type="time" required>
             <mat-error>{{ getErrorMessage('horaFin') }}</mat-error>
           </mat-form-field>
         </div>
 
-        <h2>Cliente y Vehículo</h2>
+        <h2>{{ 'Cliente y Vehículo' | t }}<button type="button" mat-stroked-button color="primary" class="h2-action" (click)="addCustomer()"><mat-icon>person_add</mat-icon> {{ 'Nuevo cliente' | t }}</button></h2>
         <div class="form-row">
           <mat-form-field appearance="outline" *ngIf="customers.length; else manualClienteId">
-            <mat-label>Cliente</mat-label>
+            <mat-label>{{ 'Cliente' | t }}</mat-label>
             <mat-select formControlName="clienteId" required>
               <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}</mat-option>
             </mat-select>
@@ -52,13 +52,13 @@
             <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
           </mat-form-field>
           <ng-template #manualClienteId><mat-form-field appearance="outline">
-            <mat-label>ID Cliente</mat-label>
+            <mat-label>{{ 'ID Cliente' | t }}</mat-label>
             <input matInput formControlName="clienteId" required type="number">
             <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
           </mat-form-field></ng-template>
 
           <mat-form-field appearance="outline" *ngIf="!customers.length">
-            <mat-label>Nombre Cliente</mat-label>
+            <mat-label>{{ 'Nombre Cliente' | t }}</mat-label>
             <input matInput formControlName="clienteNombre" required>
             <mat-error>{{ getErrorMessage('clienteNombre') }}</mat-error>
           </mat-form-field>
@@ -66,7 +66,7 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline" *ngIf="vehicles.length; else manualVehiculoId">
-            <mat-label>Vehículo</mat-label>
+            <mat-label>{{ 'Vehículo' | t }}</mat-label>
             <mat-select formControlName="vehiculoId" required>
               <mat-option *ngFor="let v of vehicles" [value]="v.id">{{ v.marca }} {{ v.modelo }} {{ v.anio }} · {{ v.placa }}</mat-option>
             </mat-select>
@@ -74,96 +74,96 @@
             <mat-error>{{ getErrorMessage('vehiculoId') }}</mat-error>
           </mat-form-field>
           <ng-template #manualVehiculoId><mat-form-field appearance="outline">
-            <mat-label>ID Vehículo</mat-label>
+            <mat-label>{{ 'ID Vehículo' | t }}</mat-label>
             <input matInput formControlName="vehiculoId" required type="number">
             <mat-error>{{ getErrorMessage('vehiculoId') }}</mat-error>
           </mat-form-field></ng-template>
 
           <mat-form-field appearance="outline" *ngIf="!vehicles.length">
-            <mat-label>Información Vehículo</mat-label>
-            <input matInput formControlName="vehiculoInfo" required placeholder="Marca, Modelo, Año">
+            <mat-label>{{ 'Información Vehículo' | t }}</mat-label>
+            <input matInput formControlName="vehiculoInfo" required [placeholder]="'Marca, Modelo, Año' | t">
             <mat-error>{{ getErrorMessage('vehiculoInfo') }}</mat-error>
           </mat-form-field>
         </div>
 
-        <h2>Detalles del Servicio</h2>
+        <h2>{{ 'Detalles del Servicio' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Tipo de Servicio</mat-label>
+            <mat-label>{{ 'Tipo de Servicio' | t }}</mat-label>
             <mat-select formControlName="tipo">
-              <mat-option value="Mantenimiento">Mantenimiento</mat-option>
-              <mat-option value="Reparación">Reparación</mat-option>
-              <mat-option value="Inspección">Inspección</mat-option>
-              <mat-option value="Diagnóstico">Diagnóstico</mat-option>
-              <mat-option value="Otro">Otro</mat-option>
+              <mat-option value="Mantenimiento">{{ 'Mantenimiento' | t }}</mat-option>
+              <mat-option value="Reparación">{{ 'Reparación' | t }}</mat-option>
+              <mat-option value="Inspección">{{ 'Inspección' | t }}</mat-option>
+              <mat-option value="Diagnóstico">{{ 'Diagnóstico' | t }}</mat-option>
+              <mat-option value="Otro">{{ 'Otro' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Prioridad</mat-label>
+            <mat-label>{{ 'Prioridad' | t }}</mat-label>
             <mat-select formControlName="prioridad">
-              <mat-option value="Baja">Baja</mat-option>
-              <mat-option value="Media">Media</mat-option>
-              <mat-option value="Alta">Alta</mat-option>
+              <mat-option value="Baja">{{ 'Baja' | t }}</mat-option>
+              <mat-option value="Media">{{ 'Media' | t }}</mat-option>
+              <mat-option value="Alta">{{ 'Alta' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descripción</mat-label>
+          <mat-label>{{ 'Descripción' | t }}</mat-label>
           <textarea matInput formControlName="descripcion" rows="3" required></textarea>
           <mat-error>{{ getErrorMessage('descripcion') }}</mat-error>
         </mat-form-field>
 
-        <h2>Asignación y Estado</h2>
+        <h2>{{ 'Asignación y Estado' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>ID Mecánico</mat-label>
+            <mat-label>{{ 'ID Mecánico' | t }}</mat-label>
             <input matInput formControlName="mecanicoId" type="number">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Nombre Mecánico</mat-label>
+            <mat-label>{{ 'Nombre Mecánico' | t }}</mat-label>
             <input matInput formControlName="mecanicoNombre">
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
+            <mat-label>{{ 'Estado' | t }}</mat-label>
             <mat-select formControlName="estado">
-              <mat-option value="Programada">Programada</mat-option>
-              <mat-option value="Confirmada">Confirmada</mat-option>
-              <mat-option value="En Progreso">En Progreso</mat-option>
-              <mat-option value="Completada">Completada</mat-option>
-              <mat-option value="Cancelada">Cancelada</mat-option>
-              <mat-option value="No Asistió">No Asistió</mat-option>
+              <mat-option value="Programada">{{ 'Programada' | t }}</mat-option>
+              <mat-option value="Confirmada">{{ 'Confirmada' | t }}</mat-option>
+              <mat-option value="En Progreso">{{ 'En Progreso' | t }}</mat-option>
+              <mat-option value="Completada">{{ 'Completada' | t }}</mat-option>
+              <mat-option value="Cancelada">{{ 'Cancelada' | t }}</mat-option>
+              <mat-option value="No Asistió">{{ 'No Asistió' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>ID Orden de Reparación</mat-label>
+            <mat-label>{{ 'ID Orden de Reparación' | t }}</mat-label>
             <input matInput formControlName="ordenReparacionId" type="number">
           </mat-form-field>
         </div>
 
         <div class="checkbox-section">
           <mat-checkbox formControlName="recordatorioEnviado">
-            Recordatorio Enviado
+            {{ 'Recordatorio Enviado' | t }}
           </mat-checkbox>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notas</mat-label>
+          <mat-label>{{ 'Notas' | t }}</mat-label>
           <textarea matInput formControlName="notas" rows="3"></textarea>
         </mat-form-field>
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="appointmentForm.invalid">
           <mat-icon>save</mat-icon>
-          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+          {{ isEditMode ? ('Actualizar' | t) : ('Guardar' | t) }}
         </button>
       </mat-card-actions>
     </form>

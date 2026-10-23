@@ -4,68 +4,68 @@
       <button mat-button (click)="router.navigate(['/inventario'])">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>Detalle del Item</h1>
+      <h1>{{ 'Detalle del Item' | t }}</h1>
     </div>
     <button mat-raised-button color="primary" (click)="editItem()">
       <mat-icon>edit</mat-icon>
-      Editar
+      {{ 'Editar' | t }}
     </button>
   </div>
 
   <div class="item-info-section">
     <mat-card class="info-card">
       <mat-card-header>
-        <mat-card-title>Información del Item</mat-card-title>
+        <mat-card-title>{{ 'Información del Item' | t }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="info-grid">
           <div class="info-item">
-            <label>Código:</label>
+            <label>{{ 'Código:' | t }}</label>
             <span>{{ item?.codigo }}</span>
           </div>
           <div class="info-item">
-            <label>Nombre:</label>
+            <label>{{ 'Nombre:' | t }}</label>
             <span>{{ item?.nombre }}</span>
           </div>
           <div class="info-item">
-            <label>Categoría:</label>
-            <span>{{ item?.categoria }}</span>
+            <label>{{ 'Categoría:' | t }}</label>
+            <span>{{ item?.categoria | t }}</span>
           </div>
           <div class="info-item">
-            <label>Marca:</label>
+            <label>{{ 'Marca:' | t }}</label>
             <span>{{ item?.marca }}</span>
           </div>
           <div class="info-item">
-            <label>Cantidad:</label>
-            <span class="badge" [style.--badge]="getStockColor()">{{ item?.cantidad }} {{ item?.unidadMedida }}</span>
+            <label>{{ 'Cantidad:' | t }}</label>
+            <span class="badge" [style.--badge]="getStockColor()">{{ item?.cantidad }} {{ item?.unidadMedida | t }}</span>
           </div>
           <div class="info-item">
-            <label>Rango de Stock:</label>
-            <span>Min: {{ item?.cantidadMinima }} - Max: {{ item?.cantidadMaxima }}</span>
+            <label>{{ 'Rango de Stock:' | t }}</label>
+            <span>{{ 'Min:' | t }} {{ item?.cantidadMinima }} {{ '- Max:' | t }} {{ item?.cantidadMaxima }}</span>
           </div>
           <div class="info-item">
-            <label>Precio Compra:</label>
-            <span>{{ (item?.precioCompra || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
+            <label>{{ 'Precio Compra:' | t }}</label>
+            <span>{{ (item?.precioCompra || 0) | money }}</span>
           </div>
           <div class="info-item">
-            <label>Precio Venta:</label>
-            <span>{{ (item?.precioVenta || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
+            <label>{{ 'Precio Venta:' | t }}</label>
+            <span>{{ (item?.precioVenta || 0) | money }}</span>
           </div>
           <div class="info-item">
-            <label>Ubicación:</label>
+            <label>{{ 'Ubicación:' | t }}</label>
             <span>{{ item?.ubicacion }}</span>
           </div>
           <div class="info-item">
-            <label>Estado:</label>
-            <span class="badge" [style.--badge]="item?.estado === 'Activo' ? '#16a34a' : '#64748b'">{{ item?.estado }}</span>
+            <label>{{ 'Estado:' | t }}</label>
+            <span class="badge" [style.--badge]="item?.estado === 'Activo' ? '#16a34a' : '#64748b'">{{ item?.estado | t }}</span>
           </div>
         </div>
         <div class="description-section" *ngIf="item?.descripcion">
-          <label>Descripción:</label>
+          <label>{{ 'Descripción:' | t }}</label>
           <p>{{ item.descripcion }}</p>
         </div>
         <div class="supplier-section" *ngIf="item?.proveedorNombre">
-          <label>Proveedor:</label>
+          <label>{{ 'Proveedor:' | t }}</label>
           <p>{{ item.proveedorNombre }}</p>
         </div>
       </mat-card-content>
@@ -78,8 +78,8 @@
         <div class="alert-content">
           <mat-icon class="alert-icon">warning</mat-icon>
           <div class="alert-text">
-            <h3>Alerta de Stock Bajo</h3>
-            <p>La cantidad actual ({{ item?.cantidad }}) está por debajo del mínimo ({{ item?.cantidadMinima }})</p>
+            <h3>{{ 'Alerta de Stock Bajo' | t }}</h3>
+            <p>{{ 'La cantidad actual (' | t }}{{ item?.cantidad }}{{ ') está por debajo del mínimo (' | t }}{{ item?.cantidadMinima }})</p>
           </div>
         </div>
       </mat-card-content>
@@ -90,6 +90,6 @@
 <ng-template #loading>
   <div class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Cargando información del item...</p>
+    <p>{{ 'Cargando información del item...' | t }}</p>
   </div>
 </ng-template>

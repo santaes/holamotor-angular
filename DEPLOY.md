@@ -2,10 +2,22 @@
 
 The app runs as a single Node.js process (`server/index.js`, no npm dependencies) that:
 
-- serves the built Angular app, and
-- stores all data (customers, orders, inventory, invoices, appointments) as JSON files in a data folder, so every device on the network shares the same data.
+- serves the built Angular app,
+- stores all data (customers, orders, inventory, invoices, appointments, settings) as JSON files in a data folder, and
+- pushes every change live to all open browsers (Server-Sent Events), so every device on the network sees the same data without reloading.
 
-API: `GET /api/health`, `GET /api/data`, `GET|PUT|DELETE /api/data/:key`.
+API: `GET /api/health`, `GET /api/data`, `GET|PUT|DELETE /api/data/:key`, `GET /api/events` (live changes).
+
+## Languages
+
+The app is available in Spanish, Russian and Ukrainian (language menu in the top bar or in Configuración; saved per browser).
+Server messages follow the app language (`X-Lang` header) or the browser `Accept-Language`; logs use `HOLAMOTOR_LANG` (`es` | `ru` | `uk`, default `es`):
+
+```bash
+HOLAMOTOR_LANG=uk node server/index.js
+```
+
+For systemd add `Environment=HOLAMOTOR_LANG=uk` to `deploy/holamotor.service`; for Docker add `- HOLAMOTOR_LANG=uk` under `environment:` in `docker-compose.yml`.
 
 ## Option A: Docker (recommended)
 
@@ -41,8 +53,9 @@ whole folder (including `dist/`) to the Pi; the installer will then skip the bui
 
 ## Backups
 
-All data is in the data folder (one `.json` file per collection, plus a `.bak` of the previous
-version). Copy that folder to back up, e.g. a daily cron job:
+Configuración → "Exportar copia" downloads a JSON backup and "Importar copia" restores it.
+On the Pi all data is also in the data folder (one `.json` file per collection, plus a `.bak` of
+the previous version). Example daily cron job:
 
 ```bash
 0 3 * * * tar czf /home/orangepi/holamotor-$(date +\%F).tgz -C /var/lib holamotor
@@ -51,8 +64,8 @@ version). Copy that folder to back up, e.g. a daily cron job:
 ## Local development
 
 ```bash
-npm run server   # API + built app on http://localhost:8080
-npm start        # ng serve on :4200, proxies /api to :8080
+npm run build && npm run server   # app + API on http://localhost:8080 (recommended for testing sync)
+npm start                         # ng serve on :4200, proxies /api to :8080
 ```
 
 If the server is not running, the app falls back to browser localStorage. The first time the

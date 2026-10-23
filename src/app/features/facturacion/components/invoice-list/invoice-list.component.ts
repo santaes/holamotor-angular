@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
@@ -34,7 +35,7 @@ export class InvoiceListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading invoices:', error);
-        this.snackBar.open('Error al cargar facturas', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar facturas'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -53,15 +54,15 @@ export class InvoiceListComponent implements OnInit {
   }
 
   deleteInvoice(id: number): void {
-    if (confirm('¿Está seguro de eliminar esta factura?')) {
+    if (confirm(t('¿Está seguro de eliminar esta factura?'))) {
       this.billingService.deleteInvoice(id).subscribe({
         next: () => {
-          this.snackBar.open('Factura eliminada exitosamente', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Factura eliminada exitosamente'), t('Cerrar'), { duration: 3000 });
           this.loadInvoices();
         },
         error: (error) => {
           console.error('Error deleting invoice:', error);
-          this.snackBar.open('Error al eliminar factura', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al eliminar factura'), t('Cerrar'), { duration: 3000 });
         }
       });
     }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Appointment } from '../../models/appointment.model';
 import { AppointmentService } from '../../services/appointment.service';
@@ -36,7 +37,7 @@ export class AppointmentDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading appointment:', error);
-        this.snackBar.open('Error al cargar cita', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar cita'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -53,28 +54,28 @@ export class AppointmentDetailComponent implements OnInit {
       const appointmentId = this.appointment.id;
       this.appointmentService.confirmAppointment(appointmentId).subscribe({
         next: () => {
-          this.snackBar.open('Cita confirmada', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Cita confirmada'), t('Cerrar'), { duration: 3000 });
           this.loadAppointment(appointmentId);
         },
         error: (error) => {
           console.error('Error confirming appointment:', error);
-          this.snackBar.open('Error al confirmar cita', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al confirmar cita'), t('Cerrar'), { duration: 3000 });
         }
       });
     }
   }
 
   cancelAppointment(): void {
-    if (this.appointment?.id && confirm('¿Está seguro de cancelar esta cita?')) {
+    if (this.appointment?.id && confirm(t('¿Está seguro de cancelar esta cita?'))) {
       const appointmentId = this.appointment.id;
       this.appointmentService.cancelAppointment(appointmentId).subscribe({
         next: () => {
-          this.snackBar.open('Cita cancelada', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Cita cancelada'), t('Cerrar'), { duration: 3000 });
           this.loadAppointment(appointmentId);
         },
         error: (error) => {
           console.error('Error canceling appointment:', error);
-          this.snackBar.open('Error al cancelar cita', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al cancelar cita'), t('Cerrar'), { duration: 3000 });
         }
       });
     }
@@ -85,12 +86,12 @@ export class AppointmentDetailComponent implements OnInit {
       const appointmentId = this.appointment.id;
       this.appointmentService.sendReminder(appointmentId).subscribe({
         next: () => {
-          this.snackBar.open('Recordatorio enviado', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Recordatorio enviado'), t('Cerrar'), { duration: 3000 });
           this.loadAppointment(appointmentId);
         },
         error: (error) => {
           console.error('Error sending reminder:', error);
-          this.snackBar.open('Error al enviar recordatorio', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al enviar recordatorio'), t('Cerrar'), { duration: 3000 });
         }
       });
     }

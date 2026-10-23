@@ -1,0 +1,99 @@
+<div class="settings-detail-container">
+  <div class="header-section">
+    <h1>{{ 'Configuración' | t }}</h1>
+    <button mat-flat-button color="primary" (click)="save()" [disabled]="form.pristine">
+      <mat-icon>save</mat-icon> {{ 'Guardar' | t }}
+    </button>
+  </div>
+
+  <div class="status-banner" [class.offline]="!serverMode">
+    <mat-icon>{{ serverMode ? 'cloud_done' : 'cloud_off' }}</mat-icon>
+    <div>
+      <strong>{{ (serverMode ? 'Conectado al servidor' : 'Modo local: los datos solo se guardan en este navegador') | t }}</strong>
+      <small *ngIf="serverMode">{{ 'Los cambios se guardan en el servidor y se aplican en todos los dispositivos.' | t }}
+        <ng-container *ngIf="serverUptime !== null"> · {{ 'Tiempo activo' | t }}: {{ uptimeLabel }}</ng-container></small>
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="settings-grid" (ngSubmit)="save()">
+    <mat-card class="form-card">
+      <mat-card-content>
+        <h2><mat-icon>store</mat-icon> {{ 'Datos del taller' | t }}</h2>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'Nombre del taller' | t }}</mat-label>
+          <input matInput formControlName="workshopName" [placeholder]="'Taller HolaMotor' | t">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'Dirección' | t }}</mat-label>
+          <input matInput formControlName="address">
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Teléfono' | t }}</mat-label>
+            <input matInput formControlName="phone" type="tel">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Email' | t }}</mat-label>
+            <input matInput formControlName="email" type="email">
+            <mat-error>{{ 'Email inválido' | t }}</mat-error>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>NIF / CIF</mat-label>
+          <input matInput formControlName="taxId">
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="form-card">
+      <mat-card-content>
+        <h2><mat-icon>tune</mat-icon> {{ 'Preferencias' | t }}</h2>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'Idioma' | t }}</mat-label>
+          <mat-select [value]="language" (selectionChange)="changeLanguage($event.value)">
+            <mat-option *ngFor="let l of languages" [value]="l.code">{{ l.label }}</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>translate</mat-icon>
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Moneda' | t }}</mat-label>
+            <mat-select formControlName="currency">
+              <mat-option *ngFor="let c of currencies" [value]="c">{{ c }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'IVA por defecto (%)' | t }}</mat-label>
+            <input matInput type="number" formControlName="taxRate" min="0" max="100">
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'Duración de cita por defecto (minutos)' | t }}</mat-label>
+          <input matInput type="number" formControlName="appointmentDuration" min="15" step="15">
+        </mat-form-field>
+
+        <h2><mat-icon>notifications</mat-icon> {{ 'Notificaciones' | t }}</h2>
+        <div class="toggles">
+          <mat-slide-toggle formControlName="notifyStock" color="primary">{{ 'Avisar de stock bajo' | t }}</mat-slide-toggle>
+          <mat-slide-toggle formControlName="notifyAppointments" color="primary">{{ 'Avisar de citas de hoy' | t }}</mat-slide-toggle>
+          <mat-slide-toggle formControlName="notifyInvoices" color="primary">{{ 'Avisar de facturas vencidas' | t }}</mat-slide-toggle>
+          <mat-slide-toggle formControlName="notifyOrders" color="primary">{{ 'Avisar de órdenes listas' | t }}</mat-slide-toggle>
+          <mat-slide-toggle formControlName="notifySync" color="primary">{{ 'Avisar de cambios en otros dispositivos' | t }}</mat-slide-toggle>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </form>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <h2><mat-icon>backup</mat-icon> {{ 'Datos y copias de seguridad' | t }}</h2>
+      <div class="data-actions">
+        <button mat-stroked-button (click)="exportBackup()"><mat-icon>download</mat-icon> {{ 'Exportar copia' | t }}</button>
+        <button mat-stroked-button (click)="fileInput.click()"><mat-icon>upload</mat-icon> {{ 'Importar copia' | t }}</button>
+        <input #fileInput type="file" accept="application/json,.json" hidden (change)="importBackup($event)">
+        <span class="spacer"></span>
+        <button mat-stroked-button color="warn" (click)="resetDemo()"><mat-icon>restart_alt</mat-icon> {{ 'Restablecer datos de ejemplo' | t }}</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

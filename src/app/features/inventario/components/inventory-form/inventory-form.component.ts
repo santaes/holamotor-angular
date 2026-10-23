@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { InventoryItem } from '../../models/inventory.model';
@@ -63,7 +64,7 @@ export class InventoryFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading item:', error);
-        this.snackBar.open('Error al cargar item', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar item'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
@@ -77,23 +78,23 @@ export class InventoryFormComponent implements OnInit {
       if (this.isEditMode && this.itemId) {
         this.inventoryService.updateInventoryItem(this.itemId, item).subscribe({
           next: () => {
-            this.snackBar.open('Item actualizado exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Item actualizado exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/inventario']);
           },
           error: (error) => {
             console.error('Error updating item:', error);
-            this.snackBar.open('Error al actualizar item', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al actualizar item'), t('Cerrar'), { duration: 3000 });
           }
         });
       } else {
         this.inventoryService.createInventoryItem(item).subscribe({
           next: () => {
-            this.snackBar.open('Item creado exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Item creado exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/inventario']);
           },
           error: (error) => {
             console.error('Error creating item:', error);
-            this.snackBar.open('Error al crear item', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al crear item'), t('Cerrar'), { duration: 3000 });
           }
         });
       }
@@ -107,10 +108,10 @@ export class InventoryFormComponent implements OnInit {
   getErrorMessage(field: string): string {
     const control = this.inventoryForm.get(field);
     if (control?.hasError('required')) {
-      return 'Este campo es requerido';
+      return t('Este campo es requerido');
     }
     if (control?.hasError('min')) {
-      return 'Valor mínimo es 0';
+      return t('Valor mínimo es 0');
     }
     return '';
   }

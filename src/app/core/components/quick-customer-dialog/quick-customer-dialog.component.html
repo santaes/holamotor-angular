@@ -1,0 +1,54 @@
+<h2 mat-dialog-title class="qc-title"><mat-icon>person_add</mat-icon> {{ 'Nuevo cliente' | t }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Nombre' | t }}</mat-label>
+        <input matInput formControlName="nombre" cdkFocusInitial required>
+        <mat-error>{{ 'Este campo es requerido' | t }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Apellido' | t }}</mat-label>
+        <input matInput formControlName="apellido" required>
+        <mat-error>{{ 'Este campo es requerido' | t }}</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Teléfono' | t }}</mat-label>
+        <input matInput formControlName="telefono" type="tel" required>
+        <mat-error>{{ 'Este campo es requerido' | t }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Email' | t }}</mat-label>
+        <input matInput formControlName="email" type="email">
+        <mat-error>{{ 'Email inválido' | t }}</mat-error>
+      </mat-form-field>
+    </div>
+    <p class="qc-section">{{ 'Vehículo (opcional)' | t }}</p>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Marca' | t }}</mat-label>
+        <input matInput formControlName="marca">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Modelo' | t }}</mat-label>
+        <input matInput formControlName="modelo">
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Año' | t }}</mat-label>
+        <input matInput formControlName="anio" type="number">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Placa' | t }}</mat-label>
+        <input matInput formControlName="placa">
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>{{ 'Cancelar' | t }}</button>
+    <button mat-flat-button color="primary" type="submit"><mat-icon>check</mat-icon> {{ 'Crear y seleccionar' | t }}</button>
+  </mat-dialog-actions>
+</form>

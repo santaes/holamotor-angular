@@ -12,6 +12,11 @@ export class AppointmentService {
 
   constructor(private storageService: StorageService) {
     this.loadData();
+    this.storageService.changes$.subscribe(key => {
+      if (['appointments', 'recurringAppointments'].includes(key)) {
+        this.loadData();
+      }
+    });
   }
 
   private loadData(): void {

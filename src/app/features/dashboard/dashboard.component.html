@@ -1,46 +1,46 @@
 <div class="dashboard">
   <section class="hero">
     <div>
-      <p class="eyebrow">{{ today | date:'EEEE, d \'de\' MMMM':'':'es' }}</p>
-      <h1>{{ greeting }}</h1>
-      <p class="subtitle">Este es el resumen de tu taller hoy.</p>
+      <p class="eyebrow">{{ today | date:'EEEE, d \'de\' MMMM' }}</p>
+      <h1>{{ greeting | t }}</h1>
+      <p class="subtitle">{{ 'Este es el resumen de tu taller hoy.' | t }}</p>
     </div>
     <div class="hero-actions">
-      <button mat-stroked-button routerLink="/citas"><mat-icon>event</mat-icon> Ver agenda</button>
-      <button mat-flat-button color="primary" routerLink="/ordenes/new"><mat-icon>add</mat-icon> Nueva orden</button>
+      <button mat-stroked-button routerLink="/citas"><mat-icon>event</mat-icon> {{ 'Ver agenda' | t }}</button>
+      <button mat-flat-button color="primary" routerLink="/ordenes/new"><mat-icon>add</mat-icon> {{ 'Nueva orden' | t }}</button>
     </div>
   </section>
 
   <section class="kpis">
     <a class="kpi" routerLink="/clientes">
       <span class="kpi-icon tone-blue"><mat-icon>groups</mat-icon></span>
-      <span class="kpi-label">Clientes totales</span>
+      <span class="kpi-label">{{ 'Clientes totales' | t }}</span>
       <span class="kpi-value">{{ stats.totalCustomers }}</span>
     </a>
     <a class="kpi" routerLink="/ordenes">
       <span class="kpi-icon tone-orange"><mat-icon>build_circle</mat-icon></span>
-      <span class="kpi-label">Órdenes activas</span>
+      <span class="kpi-label">{{ 'Órdenes activas' | t }}</span>
       <span class="kpi-value">{{ stats.activeOrders }}</span>
     </a>
     <a class="kpi" routerLink="/facturacion">
       <span class="kpi-icon tone-red"><mat-icon>pending_actions</mat-icon></span>
-      <span class="kpi-label">Facturas pendientes</span>
+      <span class="kpi-label">{{ 'Facturas pendientes' | t }}</span>
       <span class="kpi-value">{{ stats.pendingInvoices }}</span>
     </a>
     <a class="kpi" routerLink="/citas">
       <span class="kpi-icon tone-violet"><mat-icon>event</mat-icon></span>
-      <span class="kpi-label">Citas hoy</span>
+      <span class="kpi-label">{{ 'Citas hoy' | t }}</span>
       <span class="kpi-value">{{ stats.todayAppointments }}</span>
     </a>
     <div class="kpi kpi-wide kpi-dark">
       <span class="kpi-icon"><mat-icon>trending_up</mat-icon></span>
-      <span class="kpi-label">Ingresos este mes</span>
-      <span class="kpi-value">{{ stats.revenueThisMonth | currency:'USD':'symbol':'1.0-0' }}</span>
+      <span class="kpi-label">{{ 'Ingresos este mes' | t }}</span>
+      <span class="kpi-value">{{ stats.revenueThisMonth | money:0 }}</span>
     </div>
     <a class="kpi kpi-wide" routerLink="/inventario">
       <span class="kpi-icon tone-green"><mat-icon>inventory_2</mat-icon></span>
-      <span class="kpi-label">Valor del inventario</span>
-      <span class="kpi-value">{{ stats.inventoryValue | currency:'USD':'symbol':'1.0-0' }}</span>
+      <span class="kpi-label">{{ 'Valor del inventario' | t }}</span>
+      <span class="kpi-value">{{ stats.inventoryValue | money:0 }}</span>
     </a>
   </section>
 
@@ -48,8 +48,8 @@
     <a *ngFor="let action of quickActions" class="quick-card" [routerLink]="action.route">
       <span class="kpi-icon tone-{{ action.tone }}"><mat-icon>{{ action.icon }}</mat-icon></span>
       <span class="quick-text">
-        <strong>{{ action.label }}</strong>
-        <small>{{ action.hint }}</small>
+        <strong>{{ action.label | t }}</strong>
+        <small>{{ action.hint | t }}</small>
       </span>
       <mat-icon class="quick-arrow">arrow_forward</mat-icon>
     </a>
@@ -58,40 +58,40 @@
   <section class="panels">
     <div class="panel">
       <div class="panel-head">
-        <h2>Próximas citas</h2>
-        <a routerLink="/citas">Ver todas</a>
+        <h2>{{ 'Próximas citas' | t }}</h2>
+        <a routerLink="/citas">{{ 'Ver todas' | t }}</a>
       </div>
       <div class="appt" *ngFor="let a of upcomingAppointments">
-        <span class="appt-time">{{ a.time }}</span>
+        <span class="appt-time">{{ a.time | t }}</span>
         <div class="appt-body">
           <strong>{{ a.customer }}</strong>
-          <small>{{ a.vehicle }} · {{ a.service }}</small>
+          <small>{{ a.vehicle }} · {{ a.service | t }}</small>
         </div>
       </div>
     </div>
 
     <div class="panel">
       <div class="panel-head">
-        <h2>Actividad reciente</h2>
+        <h2>{{ 'Actividad reciente' | t }}</h2>
       </div>
       <div class="activity" *ngFor="let activity of recentActivities">
         <span class="activity-icon" [ngClass]="'act-' + activity.color"><mat-icon>{{ activity.icon }}</mat-icon></span>
         <div class="activity-body">
-          <p>{{ activity.message }}</p>
-          <small>{{ activity.time }}</small>
+          <p>{{ activity.message | t }}</p>
+          <small>{{ activity.time | t }}</small>
         </div>
       </div>
     </div>
 
     <div class="panel panel-wide">
       <div class="panel-head">
-        <h2>Servicios más solicitados</h2>
-        <span class="muted">Este mes</span>
+        <h2>{{ 'Servicios más solicitados' | t }}</h2>
+        <span class="muted">{{ 'Este mes' | t }}</span>
       </div>
       <div class="service" *ngFor="let s of topServices">
         <div class="service-row">
-          <strong>{{ s.name }}</strong>
-          <span class="muted">{{ s.count }} trabajos · <b>{{ s.revenue | currency:'USD':'symbol':'1.0-0' }}</b></span>
+          <strong>{{ s.name | t }}</strong>
+          <span class="muted">{{ s.count }} {{ 'trabajos ·' | t }} <b>{{ s.revenue | money:0 }}</b></span>
         </div>
         <div class="bar"><span [style.width.%]="(s.count / maxServiceCount) * 100"></span></div>
       </div>

@@ -13,6 +13,11 @@ export class InventoryService {
 
   constructor(private storageService: StorageService) {
     this.loadData();
+    this.storageService.changes$.subscribe(key => {
+      if (['inventory', 'purchaseOrders', 'suppliers'].includes(key)) {
+        this.loadData();
+      }
+    });
   }
 
   private loadData(): void {

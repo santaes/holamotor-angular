@@ -1,3 +1,6 @@
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { MoneyPipe } from '../../core/pipes/money.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -28,6 +31,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     CustomerDetailComponent
   ],
   imports: [
+    MatTooltipModule,
+    TranslatePipe,
+    MoneyPipe,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

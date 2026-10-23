@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../core/i18n/i18n';
 
 @Component({
   selector: 'app-dashboard',
@@ -53,9 +54,9 @@ export class DashboardComponent implements OnInit {
 
   get greeting(): string {
     const h = this.today.getHours();
-    if (h < 12) return 'Buenos días';
-    if (h < 20) return 'Buenas tardes';
-    return 'Buenas noches';
+    if (h < 12) return t('Buenos días');
+    if (h < 20) return t('Buenas tardes');
+    return t('Buenas noches');
   }
 
   constructor() {}

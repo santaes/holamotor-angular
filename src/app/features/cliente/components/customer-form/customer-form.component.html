@@ -1,25 +1,25 @@
 <div class="customer-form-container">
   <div class="header-section">
-    <h1>{{ pageTitle }}</h1>
+    <h1>{{ pageTitle | t }}</h1>
     <button mat-button (click)="cancel()">
       <mat-icon>arrow_back</mat-icon>
-      Volver
+      {{ 'Volver' | t }}
     </button>
   </div>
 
   <mat-card class="form-card">
     <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
-        <h2>Información Personal</h2>
+        <h2>{{ 'Información Personal' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Nombre</mat-label>
+            <mat-label>{{ 'Nombre' | t }}</mat-label>
             <input matInput formControlName="nombre" required>
             <mat-error>{{ getErrorMessage('nombre') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Apellido</mat-label>
+            <mat-label>{{ 'Apellido' | t }}</mat-label>
             <input matInput formControlName="apellido" required>
             <mat-error>{{ getErrorMessage('apellido') }}</mat-error>
           </mat-form-field>
@@ -27,76 +27,76 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
+            <mat-label>{{ 'Email' | t }}</mat-label>
             <input matInput formControlName="email" type="email" required>
             <mat-error>{{ getErrorMessage('email') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Teléfono</mat-label>
-            <input matInput formControlName="telefono" required placeholder="10 dígitos">
+            <mat-label>{{ 'Teléfono' | t }}</mat-label>
+            <input matInput formControlName="telefono" required [placeholder]="'10 dígitos' | t">
             <mat-error>{{ getErrorMessage('telefono') }}</mat-error>
           </mat-form-field>
         </div>
 
-        <h2>Dirección</h2>
+        <h2>{{ 'Dirección' | t }}</h2>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Dirección</mat-label>
+          <mat-label>{{ 'Dirección' | t }}</mat-label>
           <input matInput formControlName="direccion" required>
           <mat-error>{{ getErrorMessage('direccion') }}</mat-error>
         </mat-form-field>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Ciudad</mat-label>
+            <mat-label>{{ 'Ciudad' | t }}</mat-label>
             <input matInput formControlName="ciudad" required>
             <mat-error>{{ getErrorMessage('ciudad') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Código Postal</mat-label>
-            <input matInput formControlName="codigoPostal" required placeholder="5 dígitos">
+            <mat-label>{{ 'Código Postal' | t }}</mat-label>
+            <input matInput formControlName="codigoPostal" required [placeholder]="'5 dígitos' | t">
             <mat-error>{{ getErrorMessage('codigoPostal') }}</mat-error>
           </mat-form-field>
         </div>
 
-        <h2>Programa de Lealtad</h2>
+        <h2>{{ 'Programa de Lealtad' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Nivel de Lealtad</mat-label>
+            <mat-label>{{ 'Nivel de Lealtad' | t }}</mat-label>
             <mat-select formControlName="nivelLealtad">
-              <mat-option value="Bronce">Bronce</mat-option>
-              <mat-option value="Plata">Plata</mat-option>
-              <mat-option value="Oro">Oro</mat-option>
-              <mat-option value="Platino">Platino</mat-option>
+              <mat-option value="Bronce">{{ 'Bronce' | t }}</mat-option>
+              <mat-option value="Plata">{{ 'Plata' | t }}</mat-option>
+              <mat-option value="Oro">{{ 'Oro' | t }}</mat-option>
+              <mat-option value="Platino">{{ 'Platino' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Puntos de Lealtad</mat-label>
+            <mat-label>{{ 'Puntos de Lealtad' | t }}</mat-label>
             <input matInput formControlName="lealtadPuntos" type="number" min="0">
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Estado</mat-label>
+          <mat-label>{{ 'Estado' | t }}</mat-label>
           <mat-select formControlName="estado">
-            <mat-option value="Activo">Activo</mat-option>
-            <mat-option value="Inactivo">Inactivo</mat-option>
+            <mat-option value="Activo">{{ 'Activo' | t }}</mat-option>
+            <mat-option value="Inactivo">{{ 'Inactivo' | t }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notas</mat-label>
+          <mat-label>{{ 'Notas' | t }}</mat-label>
           <textarea matInput formControlName="notas" rows="3"></textarea>
         </mat-form-field>
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="customerForm.invalid">
           <mat-icon>save</mat-icon>
-          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+          {{ isEditMode ? ('Actualizar' | t) : ('Guardar' | t) }}
         </button>
       </mat-card-actions>
     </form>

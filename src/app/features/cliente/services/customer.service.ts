@@ -12,6 +12,11 @@ export class CustomerService {
 
   constructor(private storageService: StorageService) {
     this.loadCustomers();
+    this.storageService.changes$.subscribe(key => {
+      if (['customers'].includes(key)) {
+        this.loadCustomers();
+      }
+    });
   }
 
   private loadCustomers(): void {

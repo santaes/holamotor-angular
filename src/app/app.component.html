@@ -9,13 +9,13 @@
     <a class="brand" routerLink="/dashboard">
       <span class="brand-logo"><mat-icon>two_wheeler</mat-icon></span>
       <span class="brand-text" *ngIf="!isCollapsed">
-        <strong>HolaMotor</strong>
-        <small>Gestión de taller</small>
+        <strong>{{ 'HolaMotor' | t }}</strong>
+        <small>{{ 'Gestión de taller' | t }}</small>
       </span>
     </a>
 
     <nav class="nav">
-      <span class="nav-label" *ngIf="!isCollapsed">Menú</span>
+      <span class="nav-label" *ngIf="!isCollapsed">{{ 'Menú' | t }}</span>
       <a
         *ngFor="let item of menuItems"
         class="nav-item"
@@ -24,14 +24,14 @@
         [matTooltip]="isCollapsed ? item.label : ''"
         matTooltipPosition="right">
         <mat-icon>{{ item.icon }}</mat-icon>
-        <span *ngIf="!isCollapsed">{{ item.label }}</span>
+        <span *ngIf="!isCollapsed">{{ item.label | t }}</span>
       </a>
     </nav>
 
     <div class="sidebar-footer" *ngIf="!isCollapsed">
-      <div class="avatar">HM</div>
+      <div class="avatar">{{ initials }}</div>
       <div class="user-info">
-        <strong>Taller HolaMotor</strong>
+        <strong>{{ workshopName || ('Taller HolaMotor' | t) }}</strong>
         <small>&copy; {{ currentYear }}</small>
       </div>
     </div>
@@ -39,28 +39,59 @@
 
   <mat-sidenav-content class="main-content">
     <header class="topbar">
-      <button mat-icon-button class="menu-btn" (click)="toggleSidebar()" aria-label="Alternar menú">
+      <button mat-icon-button class="menu-btn" (click)="toggleSidebar()" [attr.aria-label]="'Alternar menú' | t">
         <mat-icon>{{ isMobile ? 'menu' : (isCollapsed ? 'menu_open' : 'menu') }}</mat-icon>
       </button>
 
       <div class="breadcrumb">
-        <a [routerLink]="currentSection.route">{{ currentSection.label }}</a>
+        <a [routerLink]="currentSection.route">{{ currentSection.label | t }}</a>
         <ng-container *ngIf="currentAction">
           <mat-icon>chevron_right</mat-icon>
-          <span>{{ currentAction }}</span>
+          <span>{{ currentAction | t }}</span>
         </ng-container>
       </div>
 
       <span class="spacer"></span>
 
-      <span class="today">{{ today | date:'EEEE d MMM':'':'es' }}</span>
+      <span class="today">{{ today | date:'EEEE d MMM' }}</span>
 
-      <button mat-icon-button matTooltip="Notificaciones" aria-label="Notificaciones">
-        <mat-icon>notifications_none</mat-icon>
+      <button mat-button class="lang-btn" [matMenuTriggerFor]="langMenu" [attr.aria-label]="'Idioma' | t">
+        <mat-icon>translate</mat-icon>
+        <span class="lang-label">{{ currentLanguageLabel }}</span>
       </button>
-      <button mat-icon-button matTooltip="Configuración" aria-label="Configuración">
+      <mat-menu #langMenu="matMenu" xPosition="before">
+        <button mat-menu-item *ngFor="let lang of languages" (click)="changeLanguage(lang.code)">
+          <mat-icon>{{ lang.code === currentLang ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+          <span>{{ lang.label }}</span>
+        </button>
+      </mat-menu>
+
+      <button mat-icon-button [matMenuTriggerFor]="notifMenu" [matTooltip]="'Notificaciones' | t" [attr.aria-label]="'Notificaciones' | t">
+        <mat-icon aria-hidden="false" [matBadge]="unreadCount" [matBadgeHidden]="!unreadCount" matBadgeColor="warn" matBadgeSize="small">{{ unreadCount ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+      </button>
+      <mat-menu #notifMenu="matMenu" xPosition="before" class="notif-menu">
+        <div class="notif-head" (click)="$event.stopPropagation()">
+          <strong>{{ 'Notificaciones' | t }}</strong>
+          <button mat-button color="primary" (click)="markAllRead()" [disabled]="!unreadCount">{{ 'Marcar todo como leído' | t }}</button>
+        </div>
+        <div class="notif-list">
+          <div class="notif-empty" *ngIf="!notifications.length" (click)="$event.stopPropagation()">
+            <mat-icon>notifications_off</mat-icon>
+            <span>{{ 'No hay notificaciones' | t }}</span>
+          </div>
+          <button type="button" class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="openNotification(n)">
+            <span class="notif-icon tone-{{ n.tone }}"><mat-icon>{{ n.icon }}</mat-icon></span>
+            <span class="notif-text">
+              <strong>{{ n.title | t }}</strong>
+              <small>{{ n.detail }}</small>
+            </span>
+            <span class="notif-dot" *ngIf="!n.read"></span>
+          </button>
+        </div>
+      </mat-menu>
+      <a mat-icon-button routerLink="/configuracion" [matTooltip]="'Configuración' | t" [attr.aria-label]="'Configuración' | t">
         <mat-icon>settings</mat-icon>
-      </button>
+      </a>
     </header>
 
     <main class="content-wrapper">

@@ -12,6 +12,11 @@ export class BillingService {
 
   constructor(private storageService: StorageService) {
     this.loadData();
+    this.storageService.changes$.subscribe(key => {
+      if (['invoices', 'quotes'].includes(key)) {
+        this.loadData();
+      }
+    });
   }
 
   private loadData(): void {

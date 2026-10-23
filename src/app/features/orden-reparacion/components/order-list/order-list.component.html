@@ -1,23 +1,23 @@
 <div class="order-list-container">
   <div class="header-section">
-    <h1>Órdenes de Reparación</h1>
+    <h1>{{ 'Órdenes de Reparación' | t }}</h1>
     <button mat-raised-button color="primary" (click)="createOrder()">
       <mat-icon>add</mat-icon>
-      Nueva Orden
+      {{ 'Nueva Orden' | t }}
     </button>
   </div>
 
   <div class="filter-section">
     <mat-form-field appearance="outline">
-      <mat-label>Filtrar por Estado</mat-label>
+      <mat-label>{{ 'Filtrar por Estado' | t }}</mat-label>
       <mat-select [(value)]="filterStatus" (selectionChange)="filterByStatus(filterStatus)">
-        <mat-option value="">Todos</mat-option>
-        <mat-option value="Pendiente">Pendiente</mat-option>
-        <mat-option value="En Progreso">En Progreso</mat-option>
-        <mat-option value="Esperando Partes">Esperando Partes</mat-option>
-        <mat-option value="Listo">Listo</mat-option>
-        <mat-option value="Entregado">Entregado</mat-option>
-        <mat-option value="Cancelado">Cancelado</mat-option>
+        <mat-option value="">{{ 'Todos' | t }}</mat-option>
+        <mat-option value="Pendiente">{{ 'Pendiente' | t }}</mat-option>
+        <mat-option value="En Progreso">{{ 'En Progreso' | t }}</mat-option>
+        <mat-option value="Esperando Partes">{{ 'Esperando Partes' | t }}</mat-option>
+        <mat-option value="Listo">{{ 'Listo' | t }}</mat-option>
+        <mat-option value="Entregado">{{ 'Entregado' | t }}</mat-option>
+        <mat-option value="Cancelado">{{ 'Cancelado' | t }}</mat-option>
       </mat-select>
     </mat-form-field>
   </div>
@@ -26,60 +26,60 @@
     <mat-card>
       <table mat-table [dataSource]="orders" class="order-table">
         <ng-container matColumnDef="numeroOrden">
-          <th mat-header-cell *matHeaderCellDef>Número</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Número' | t }}</th>
           <td mat-cell *matCellDef="let order">
             <strong>{{ order.numeroOrden }}</strong>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="clienteNombre">
-          <th mat-header-cell *matHeaderCellDef>Cliente</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Cliente' | t }}</th>
           <td mat-cell *matCellDef="let order">{{ order.clienteNombre }}</td>
         </ng-container>
 
         <ng-container matColumnDef="vehiculoInfo">
-          <th mat-header-cell *matHeaderCellDef>Vehículo</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Vehículo' | t }}</th>
           <td mat-cell *matCellDef="let order">{{ order.vehiculoInfo }}</td>
         </ng-container>
 
         <ng-container matColumnDef="fechaIngreso">
-          <th mat-header-cell *matHeaderCellDef>Fecha Ingreso</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Fecha Ingreso' | t }}</th>
           <td mat-cell *matCellDef="let order">{{ order.fechaIngreso | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="estado">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Estado' | t }}</th>
           <td mat-cell *matCellDef="let order">
-            <span class="badge" [style.--badge]="getEstadoColor(order.estado)">{{ order.estado }}</span>
+            <span class="badge" [style.--badge]="getEstadoColor(order.estado)">{{ order.estado | t }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="prioridad">
-          <th mat-header-cell *matHeaderCellDef>Prioridad</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Prioridad' | t }}</th>
           <td mat-cell *matCellDef="let order">
-            <span class="badge" [style.--badge]="getPrioridadColor(order.prioridad)">{{ order.prioridad }}</span>
+            <span class="badge" [style.--badge]="getPrioridadColor(order.prioridad)">{{ order.prioridad | t }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Acciones' | t }}</th>
           <td mat-cell *matCellDef="let order">
-            <button mat-icon-button (click)="viewOrder(order.id)" matTooltip="Ver detalles">
+            <button mat-icon-button (click)="viewOrder(order.id)" [matTooltip]="'Ver detalles' | t">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button (click)="editOrder(order.id)" matTooltip="Editar">
+            <button mat-icon-button (click)="editOrder(order.id)" [matTooltip]="'Editar' | t">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button matTooltip="Cambiar estado" [matMenuTriggerFor]="statusMenu">
+            <button mat-icon-button [matTooltip]="'Cambiar estado' | t" [matMenuTriggerFor]="statusMenu">
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #statusMenu="matMenu">
-              <button mat-menu-item (click)="updateStatus(order.id, 'Pendiente')">Pendiente</button>
-              <button mat-menu-item (click)="updateStatus(order.id, 'En Progreso')">En Progreso</button>
-              <button mat-menu-item (click)="updateStatus(order.id, 'Esperando Partes')">Esperando Partes</button>
-              <button mat-menu-item (click)="updateStatus(order.id, 'Listo')">Listo</button>
-              <button mat-menu-item (click)="updateStatus(order.id, 'Entregado')">Entregado</button>
-              <button mat-menu-item (click)="updateStatus(order.id, 'Cancelado')">Cancelado</button>
+              <button mat-menu-item (click)="updateStatus(order.id, 'Pendiente')">{{ 'Pendiente' | t }}</button>
+              <button mat-menu-item (click)="updateStatus(order.id, 'En Progreso')">{{ 'En Progreso' | t }}</button>
+              <button mat-menu-item (click)="updateStatus(order.id, 'Esperando Partes')">{{ 'Esperando Partes' | t }}</button>
+              <button mat-menu-item (click)="updateStatus(order.id, 'Listo')">{{ 'Listo' | t }}</button>
+              <button mat-menu-item (click)="updateStatus(order.id, 'Entregado')">{{ 'Entregado' | t }}</button>
+              <button mat-menu-item (click)="updateStatus(order.id, 'Cancelado')">{{ 'Cancelado' | t }}</button>
             </mat-menu>
           </td>
         </ng-container>
@@ -90,7 +90,7 @@
 
       <div class="no-data" *ngIf="orders.length === 0">
         <mat-icon>build</mat-icon>
-        <p>No hay órdenes de reparación</p>
+        <p>{{ 'No hay órdenes de reparación' | t }}</p>
       </div>
     </mat-card>
   </div>
@@ -98,7 +98,7 @@
   <ng-template #loading>
     <div class="loading-container">
       <mat-spinner diameter="50"></mat-spinner>
-      <p>Cargando órdenes...</p>
+      <p>{{ 'Cargando órdenes...' | t }}</p>
     </div>
   </ng-template>
 </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { Customer } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
@@ -36,7 +37,7 @@ export class CustomerListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading customers:', error);
-        this.snackBar.open('Error al cargar clientes', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar clientes'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -66,15 +67,15 @@ export class CustomerListComponent implements OnInit {
   }
 
   deleteCustomer(id: number): void {
-    if (confirm('¿Está seguro de eliminar este cliente?')) {
+    if (confirm(t('¿Está seguro de eliminar este cliente?'))) {
       this.customerService.deleteCustomer(id).subscribe({
         next: () => {
-          this.snackBar.open('Cliente eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Cliente eliminado exitosamente'), t('Cerrar'), { duration: 3000 });
           this.loadCustomers();
         },
         error: (error) => {
           console.error('Error deleting customer:', error);
-          this.snackBar.open('Error al eliminar cliente', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al eliminar cliente'), t('Cerrar'), { duration: 3000 });
         }
       });
     }

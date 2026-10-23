@@ -403,3 +403,32 @@ table.mat-mdc-table { width: 100%; background: transparent; }
 }
 .mat-mdc-unelevated-button, .mat-mdc-raised-button, .mat-mdc-outlined-button { font-weight: 600 !important; }
 .mat-mdc-form-field-icon-prefix > .mat-icon { color: var(--hm-text-3); padding: 0 8px 0 12px; }
+
+/* Quick customer dialog */
+.qc-title { display: flex !important; align-items: center; gap: 8px; }
+.qc-title .mat-icon { color: var(--hm-primary); }
+.qc-section { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--hm-primary); margin: 4px 0 12px; }
+.form-card h2 .h2-action { margin-left: auto; text-transform: none; letter-spacing: normal; }
+.mat-mdc-dialog-actions .mat-icon { margin-right: 4px; }
+
+/* Notifications panel */
+.notif-menu.mat-mdc-menu-panel { max-width: 400px !important; width: 400px; border-radius: 14px !important; }
+.notif-menu .mat-mdc-menu-content { padding: 0 !important; }
+.notif-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--hm-border); }
+.notif-head strong { font-size: .95rem; }
+.notif-list { max-height: 420px; overflow-y: auto; }
+.notif-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border: 0; border-bottom: 1px solid #f1f5f9; background: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.notif-item:hover { background: #f8fafc; }
+.notif-item.unread { background: #f8fbff; }
+.notif-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; }
+.notif-icon .mat-icon { font-size: 20px; width: 20px; height: 20px; }
+.notif-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.notif-text strong { font-size: .85rem; font-weight: 600; }
+.notif-text small { font-size: .78rem; color: var(--hm-text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hm-primary); flex-shrink: 0; }
+.notif-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 32px 16px; color: var(--hm-text-3); }
+.tone-blue { background: #eff6ff; color: #2563eb; }
+.tone-green { background: #f0fdf4; color: #16a34a; }
+.tone-orange { background: #fff7ed; color: #ea580c; }
+.tone-red { background: #fef2f2; color: #dc2626; }
+.tone-violet { background: #f5f3ff; color: #7c3aed; }

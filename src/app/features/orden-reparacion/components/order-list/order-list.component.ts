@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { RepairOrder } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
@@ -34,7 +35,7 @@ export class OrderListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading orders:', error);
-        this.snackBar.open('Error al cargar órdenes', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar órdenes'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -71,12 +72,12 @@ export class OrderListComponent implements OnInit {
   updateStatus(id: number, newStatus: string): void {
     this.orderService.updateOrderStatus(id, newStatus as RepairOrder['estado']).subscribe({
       next: () => {
-        this.snackBar.open('Estado actualizado', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Estado actualizado'), t('Cerrar'), { duration: 3000 });
         this.loadOrders();
       },
       error: (error) => {
         console.error('Error updating status:', error);
-        this.snackBar.open('Error al actualizar estado', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al actualizar estado'), t('Cerrar'), { duration: 3000 });
       }
     });
   }

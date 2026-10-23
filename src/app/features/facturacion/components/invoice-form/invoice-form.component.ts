@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../../../core/services/storage.service';
+import { SettingsService } from '../../../../core/services/settings.service';
+import { MatDialog } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
+import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
 
 @Component({
   selector: 'app-invoice-form',
@@ -20,6 +26,8 @@ export class InvoiceFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private storage: StorageService,
+    private dialog: MatDialog,
+    private settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute,
     private billingService: BillingService,
@@ -27,6 +35,7 @@ export class InvoiceFormComponent implements OnInit {
   ) {
     this.invoiceForm = this.createForm();
     this.setupCustomerPicker();
+    this.setupTotals();
   }
 
   ngOnInit(): void {
@@ -44,6 +53,13 @@ export class InvoiceFormComponent implements OnInit {
 
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
+    this.storage.changes$.pipe(takeUntilDestroyed()).subscribe(key => {
+      if (key === 'customers') {
+        this.customers = this.storage.getItem<any[]>('customers') || [];
+        const selected = this.customers.find(c => c.id === +this.invoiceForm.get('clienteId')?.value);
+        this.vehicles = selected?.vehiculos || [];
+      }
+    });
     this.invoiceForm.get('clienteId')?.valueChanges.subscribe(id => {
       const customer = this.customers.find(c => c.id === +id);
       this.vehicles = customer?.vehiculos || [];
@@ -51,6 +67,37 @@ export class InvoiceFormComponent implements OnInit {
         this.invoiceForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
       }
     });
+  }
+
+  /** Tax from Configuración and total are calculated automatically. */
+  private setupTotals(): void {
+    const f = this.invoiceForm;
+    const num = (name: string) => Number(f.get(name)?.value) || 0;
+    f.get('subtotal')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      if (!this.invoiceId) {
+        f.get('impuestos')?.setValue(Math.round(num('subtotal') * this.settingsService.value.taxRate) / 100);
+      }
+    });
+    merge(f.get('subtotal')!.valueChanges, f.get('impuestos')!.valueChanges, f.get('descuento')!.valueChanges)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        const total = num('subtotal') + num('impuestos') - num('descuento');
+        f.get('total')?.setValue(Math.max(0, Math.round(total * 100) / 100), { emitEvent: false });
+      });
+  }
+
+  addCustomer(): void {
+    this.dialog
+      .open(QuickCustomerDialogComponent, { width: '560px', maxWidth: '95vw' })
+      .afterClosed()
+      .subscribe(customer => {
+        if (!customer) {
+          return;
+        }
+        this.customers = this.storage.getItem<any[]>('customers') || [];
+        this.invoiceForm.patchValue({ clienteId: customer.id });
+        this.snackBar.open(t('Cliente creado y seleccionado'), t('Cerrar'), { duration: 3000 });
+      });
   }
 
   createForm(): FormGroup {
@@ -80,7 +127,7 @@ export class InvoiceFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading invoice:', error);
-        this.snackBar.open('Error al cargar factura', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar factura'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
@@ -99,23 +146,23 @@ export class InvoiceFormComponent implements OnInit {
       if (this.isEditMode && this.invoiceId) {
         this.billingService.updateInvoice(this.invoiceId, invoice).subscribe({
           next: () => {
-            this.snackBar.open('Factura actualizada exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Factura actualizada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/facturacion']);
           },
           error: (error) => {
             console.error('Error updating invoice:', error);
-            this.snackBar.open('Error al actualizar factura', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al actualizar factura'), t('Cerrar'), { duration: 3000 });
           }
         });
       } else {
         this.billingService.createInvoice(invoice).subscribe({
           next: () => {
-            this.snackBar.open('Factura creada exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Factura creada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/facturacion']);
           },
           error: (error) => {
             console.error('Error creating invoice:', error);
-            this.snackBar.open('Error al crear factura', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al crear factura'), t('Cerrar'), { duration: 3000 });
           }
         });
       }
@@ -129,10 +176,10 @@ export class InvoiceFormComponent implements OnInit {
   getErrorMessage(field: string): string {
     const control = this.invoiceForm.get(field);
     if (control?.hasError('required')) {
-      return 'Este campo es requerido';
+      return t('Este campo es requerido');
     }
     if (control?.hasError('min')) {
-      return 'Valor mínimo es 0';
+      return t('Valor mínimo es 0');
     }
     return '';
   }

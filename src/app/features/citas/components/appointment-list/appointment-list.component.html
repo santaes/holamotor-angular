@@ -1,15 +1,15 @@
 <div class="appointment-list-container">
   <div class="header-section">
-    <h1>Citas</h1>
+    <h1>{{ 'Citas' | t }}</h1>
     <button mat-raised-button color="primary" (click)="createAppointment()">
       <mat-icon>add</mat-icon>
-      Nueva Cita
+      {{ 'Nueva Cita' | t }}
     </button>
   </div>
 
   <div class="date-section">
     <mat-form-field appearance="outline">
-      <mat-label>Seleccionar Fecha</mat-label>
+      <mat-label>{{ 'Seleccionar Fecha' | t }}</mat-label>
       <input matInput [matDatepicker]="datePicker" [value]="selectedDate" (dateChange)="onDateChange($event.value)">
       <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
       <mat-datepicker #datePicker></mat-datepicker>
@@ -20,52 +20,52 @@
     <mat-card>
       <table mat-table [dataSource]="appointments" class="appointment-table">
         <ng-container matColumnDef="fecha">
-          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Fecha' | t }}</th>
           <td mat-cell *matCellDef="let appointment">{{ appointment.fecha | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="hora">
-          <th mat-header-cell *matHeaderCellDef>Horario</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Horario' | t }}</th>
           <td mat-cell *matCellDef="let appointment">
             {{ appointment.horaInicio }} - {{ appointment.horaFin }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="clienteNombre">
-          <th mat-header-cell *matHeaderCellDef>Cliente</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Cliente' | t }}</th>
           <td mat-cell *matCellDef="let appointment">{{ appointment.clienteNombre }}</td>
         </ng-container>
 
         <ng-container matColumnDef="vehiculoInfo">
-          <th mat-header-cell *matHeaderCellDef>Vehículo</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Vehículo' | t }}</th>
           <td mat-cell *matCellDef="let appointment">{{ appointment.vehiculoInfo }}</td>
         </ng-container>
 
         <ng-container matColumnDef="tipo">
-          <th mat-header-cell *matHeaderCellDef>Tipo</th>
-          <td mat-cell *matCellDef="let appointment">{{ appointment.tipo }}</td>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Tipo' | t }}</th>
+          <td mat-cell *matCellDef="let appointment">{{ appointment.tipo | t }}</td>
         </ng-container>
 
         <ng-container matColumnDef="estado">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Estado' | t }}</th>
           <td mat-cell *matCellDef="let appointment">
-            <span class="badge" [style.--badge]="getEstadoColor(appointment.estado)">{{ appointment.estado }}</span>
+            <span class="badge" [style.--badge]="getEstadoColor(appointment.estado)">{{ appointment.estado | t }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'Acciones' | t }}</th>
           <td mat-cell *matCellDef="let appointment">
-            <button mat-icon-button (click)="viewAppointment(appointment.id)" matTooltip="Ver detalles">
+            <button mat-icon-button (click)="viewAppointment(appointment.id)" [matTooltip]="'Ver detalles' | t">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button (click)="editAppointment(appointment.id)" matTooltip="Editar">
+            <button mat-icon-button (click)="editAppointment(appointment.id)" [matTooltip]="'Editar' | t">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button color="primary" (click)="confirmAppointment(appointment.id)" matTooltip="Confirmar" *ngIf="appointment.estado === 'Programada'">
+            <button mat-icon-button color="primary" (click)="confirmAppointment(appointment.id)" [matTooltip]="'Confirmar' | t" *ngIf="appointment.estado === 'Programada'">
               <mat-icon>check_circle</mat-icon>
             </button>
-            <button mat-icon-button color="warn" (click)="cancelAppointment(appointment.id)" matTooltip="Cancelar" *ngIf="appointment.estado !== 'Cancelada' && appointment.estado !== 'Completada'">
+            <button mat-icon-button color="warn" (click)="cancelAppointment(appointment.id)" [matTooltip]="'Cancelar' | t" *ngIf="appointment.estado !== 'Cancelada' && appointment.estado !== 'Completada'">
               <mat-icon>cancel</mat-icon>
             </button>
           </td>
@@ -77,7 +77,7 @@
 
       <div class="no-data" *ngIf="appointments.length === 0">
         <mat-icon>event</mat-icon>
-        <p>No hay citas para esta fecha</p>
+        <p>{{ 'No hay citas para esta fecha' | t }}</p>
       </div>
     </mat-card>
   </div>
@@ -85,7 +85,7 @@
   <ng-template #loading>
     <div class="loading-container">
       <mat-spinner diameter="50"></mat-spinner>
-      <p>Cargando citas...</p>
+      <p>{{ 'Cargando citas...' | t }}</p>
     </div>
   </ng-template>
 </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Customer } from '../../models/customer.model';
@@ -59,7 +60,7 @@ export class CustomerFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading customer:', error);
-        this.snackBar.open('Error al cargar cliente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar cliente'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
@@ -74,23 +75,23 @@ export class CustomerFormComponent implements OnInit {
       if (this.isEditMode && this.customerId) {
         this.customerService.updateCustomer(this.customerId, customer).subscribe({
           next: () => {
-            this.snackBar.open('Cliente actualizado exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Cliente actualizado exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/clientes']);
           },
           error: (error) => {
             console.error('Error updating customer:', error);
-            this.snackBar.open('Error al actualizar cliente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al actualizar cliente'), t('Cerrar'), { duration: 3000 });
           }
         });
       } else {
         this.customerService.createCustomer(customer).subscribe({
           next: () => {
-            this.snackBar.open('Cliente creado exitosamente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Cliente creado exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/clientes']);
           },
           error: (error) => {
             console.error('Error creating customer:', error);
-            this.snackBar.open('Error al crear cliente', 'Cerrar', { duration: 3000 });
+            this.snackBar.open(t('Error al crear cliente'), t('Cerrar'), { duration: 3000 });
           }
         });
       }
@@ -104,16 +105,16 @@ export class CustomerFormComponent implements OnInit {
   getErrorMessage(field: string): string {
     const control = this.customerForm.get(field);
     if (control?.hasError('required')) {
-      return 'Este campo es requerido';
+      return t('Este campo es requerido');
     }
     if (control?.hasError('email')) {
-      return 'Email inválido';
+      return t('Email inválido');
     }
     if (control?.hasError('pattern')) {
-      return 'Formato inválido';
+      return t('Formato inválido');
     }
     if (control?.hasError('minlength')) {
-      return 'Mínimo 2 caracteres';
+      return t('Mínimo 2 caracteres');
     }
     return '';
   }

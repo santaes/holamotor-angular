@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
@@ -37,7 +38,7 @@ export class InvoiceDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading invoice:', error);
-        this.snackBar.open('Error al cargar factura', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(t('Error al cargar factura'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
       }
     });

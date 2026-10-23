@@ -11,6 +11,11 @@ export class OrderService {
 
   constructor(private storageService: StorageService) {
     this.loadOrders();
+    this.storageService.changes$.subscribe(key => {
+      if (['orders'].includes(key)) {
+        this.loadOrders();
+      }
+    });
   }
 
   private loadOrders(): void {

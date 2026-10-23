@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { InventoryItem } from '../../models/inventory.model';
 import { InventoryService } from '../../services/inventory.service';
@@ -36,7 +37,7 @@ export class InventoryListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading low stock items:', error);
-          this.snackBar.open('Error al cargar items', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al cargar items'), t('Cerrar'), { duration: 3000 });
           this.isLoading = false;
         }
       });
@@ -48,7 +49,7 @@ export class InventoryListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading items:', error);
-          this.snackBar.open('Error al cargar items', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al cargar items'), t('Cerrar'), { duration: 3000 });
           this.isLoading = false;
         }
       });
@@ -88,15 +89,15 @@ export class InventoryListComponent implements OnInit {
   }
 
   deleteItem(id: number): void {
-    if (confirm('¿Está seguro de eliminar este item?')) {
+    if (confirm(t('¿Está seguro de eliminar este item?'))) {
       this.inventoryService.deleteInventoryItem(id).subscribe({
         next: () => {
-          this.snackBar.open('Item eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Item eliminado exitosamente'), t('Cerrar'), { duration: 3000 });
           this.loadItems();
         },
         error: (error) => {
           console.error('Error deleting item:', error);
-          this.snackBar.open('Error al eliminar item', 'Cerrar', { duration: 3000 });
+          this.snackBar.open(t('Error al eliminar item'), t('Cerrar'), { duration: 3000 });
         }
       });
     }
