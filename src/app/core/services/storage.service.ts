@@ -1,51 +1,120 @@
 import { Injectable } from '@angular/core';
 
+/**
+ * Key/value store for all app data.
+ * When the HolaMotor server is reachable, data lives on the server (shared by every device);
+ * otherwise it falls back to the browser's localStorage.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
   private readonly prefix = 'holamotor_';
+  private readonly api = 'api/data';
+  private cache: Record<string, unknown> = {};
+  private serverMode = false;
 
-  constructor() {
+  get isServerMode(): boolean {
+    return this.serverMode;
+  }
+
+  /** Called once at startup (APP_INITIALIZER) before any feature service reads data. */
+  async load(): Promise<void> {
+    try {
+      const res = await fetch(this.api, { cache: 'no-store' });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      this.cache = await res.json();
+      this.serverMode = true;
+      this.migrateLocalData();
+    } catch {
+      this.serverMode = false;
+      console.warn('HolaMotor server not reachable, using browser storage.');
+    }
     this.initializeData();
   }
 
+  /** First run against an empty server: upload any data this browser already had. */
+  private migrateLocalData(): void {
+    if (Object.keys(this.cache).length > 0) {
+      return;
+    }
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(this.prefix))
+      .forEach(key => {
+        const value = localStorage.getItem(key);
+        if (value) {
+          this.setItem(key.slice(this.prefix.length), JSON.parse(value));
+        }
+      });
+  }
+
   private initializeData(): void {
-    // Initialize with sample data if storage is empty
-    if (!this.getItem('customers')) {
-      this.setItem('customers', this.getSampleCustomers());
-    }
-    if (!this.getItem('orders')) {
-      this.setItem('orders', this.getSampleOrders());
-    }
-    if (!this.getItem('inventory')) {
-      this.setItem('inventory', this.getSampleInventory());
-    }
-    if (!this.getItem('invoices')) {
-      this.setItem('invoices', this.getSampleInvoices());
-    }
-    if (!this.getItem('appointments')) {
-      this.setItem('appointments', this.getSampleAppointments());
-    }
+    const samples: Record<string, () => unknown[]> = {
+      customers: () => this.getSampleCustomers(),
+      orders: () => this.getSampleOrders(),
+      inventory: () => this.getSampleInventory(),
+      invoices: () => this.getSampleInvoices(),
+      appointments: () => this.getSampleAppointments()
+    };
+    Object.entries(samples).forEach(([key, sample]) => {
+      if (!this.getItem(key)) {
+        this.setItem(key, sample());
+      }
+    });
   }
 
   getItem<T>(key: string): T | null {
+    if (this.serverMode) {
+      const value = this.cache[key];
+      return value === undefined ? null : (JSON.parse(JSON.stringify(value)) as T);
+    }
     const item = localStorage.getItem(this.prefix + key);
     return item ? JSON.parse(item) : null;
   }
 
   setItem<T>(key: string, value: T): void {
+    if (this.serverMode) {
+      this.cache[key] = JSON.parse(JSON.stringify(value));
+      this.send('PUT', key, value);
+      return;
+    }
     localStorage.setItem(this.prefix + key, JSON.stringify(value));
   }
 
   removeItem(key: string): void {
+    if (this.serverMode) {
+      delete this.cache[key];
+      this.send('DELETE', key);
+      return;
+    }
     localStorage.removeItem(this.prefix + key);
   }
 
   clear(): void {
+    if (this.serverMode) {
+      Object.keys(this.cache).forEach(key => this.removeItem(key));
+      return;
+    }
     Object.keys(localStorage)
       .filter(key => key.startsWith(this.prefix))
       .forEach(key => localStorage.removeItem(key));
+  }
+
+  private send(method: 'PUT' | 'DELETE', key: string, value?: unknown): void {
+    fetch(`${this.api}/${encodeURIComponent(key)}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: value === undefined ? undefined : JSON.stringify(value),
+      keepalive: true
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      })
+      .catch(err => console.error(`Could not save "${key}" to the server:`, err));
   }
 
   private getSampleCustomers(): any[] {

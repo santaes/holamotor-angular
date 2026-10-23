@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,7 @@ import localeEs from '@angular/common/locales/es';
 
 registerLocaleData(localeEs);
 import { AppComponent } from './app.component';
+import { StorageService } from './core/services/storage.service';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 // Material imports
@@ -72,7 +73,15 @@ import { MatChipsModule } from '@angular/material/chips';
     MatGridListModule,
     MatChipsModule
   ],
-  providers: [{ provide: MAT_DATE_LOCALE, useValue: 'es-ES' }],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (storage: StorageService) => () => storage.load(),
+      deps: [StorageService],
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

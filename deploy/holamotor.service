@@ -1,0 +1,24 @@
+[Unit]
+Description=HolaMotor - Taller Mecanico
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=holamotor
+Group=holamotor
+WorkingDirectory=/opt/holamotor
+Environment=NODE_ENV=production
+Environment=PORT=8080
+Environment=HOST=0.0.0.0
+Environment=DATA_DIR=/var/lib/holamotor
+ExecStart=/usr/bin/env node /opt/holamotor/server/index.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/lib/holamotor
+
+[Install]
+WantedBy=multi-user.target
