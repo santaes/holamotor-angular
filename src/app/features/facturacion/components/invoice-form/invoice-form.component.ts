@@ -73,17 +73,33 @@ export class InvoiceFormComponent implements OnInit {
   private setupTotals(): void {
     const f = this.invoiceForm;
     const num = (name: string) => Number(f.get(name)?.value) || 0;
+    const taxRate = this.settingsService.value.taxRate;
+
+    // When subtotal changes, calculate IVA and total
     f.get('subtotal')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       if (!this.invoiceId) {
-        f.get('impuestos')?.setValue(Math.round(num('subtotal') * this.settingsService.value.taxRate) / 100);
+        f.get('impuestos')?.setValue(Math.round(num('subtotal') * taxRate) / 100);
       }
     });
-    merge(f.get('subtotal')!.valueChanges, f.get('impuestos')!.valueChanges, f.get('descuento')!.valueChanges)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        const total = num('subtotal') + num('impuestos') - num('descuento');
-        f.get('total')?.setValue(Math.max(0, Math.round(total * 100) / 100), { emitEvent: false });
-      });
+
+    // When total changes, calculate subtotal and IVA backwards
+    f.get('total')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      if (!this.invoiceId) {
+        const total = num('total');
+        const discount = num('descuento');
+        // Formula: total = subtotal + (subtotal * taxRate/100) - discount
+        // Rearranged: subtotal = (total + discount) / (1 + taxRate/100)
+        const subtotal = (total + discount) / (1 + taxRate / 100);
+        f.get('subtotal')?.setValue(Math.max(0, Math.round(subtotal * 100) / 100), { emitEvent: false });
+        f.get('impuestos')?.setValue(Math.round(num('subtotal') * taxRate) / 100, { emitEvent: false });
+      }
+    });
+
+    // When discount changes, recalculate total
+    f.get('descuento')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const total = num('subtotal') + num('impuestos') - num('descuento');
+      f.get('total')?.setValue(Math.max(0, Math.round(total * 100) / 100), { emitEvent: false });
+    });
   }
 
   addCustomer(): void {

@@ -49,6 +49,10 @@ export class InvoiceListComponent implements OnInit {
     this.router.navigate(['/facturacion', id]);
   }
 
+  printInvoice(id: number): void {
+    this.router.navigate(['/facturacion', id], { queryParams: { print: true } });
+  }
+
   editInvoice(id: number): void {
     this.router.navigate(['/facturacion', id, 'edit']);
   }

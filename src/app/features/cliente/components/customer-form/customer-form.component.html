@@ -20,7 +20,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Apellido' | t }}</mat-label>
-            <input matInput formControlName="apellido" required>
+            <input matInput formControlName="apellido">
             <mat-error>{{ getErrorMessage('apellido') }}</mat-error>
           </mat-form-field>
         </div>
@@ -28,13 +28,13 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Email' | t }}</mat-label>
-            <input matInput formControlName="email" type="email" required>
+            <input matInput formControlName="email" type="email">
             <mat-error>{{ getErrorMessage('email') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Teléfono' | t }}</mat-label>
-            <input matInput formControlName="telefono" required [placeholder]="'10 dígitos' | t">
+            <input matInput formControlName="telefono" [placeholder]="'+34 600123456 o 600123456' | t">
             <mat-error>{{ getErrorMessage('telefono') }}</mat-error>
           </mat-form-field>
         </div>
@@ -42,20 +42,20 @@
         <h2>{{ 'Dirección' | t }}</h2>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'Dirección' | t }}</mat-label>
-          <input matInput formControlName="direccion" required>
+          <input matInput formControlName="direccion">
           <mat-error>{{ getErrorMessage('direccion') }}</mat-error>
         </mat-form-field>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Ciudad' | t }}</mat-label>
-            <input matInput formControlName="ciudad" required>
+            <input matInput formControlName="ciudad">
             <mat-error>{{ getErrorMessage('ciudad') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Código Postal' | t }}</mat-label>
-            <input matInput formControlName="codigoPostal" required [placeholder]="'5 dígitos' | t">
+            <input matInput formControlName="codigoPostal" [placeholder]="'5 dígitos' | t">
             <mat-error>{{ getErrorMessage('codigoPostal') }}</mat-error>
           </mat-form-field>
         </div>

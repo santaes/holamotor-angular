@@ -432,3 +432,52 @@ table.mat-mdc-table { width: 100%; background: transparent; }
 .tone-orange { background: #fff7ed; color: #ea580c; }
 .tone-red { background: #fef2f2; color: #dc2626; }
 .tone-violet { background: #f5f3ff; color: #7c3aed; }
+
+/* ---------- Global Print Styles ---------- */
+@media print {
+  /* Hide sidebar completely */
+  mat-sidenav,
+  .sidebar,
+  .app-container > mat-sidenav,
+  mat-sidenav-container > mat-sidenav {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    width: 0 !important;
+  }
+
+  /* Hide topbar completely */
+  .topbar,
+  header.topbar,
+  .main-content > header {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    height: 0 !important;
+  }
+
+  /* Hide menu button */
+  .menu-btn,
+  button.menu-btn {
+    display: none !important;
+  }
+
+  /* Expand main content to full width */
+  .main-content,
+  mat-sidenav-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Remove any layout offsets */
+  body {
+    background: white !important;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+}

@@ -85,14 +85,14 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Precio de Compra' | t }}</mat-label>
             <input matInput formControlName="precioCompra" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('precioCompra') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Precio de Venta' | t }}</mat-label>
             <input matInput formControlName="precioVenta" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('precioVenta') }}</mat-error>
           </mat-form-field>
         </div>

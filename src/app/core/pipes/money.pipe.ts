@@ -9,7 +9,7 @@ export class MoneyPipe implements PipeTransform {
   constructor(private settings: SettingsService, @Inject(LOCALE_ID) private locale: string) {}
 
   transform(value: number | string | null | undefined, digits = 2): string {
-    const currency = this.settings.value.currency || 'USD';
+    const currency = this.settings.value.currency || 'EUR';
     const key = `${currency}-${digits}`;
     let formatter = this.formatters.get(key);
     if (!formatter) {

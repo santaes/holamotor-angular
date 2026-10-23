@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   phone: '',
   email: '',
   taxId: '',
-  currency: 'USD',
+  currency: 'EUR',
   taxRate: 21,
   appointmentDuration: 60,
   notifyStock: true,

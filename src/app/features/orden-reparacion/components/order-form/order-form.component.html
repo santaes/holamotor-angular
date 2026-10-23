@@ -147,14 +147,14 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Costo Estimado' | t }}</mat-label>
             <input matInput formControlName="costoEstimado" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('costoEstimado') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Costo Final' | t }}</mat-label>
             <input matInput formControlName="costoFinal" type="number" min="0">
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
           </mat-form-field>
         </div>
 

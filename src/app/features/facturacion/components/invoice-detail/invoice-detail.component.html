@@ -6,10 +6,16 @@
       </button>
       <h1>{{ 'Factura #' | t }}{{ invoice?.numeroFactura }}</h1>
     </div>
-    <button mat-raised-button color="primary" (click)="editInvoice()">
-      <mat-icon>edit</mat-icon>
-      {{ 'Editar' | t }}
-    </button>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="printInvoice()">
+        <mat-icon>print</mat-icon>
+        {{ 'Imprimir' | t }}
+      </button>
+      <button mat-raised-button color="accent" (click)="editInvoice()">
+        <mat-icon>edit</mat-icon>
+        {{ 'Editar' | t }}
+      </button>
+    </div>
   </div>
 
   <div class="invoice-info-section">

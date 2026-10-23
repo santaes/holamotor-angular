@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit {
 
   recentActivities = [
     { type: 'order', icon: 'build', message: 'Nueva orden #1234 creada - Ford Focus', time: 'Hace 5 min', color: 'primary' },
-    { type: 'invoice', icon: 'receipt_long', message: 'Factura #5678 pagada - $2,500', time: 'Hace 15 min', color: 'accent' },
+    { type: 'invoice', icon: 'receipt_long', message: 'Factura #5678 pagada - €2,500', time: 'Hace 15 min', color: 'accent' },
     { type: 'appointment', icon: 'event', message: 'Cita agendada para mañana - 10:00 AM', time: 'Hace 30 min', color: 'warn' },
     { type: 'customer', icon: 'person_add', message: 'Nuevo cliente registrado: María García', time: 'Hace 1 hora', color: 'primary' },
     { type: 'inventory', icon: 'inventory_2', message: 'Stock bajo: Filtros de aceite (5 unidades)', time: 'Hace 2 horas', color: 'warn' }

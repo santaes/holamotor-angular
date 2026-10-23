@@ -1,0 +1,220 @@
+.invoice-detail-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.invoice-info-section,
+.amounts-section {
+  margin-bottom: 20px;
+}
+
+.info-card,
+.amounts-card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item label {
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+}
+
+.info-item span {
+  font-size: 16px;
+}
+
+.amounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.amount-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.amount-item.total {
+  background: #e3f2fd;
+  font-weight: bold;
+}
+
+.total-amount {
+  font-size: 20px;
+  color: #1976d2;
+}
+
+.tabs-section {
+  margin-top: 20px;
+}
+
+.tab-content {
+  padding: 20px 0;
+}
+
+.items-table,
+.payments-table {
+  width: 100%;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  background: var(--badge, #999);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 16px;
+}
+
+/* Print styles */
+@media print {
+  /* Hide sidebar and navigation completely */
+  mat-sidenav,
+  .sidebar,
+  .app-container > mat-sidenav,
+  mat-sidenav-container > mat-sidenav {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* Hide topbar completely */
+  .topbar,
+  header.topbar,
+  .main-content > header {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* Hide menu button */
+  .menu-btn,
+  button.menu-btn {
+    display: none !important;
+  }
+
+  /* Hide header buttons and actions */
+  .header-section button,
+  .header-actions {
+    display: none !important;
+  }
+
+  /* Expand main content to full width */
+  .main-content,
+  mat-sidenav-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .invoice-detail-container {
+    padding: 0;
+    max-width: none;
+    margin: 0;
+  }
+
+  .invoice-info-section,
+  .amounts-section {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .info-card,
+  .amounts-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  mat-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  mat-card-header {
+    border-bottom: 1px solid #ddd;
+  }
+
+  .tabs-section {
+    display: none;
+  }
+
+  .items-table {
+    display: table !important;
+  }
+
+  /* Show items in print mode even if in tabs */
+  .tab-content {
+    display: block !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+}

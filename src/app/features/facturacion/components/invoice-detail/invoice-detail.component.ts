@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -19,13 +20,18 @@ export class InvoiceDetailComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router,
     private billingService: BillingService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadInvoice(+id);
+    }
+    // Check if print query parameter is present
+    if (this.route.snapshot.queryParams['print']) {
+      setTimeout(() => this.printInvoice(), 500);
     }
   }
 
@@ -48,6 +54,10 @@ export class InvoiceDetailComponent implements OnInit {
     if (this.invoice?.id) {
       this.router.navigate(['/facturacion', this.invoice.id, 'edit']);
     }
+  }
+
+  printInvoice(): void {
+    window.print();
   }
 
   getEstadoColor(estado: string): string {

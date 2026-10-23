@@ -109,28 +109,28 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Subtotal' | t }}</mat-label>
             <input matInput formControlName="subtotal" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('subtotal') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Impuestos' | t }}</mat-label>
             <input matInput formControlName="impuestos" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('impuestos') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Descuento' | t }}</mat-label>
             <input matInput formControlName="descuento" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('descuento') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Total' | t }}</mat-label>
             <input matInput formControlName="total" type="number" min="0" required>
-            <span matPrefix>$</span>
+            <span matPrefix>€</span>
             <mat-error>{{ getErrorMessage('total') }}</mat-error>
           </mat-form-field>
         </div>

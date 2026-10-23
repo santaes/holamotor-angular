@@ -47,6 +47,9 @@
             <button mat-icon-button (click)="viewInvoice(invoice.id)" [matTooltip]="'Ver detalles' | t">
               <mat-icon>visibility</mat-icon>
             </button>
+            <button mat-icon-button (click)="printInvoice(invoice.id)" [matTooltip]="'Imprimir' | t">
+              <mat-icon>print</mat-icon>
+            </button>
             <button mat-icon-button (click)="editInvoice(invoice.id)" [matTooltip]="'Editar' | t">
               <mat-icon>edit</mat-icon>
             </button>

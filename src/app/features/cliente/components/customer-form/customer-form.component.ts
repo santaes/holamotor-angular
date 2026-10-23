@@ -40,16 +40,16 @@ export class CustomerFormComponent implements OnInit {
   createForm(): FormGroup {
     return this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
-      apellido: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      direccion: ['', Validators.required],
-      ciudad: ['', Validators.required],
-      codigoPostal: ['', [Validators.required, Validators.pattern(/^[0-9]{5}$/)]],
+      apellido: ['', Validators.minLength(2)],
+      email: ['', Validators.email],
+      telefono: ['', Validators.pattern(/^(\+[0-9]{1,3}[- ]?)?[0-9]{9,15}$/)],
+      direccion: [''],
+      ciudad: [''],
+      codigoPostal: ['', Validators.pattern(/^[0-9]{5}$/)],
       notas: [''],
       lealtadPuntos: [0, [Validators.min(0)]],
-      nivelLealtad: ['Bronce', Validators.required],
-      estado: ['Activo', Validators.required]
+      nivelLealtad: ['Bronce'],
+      estado: ['Activo']
     });
   }
 
@@ -111,6 +111,9 @@ export class CustomerFormComponent implements OnInit {
       return t('Email inválido');
     }
     if (control?.hasError('pattern')) {
+      if (field === 'telefono') {
+        return t('Formato: +34 600123456 o 600123456');
+      }
       return t('Formato inválido');
     }
     if (control?.hasError('minlength')) {
