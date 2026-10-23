@@ -1,0 +1,167 @@
+<div class="invoice-detail-container" *ngIf="!isLoading; else loading">
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-button (click)="router.navigate(['/facturacion'])">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Factura #{{ invoice?.numeroFactura }}</h1>
+    </div>
+    <button mat-raised-button color="primary" (click)="editInvoice()">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+  </div>
+
+  <div class="invoice-info-section">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Información de la Factura</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Cliente:</label>
+            <span>{{ invoice?.clienteNombre }}</span>
+          </div>
+          <div class="info-item">
+            <label>Orden de Reparación:</label>
+            <span>{{ invoice?.numeroOrden || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha Emisión:</label>
+            <span>{{ invoice?.fechaEmision | date:'medium' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha Vencimiento:</label>
+            <span>{{ invoice?.fechaVencimiento | date:'medium' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha Pago:</label>
+            <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'medium') : 'No pagada' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Estado:</label>
+            <mat-chip [style.background-color]="getEstadoColor(invoice?.estado || '')" class="status-chip">
+              {{ invoice?.estado }}
+            </mat-chip>
+          </div>
+          <div class="info-item">
+            <label>Método de Pago:</label>
+            <span>{{ invoice?.metodoPago || 'N/A' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="amounts-section">
+    <mat-card class="amounts-card">
+      <mat-card-header>
+        <mat-card-title>Resumen de Montos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="amounts-grid">
+          <div class="amount-item">
+            <label>Subtotal:</label>
+            <span>${{ invoice?.subtotal.toFixed(2) }}</span>
+          </div>
+          <div class="amount-item">
+            <label>Impuestos:</label>
+            <span>${{ invoice?.impuestos.toFixed(2) }}</span>
+          </div>
+          <div class="amount-item">
+            <label>Descuento:</label>
+            <span>-${{ invoice?.descuento.toFixed(2) }}</span>
+          </div>
+          <div class="amount-item total">
+            <label>Total:</label>
+            <span class="total-amount">${{ invoice?.total.toFixed(2) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
+    <mat-tab label="Items">
+      <div class="tab-content">
+        <mat-card *ngIf="invoice?.items && invoice.items.length > 0; else noItems">
+          <table mat-table [dataSource]="invoice.items" class="items-table">
+            <ng-container matColumnDef="descripcion">
+              <th mat-header-cell *matHeaderCellDef>Descripción</th>
+              <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="cantidad">
+              <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+              <td mat-cell *matCellDef="let item">{{ item.cantidad }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="precioUnitario">
+              <th mat-header-cell *matHeaderCellDef>Precio Unitario</th>
+              <td mat-cell *matCellDef="let item">${{ item.precioUnitario.toFixed(2) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="subtotal">
+              <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+              <td mat-cell *matCellDef="let item">${{ item.subtotal.toFixed(2) }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+          </table>
+        </mat-card>
+        <ng-template #noItems>
+          <div class="no-data">
+            <mat-icon>list</mat-icon>
+            <p>No hay items en la factura</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Pagos">
+      <div class="tab-content">
+        <mat-card *ngIf="invoice?.pagos && invoice.pagos.length > 0; else noPayments">
+          <table mat-table [dataSource]="invoice.pagos" class="payments-table">
+            <ng-container matColumnDef="monto">
+              <th mat-header-cell *matHeaderCellDef>Monto</th>
+              <td mat-cell *matCellDef="let payment">${{ payment.monto.toFixed(2) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="metodo">
+              <th mat-header-cell *matHeaderCellDef>Método</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef>Fecha</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'medium' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="referencia">
+              <th mat-header-cell *matHeaderCellDef>Referencia</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.referencia || '-' }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['monto', 'metodo', 'fecha', 'referencia']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['monto', 'metodo', 'fecha', 'referencia']"></tr>
+          </table>
+        </mat-card>
+        <ng-template #noPayments>
+          <div class="no-data">
+            <mat-icon>payments</mat-icon>
+            <p>No hay pagos registrados</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-template #loading>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando información de la factura...</p>
+  </div>
+</ng-template>

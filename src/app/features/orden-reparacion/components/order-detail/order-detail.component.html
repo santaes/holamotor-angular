@@ -1,0 +1,220 @@
+<div class="order-detail-container" *ngIf="!isLoading; else loading">
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-button (click)="router.navigate(['/ordenes'])">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Orden #{{ order?.numeroOrden }}</h1>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="accent" (click)="approveOrder()" *ngIf="!order?.aprobadoPorCliente">
+        <mat-icon>check_circle</mat-icon>
+        Aprobar
+      </button>
+      <button mat-raised-button color="primary" (click)="editOrder()">
+        <mat-icon>edit</mat-icon>
+        Editar
+      </button>
+    </div>
+  </div>
+
+  <div class="order-info-section">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Información de la Orden</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Cliente:</label>
+            <span>{{ order?.clienteNombre }}</span>
+          </div>
+          <div class="info-item">
+            <label>Vehículo:</label>
+            <span>{{ order?.vehiculoInfo }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha Ingreso:</label>
+            <span>{{ order?.fechaIngreso | date:'medium' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha Estimada Salida:</label>
+            <span>{{ order?.fechaEstimadaSalida | date:'medium' : '-' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Estado:</label>
+            <mat-chip [style.background-color]="getEstadoColor(order?.estado || '')" class="status-chip">
+              {{ order?.estado }}
+            </mat-chip>
+          </div>
+          <div class="info-item">
+            <label>Prioridad:</label>
+            <mat-chip [style.background-color]="getPrioridadColor(order?.prioridad || '')" class="priority-chip">
+              {{ order?.prioridad }}
+            </mat-chip>
+          </div>
+          <div class="info-item">
+            <label>Mecánico Asignado:</label>
+            <span>{{ order?.mecanicoNombre || 'No asignado' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Aprobado por Cliente:</label>
+            <mat-icon [color]="order?.aprobadoPorCliente ? 'primary' : 'warn'">
+              {{ order?.aprobadoPorCliente ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
+    <mat-tab label="Detalles del Problema">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-content>
+            <div class="detail-section">
+              <h3>Descripción del Problema</h3>
+              <p>{{ order?.descripcionProblema }}</p>
+            </div>
+            <div class="detail-section" *ngIf="order?.diagnostico">
+              <h3>Diagnóstico</h3>
+              <p>{{ order.diagnostico }}</p>
+            </div>
+            <div class="detail-section" *ngIf="order?.trabajoRealizado">
+              <h3>Trabajo Realizado</h3>
+              <p>{{ order.trabajoRealizado }}</p>
+            </div>
+            <div class="detail-section" *ngIf="order?.observaciones">
+              <h3>Observaciones</h3>
+              <p>{{ order.observaciones }}</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Partes Usadas">
+      <div class="tab-content">
+        <mat-card *ngIf="order?.partesUsadas && order.partesUsadas.length > 0; else noParts">
+          <table mat-table [dataSource]="order.partesUsadas" class="parts-table">
+            <ng-container matColumnDef="nombre">
+              <th mat-header-cell *matHeaderCellDef>Parte</th>
+              <td mat-cell *matCellDef="let part">{{ part.nombre }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="cantidad">
+              <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+              <td mat-cell *matCellDef="let part">{{ part.cantidad }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="precioUnitario">
+              <th mat-header-cell *matHeaderCellDef>Precio Unitario</th>
+              <td mat-cell *matCellDef="let part">${{ part.precioUnitario.toFixed(2) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="subtotal">
+              <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+              <td mat-cell *matCellDef="let part">${{ part.subtotal.toFixed(2) }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['nombre', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['nombre', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+          </table>
+        </mat-card>
+        <ng-template #noParts>
+          <div class="no-data">
+            <mat-icon>inventory_2</mat-icon>
+            <p>No hay partes registradas</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Labor">
+      <div class="tab-content">
+        <mat-card *ngIf="order?.labor && order.labor.length > 0; else noLabor">
+          <table mat-table [dataSource]="order.labor" class="labor-table">
+            <ng-container matColumnDef="mecanicoNombre">
+              <th mat-header-cell *matHeaderCellDef>Mecánico</th>
+              <td mat-cell *matCellDef="let labor">{{ labor.mecanicoNombre }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="descripcion">
+              <th mat-header-cell *matHeaderCellDef>Descripción</th>
+              <td mat-cell *matCellDef="let labor">{{ labor.descripcion }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="horas">
+              <th mat-header-cell *matHeaderCellDef>Horas</th>
+              <td mat-cell *matCellDef="let labor">{{ labor.horas }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="tarifaPorHora">
+              <th mat-header-cell *matHeaderCellDef>Tarifa/Hora</th>
+              <td mat-cell *matCellDef="let labor">${{ labor.tarifaPorHora.toFixed(2) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="subtotal">
+              <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+              <td mat-cell *matCellDef="let labor">${{ labor.subtotal.toFixed(2) }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['mecanicoNombre', 'descripcion', 'horas', 'tarifaPorHora', 'subtotal']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['mecanicoNombre', 'descripcion', 'horas', 'tarifaPorHora', 'subtotal']"></tr>
+          </table>
+        </mat-card>
+        <ng-template #noLabor>
+          <div class="no-data">
+            <mat-icon>engineering</mat-icon>
+            <p>No hay labor registrada</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Pagos">
+      <div class="tab-content">
+        <mat-card *ngIf="order?.pagos && order.pagos.length > 0; else noPayments">
+          <table mat-table [dataSource]="order.pagos" class="payments-table">
+            <ng-container matColumnDef="monto">
+              <th mat-header-cell *matHeaderCellDef>Monto</th>
+              <td mat-cell *matCellDef="let payment">${{ payment.monto.toFixed(2) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="metodo">
+              <th mat-header-cell *matHeaderCellDef>Método</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef>Fecha</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'medium' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="referencia">
+              <th mat-header-cell *matHeaderCellDef>Referencia</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.referencia || '-' }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['monto', 'metodo', 'fecha', 'referencia']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['monto', 'metodo', 'fecha', 'referencia']"></tr>
+          </table>
+        </mat-card>
+        <ng-template #noPayments>
+          <div class="no-data">
+            <mat-icon>payments</mat-icon>
+            <p>No hay pagos registrados</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-template #loading>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando información de la orden...</p>
+  </div>
+</ng-template>

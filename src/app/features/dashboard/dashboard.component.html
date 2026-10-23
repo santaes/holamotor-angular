@@ -1,0 +1,184 @@
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Dashboard</h1>
+
+  <!-- Stats Cards -->
+  <mat-grid-list cols="4" rowHeight="120px" class="stats-grid">
+    <mat-grid-tile>
+      <mat-card class="stat-card stat-card-blue">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">people</mat-icon>
+          <div class="stat-info">
+            <p class="stat-label">Clientes Totales</p>
+            <p class="stat-value">{{ stats.totalCustomers }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-card class="stat-card stat-card-green">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">build</mat-icon>
+          <div class="stat-info">
+            <p class="stat-label">Órdenes Activas</p>
+            <p class="stat-value">{{ stats.activeOrders }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-card class="stat-card stat-card-orange">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">receipt</mat-icon>
+          <div class="stat-info">
+            <p class="stat-label">Facturas Pendientes</p>
+            <p class="stat-value">{{ stats.pendingInvoices }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-card class="stat-card stat-card-purple">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">calendar_today</mat-icon>
+          <div class="stat-info">
+            <p class="stat-label">Citas Hoy</p>
+            <p class="stat-value">{{ stats.todayAppointments }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+
+  <!-- Revenue Stats -->
+  <mat-grid-list cols="2" rowHeight="120px" class="revenue-grid">
+    <mat-grid-tile>
+      <mat-card class="stat-card stat-card-teal">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">attach_money</mat-icon>
+          <div class="stat-info">
+            <p class="stat-label">Ingresos este Mes</p>
+            <p class="stat-value">${{ stats.revenueThisMonth.toLocaleString() }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-card class="stat-card stat-card-red">
+        <div class="stat-content">
+          <mat-icon class="stat-icon">inventory_2</mat-icon>
+          <div class="stat-info">
+            <p class="stat-label">Valor Inventario</p>
+            <p class="stat-value">${{ stats.inventoryValue.toLocaleString() }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions-section">
+    <h2>Acciones Rápidas</h2>
+    <div class="quick-actions">
+      <button mat-raised-button *ngFor="let action of quickActions" [color]="action.color" [routerLink]="action.route">
+        <mat-icon>{{ action.icon }}</mat-icon>
+        <span>{{ action.label }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <mat-grid-list cols="2" rowHeight="400px" class="content-grid">
+    <!-- Recent Activities -->
+    <mat-grid-tile>
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Actividad Reciente</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="activities-list">
+            <div class="activity-item" *ngFor="let activity of recentActivities">
+              <div class="activity-icon-wrapper" [class.activity-blue]="activity.color === 'primary'" [class.activity-green]="activity.color === 'accent'" [class.activity-orange]="activity.color === 'warn'">
+                <mat-icon>{{ activity.icon }}</mat-icon>
+              </div>
+              <div class="activity-details">
+                <p class="activity-message">{{ activity.message }}</p>
+                <p class="activity-time">{{ activity.time }}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- Top Services -->
+    <mat-grid-tile>
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Servicios Más Solicitados</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="topServices" class="services-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Servicio</th>
+              <td mat-cell *matCellDef="let service">{{ service.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="count">
+              <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+              <td mat-cell *matCellDef="let service">{{ service.count }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="revenue">
+              <th mat-header-cell *matHeaderCellDef>Ingresos</th>
+              <td mat-cell *matCellDef="let service">${{ service.revenue.toLocaleString() }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['name', 'count', 'revenue']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['name', 'count', 'revenue']"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- Upcoming Appointments -->
+    <mat-grid-tile>
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Próximas Citas</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="appointments-list">
+            <div class="appointment-item" *ngFor="let appointment of upcomingAppointments">
+              <div class="appointment-time">{{ appointment.time }}</div>
+              <div class="appointment-details">
+                <p class="appointment-customer">{{ appointment.customer }}</p>
+                <p class="appointment-vehicle">{{ appointment.vehicle }}</p>
+                <p class="appointment-service">{{ appointment.service }}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- Performance Chart Placeholder -->
+    <mat-grid-tile>
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Rendimiento Mensual</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-placeholder">
+            <mat-icon>bar_chart</mat-icon>
+            <p>Gráfico de rendimiento</p>
+            <p class="chart-note">Visualización de métricas mensuales</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

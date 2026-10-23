@@ -1,0 +1,99 @@
+<div class="inventory-detail-container" *ngIf="!isLoading; else loading">
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-button (click)="router.navigate(['/inventario'])">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Detalle del Item</h1>
+    </div>
+    <button mat-raised-button color="primary" (click)="editItem()">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+  </div>
+
+  <div class="item-info-section">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Información del Item</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Código:</label>
+            <span>{{ item?.codigo }}</span>
+          </div>
+          <div class="info-item">
+            <label>Nombre:</label>
+            <span>{{ item?.nombre }}</span>
+          </div>
+          <div class="info-item">
+            <label>Categoría:</label>
+            <span>{{ item?.categoria }}</span>
+          </div>
+          <div class="info-item">
+            <label>Marca:</label>
+            <span>{{ item?.marca }}</span>
+          </div>
+          <div class="info-item">
+            <label>Cantidad:</label>
+            <mat-chip [style.background-color]="getStockColor()" class="stock-chip">
+              {{ item?.cantidad }} {{ item?.unidadMedida }}
+            </mat-chip>
+          </div>
+          <div class="info-item">
+            <label>Rango de Stock:</label>
+            <span>Min: {{ item?.cantidadMinima }} - Max: {{ item?.cantidadMaxima }}</span>
+          </div>
+          <div class="info-item">
+            <label>Precio Compra:</label>
+            <span>${{ item?.precioCompra.toFixed(2) }}</span>
+          </div>
+          <div class="info-item">
+            <label>Precio Venta:</label>
+            <span>${{ item?.precioVenta.toFixed(2) }}</span>
+          </div>
+          <div class="info-item">
+            <label>Ubicación:</label>
+            <span>{{ item?.ubicacion }}</span>
+          </div>
+          <div class="info-item">
+            <label>Estado:</label>
+            <mat-chip [color]="item?.estado === 'Activo' ? 'primary' : 'warn'">
+              {{ item?.estado }}
+            </mat-chip>
+          </div>
+        </div>
+        <div class="description-section" *ngIf="item?.descripcion">
+          <label>Descripción:</label>
+          <p>{{ item.descripcion }}</p>
+        </div>
+        <div class="supplier-section" *ngIf="item?.proveedorNombre">
+          <label>Proveedor:</label>
+          <p>{{ item.proveedorNombre }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="stock-alert" *ngIf="isLowStock()">
+    <mat-card class="alert-card">
+      <mat-card-content>
+        <div class="alert-content">
+          <mat-icon class="alert-icon">warning</mat-icon>
+          <div class="alert-text">
+            <h3>Alerta de Stock Bajo</h3>
+            <p>La cantidad actual ({{ item?.cantidad }}) está por debajo del mínimo ({{ item?.cantidadMinima }})</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando información del item...</p>
+  </div>
+</ng-template>
