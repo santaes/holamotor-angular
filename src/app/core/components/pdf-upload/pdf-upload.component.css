@@ -1,0 +1,73 @@
+.pdf-upload-container {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.upload-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 14px;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions-section {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #e3f2fd;
+  border-radius: 4px;
+}
+
+.text-section,
+.translated-section {
+  margin-top: 20px;
+}
+
+.text-section h3,
+.translated-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.text-area {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  background: white;
+}
+
+.translation-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.lang-select {
+  min-width: 200px;
+}

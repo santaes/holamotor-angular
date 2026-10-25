@@ -23,8 +23,10 @@ const PORT = Number(process.env.PORT) || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 const DATA_DIR = path.resolve(ROOT, process.env.DATA_DIR || 'data');
 const STATIC_DIR = path.resolve(ROOT, process.env.STATIC_DIR || 'dist/holamotor-taller');
+const PDF_DIR = path.join(DATA_DIR, 'pdfs');
 const MAX_BODY = 20 * 1024 * 1024;
 const KEY_RE = /^[a-zA-Z0-9_-]{1,64}$/;
+const LIBRETRANSLATE_URL = process.env.LIBRETRANSLATE_URL || 'http://localhost:5000';
 
 const MESSAGES = {
   es: {
@@ -115,10 +117,12 @@ const MIME = {
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.ttf': 'font/ttf',
-  '.txt': 'text/plain; charset=utf-8'
+  '.txt': 'text/plain; charset=utf-8',
+  '.pdf': 'application/pdf'
 };
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
+fs.mkdirSync(PDF_DIR, { recursive: true });
 
 // ---------- Storage ----------
 
@@ -238,6 +242,21 @@ async function handleApi(req, res, pathname) {
     return req.method === 'GET' ? send(res, 200, await readAll()) : sendError(req, res, 405, 'methodNotAllowed');
   }
 
+  // PDF upload endpoint
+  if (pathname === '/api/pdf/upload' && req.method === 'POST') {
+    const contentType = req.headers['content-type'] || '';
+    if (!contentType.startsWith('multipart/form-data')) {
+      return sendError(req, res, 400, 'invalidJson');
+    }
+
+    return handlePdfUpload(req, res);
+  }
+
+  // Translation endpoint
+  if (pathname === '/api/translate' && req.method === 'POST') {
+    return handleTranslation(req, res);
+  }
+
   const match = pathname.match(/^\/api\/data\/([^/]+)$/);
   if (!match) return sendError(req, res, 404, 'notFound');
 
@@ -265,8 +284,117 @@ async function handleApi(req, res, pathname) {
   }
 }
 
+// ---------- PDF Upload Handler ----------
+
+async function handlePdfUpload(req, res) {
+  const boundary = req.headers['content-type'].split('boundary=')[1];
+  let chunks = [];
+  let fileName = '';
+  let fileSize = 0;
+
+  for await (const chunk of req) {
+    fileSize += chunk.length;
+    if (fileSize > 50 * 1024 * 1024) { // 50MB limit
+      return sendError(req, res, 413, 'payloadTooLarge');
+    }
+    chunks.push(chunk);
+  }
+
+  const buffer = Buffer.concat(chunks);
+  const parts = buffer.toString('binary').split(`--${boundary}`);
+
+  for (const part of parts) {
+    if (part.includes('filename=')) {
+      const filenameMatch = part.match(/filename="([^"]+)"/);
+      if (filenameMatch) {
+        fileName = filenameMatch[1];
+        const contentStart = part.indexOf('\r\n\r\n') + 4;
+        const contentEnd = part.lastIndexOf('\r\n');
+        const content = part.slice(contentStart, contentEnd);
+
+        // Generate unique filename
+        const timestamp = Date.now();
+        const uniqueName = `${timestamp}-${fileName}`;
+        const filePath = path.join(PDF_DIR, uniqueName);
+
+        await fsp.writeFile(filePath, Buffer.from(content, 'binary'));
+
+        return send(res, 200, {
+          success: true,
+          filename: uniqueName,
+          originalName: fileName,
+          url: `/api/pdf/${uniqueName}`
+        });
+      }
+    }
+  }
+
+  return sendError(req, res, 400, 'invalidJson');
+}
+
+// ---------- Translation Handler ----------
+
+async function handleTranslation(req, res) {
+  try {
+    const body = await readBody(req);
+    const { text, source = 'auto', target = 'en' } = body;
+
+    if (!text || !target) {
+      return sendError(req, res, 400, 'invalidJson');
+    }
+
+    // Call LibreTranslate API
+    const response = await fetch(`${LIBRETRANSLATE_URL}/translate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        q: text,
+        source: source,
+        target: target,
+        format: 'text'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Translation service error');
+    }
+
+    const result = await response.json();
+    return send(res, 200, {
+      translatedText: result.translatedText,
+      source: result.detected_language?.language || source,
+      target: target
+    });
+  } catch (err) {
+    console.error('Translation error:', err);
+    return sendError(req, res, 500, 'internalError');
+  }
+}
+
 async function serveStatic(req, res, pathname) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return sendError(req, res, 405, 'methodNotAllowed');
+
+  // Serve uploaded PDFs
+  if (pathname.startsWith('/api/pdf/')) {
+    const filename = pathname.replace('/api/pdf/', '');
+    const file = path.join(PDF_DIR, filename);
+    if (!file.startsWith(PDF_DIR)) return sendError(req, res, 403, 'forbidden');
+
+    const stat = await fsp.stat(file).catch(() => null);
+    if (!stat) return sendError(req, res, 404, 'notFound');
+
+    const headers = {
+      'Content-Type': 'application/pdf',
+      'Cache-Control': 'no-cache',
+      'Content-Disposition': `inline; filename="${filename}"`
+    };
+    res.writeHead(200, { ...headers, 'Content-Length': stat.size });
+    if (req.method === 'HEAD') return res.end();
+    fs.createReadStream(file).pipe(res);
+    return;
+  }
 
   let file = path.join(STATIC_DIR, path.normalize(pathname));
   if (!file.startsWith(STATIC_DIR)) return sendError(req, res, 403, 'forbidden');

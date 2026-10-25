@@ -1,0 +1,101 @@
+<div class="pdf-upload-container">
+  <div class="upload-section">
+    <input
+      type="file"
+      accept=".pdf"
+      (change)="onFileSelected($event)"
+      id="pdf-input"
+      style="display: none"
+    />
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="document.getElementById('pdf-input')?.click()"
+      [disabled]="isUploading || isProcessing"
+    >
+      <mat-icon>upload_file</mat-icon>
+      {{ 'Select PDF' | t }}
+    </button>
+
+    <span *ngIf="selectedFile" class="file-name">
+      {{ selectedFile.name }}
+    </span>
+
+    <button
+      mat-button
+      color="warn"
+      (click)="clearFile()"
+      *ngIf="selectedFile"
+      [disabled]="isUploading || isProcessing"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="actions-section" *ngIf="selectedFile">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="uploadPdf()"
+      [disabled]="isUploading || isProcessing"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      {{ 'Upload' | t }}
+    </button>
+
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="extractText()"
+      [disabled]="isUploading || isProcessing"
+    >
+      <mat-icon>text_snippet</mat-icon>
+      {{ 'Extract Text (OCR)' | t }}
+    </button>
+  </div>
+
+  <div class="progress-section" *ngIf="isProcessing">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Processing: {{ progress }}%</span>
+  </div>
+
+  <div class="progress-section" *ngIf="isUploading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Uploading...</span>
+  </div>
+
+  <div class="text-section" *ngIf="extractedText">
+    <h3>{{ 'Extracted Text' | t }}</h3>
+    <textarea [(ngModel)]="extractedText" rows="10" class="text-area"></textarea>
+
+    <div class="translation-actions">
+      <mat-select [(ngModel)]="selectedTargetLang" placeholder="Select target language" class="lang-select">
+        <mat-option value="en">English</mat-option>
+        <mat-option value="es">Español</mat-option>
+        <mat-option value="fr">Français</mat-option>
+        <mat-option value="de">Deutsch</mat-option>
+        <mat-option value="it">Italiano</mat-option>
+        <mat-option value="pt">Português</mat-option>
+        <mat-option value="ru">Русский</mat-option>
+        <mat-option value="ja">日本語</mat-option>
+        <mat-option value="zh">中文</mat-option>
+        <mat-option value="ar">العربية</mat-option>
+      </mat-select>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="translateText(selectedTargetLang)"
+        [disabled]="isTranslating"
+      >
+        <mat-icon>translate</mat-icon>
+        {{ 'Translate' | t }}
+      </button>
+    </div>
+  </div>
+
+  <div class="translated-section" *ngIf="translatedText">
+    <h3>{{ 'Translated Text' | t }}</h3>
+    <textarea [(ngModel)]="translatedText" rows="10" class="text-area"></textarea>
+  </div>
+</div>

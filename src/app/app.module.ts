@@ -2,6 +2,7 @@ import { APP_INITIALIZER, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { registerLocaleData } from '@angular/common';
@@ -57,6 +58,7 @@ import { MatChipsModule } from '@angular/material/chips';
     BrowserModule,
     BrowserAnimationsModule,
     CommonModule,
+    HttpClientModule,
     AppRoutingModule,
     MatFormFieldModule,
     MatInputModule,

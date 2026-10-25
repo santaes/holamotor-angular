@@ -6,6 +6,7 @@ import { CustomerService } from '../../services/customer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { VehicleDialogComponent } from '../vehicle-dialog/vehicle-dialog.component';
+import { PdfUploadComponent } from '../../../../core/components/pdf-upload/pdf-upload.component';
 
 @Component({
   selector: 'app-customer-detail',
@@ -126,6 +127,24 @@ export class CustomerDetailComponent implements OnInit {
       case 'SMS': return 'sms';
       case 'WhatsApp': return 'chat';
       default: return 'message';
+    }
+  }
+
+  onPdfUploaded(pdfInfo: { filename: string; originalName: string; url: string }): void {
+    console.log('PDF uploaded:', pdfInfo);
+    // Store PDF reference in customer data
+    if (this.customer) {
+      if (!this.customer.notas) this.customer.notas = '';
+      this.customer.notas += `\n[PDF: ${pdfInfo.originalName} - ${pdfInfo.url}]`;
+    }
+  }
+
+  onTextExtracted(text: string): void {
+    console.log('Text extracted:', text);
+    // Store extracted text in customer data
+    if (this.customer) {
+      if (!this.customer.notas) this.customer.notas = '';
+      this.customer.notas += `\n[OCR Text: ${text.substring(0, 200)}...]`;
     }
   }
 }

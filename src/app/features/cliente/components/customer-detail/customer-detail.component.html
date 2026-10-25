@@ -69,6 +69,18 @@
   </div>
 
   <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
+    <mat-tab label="Documentos">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2>{{ 'Documentos del Cliente' | t }}</h2>
+        </div>
+        <app-pdf-upload
+          (pdfUploaded)="onPdfUploaded($event)"
+          (textExtracted)="onTextExtracted($event)"
+        ></app-pdf-upload>
+      </div>
+    </mat-tab>
+
     <mat-tab label="Vehículos">
       <div class="tab-content">
         <div class="tab-header">

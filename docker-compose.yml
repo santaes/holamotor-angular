@@ -10,3 +10,21 @@ services:
       - ./data:/data
     environment:
       - TZ=Europe/Madrid
+    depends_on:
+      - libretranslate
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: libretranslate
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - libretranslate-local:/home/libretranslate/.local
+    environment:
+      - TZ=Europe/Madrid
+      - LT_LOAD_ONLY=en,es,fr,de,it,pt,ru,ja,zh,ar
+    command: ["--host", "0.0.0.0", "--port", "5000", "--load-only", "en,es,fr,de,it,pt,ru,ja,zh,ar"]
+
+volumes:
+  libretranslate-local:
