@@ -4,13 +4,13 @@
       type="file"
       accept=".pdf"
       (change)="onFileSelected($event)"
-      id="pdf-input"
+      #fileInput
       style="display: none"
     />
     <button
       mat-raised-button
       color="primary"
-      (click)="document.getElementById('pdf-input')?.click()"
+      (click)="fileInput.click()"
       [disabled]="isUploading || isProcessing"
     >
       <mat-icon>upload_file</mat-icon>

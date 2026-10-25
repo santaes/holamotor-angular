@@ -6,7 +6,6 @@ import { CustomerService } from '../../services/customer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { VehicleDialogComponent } from '../vehicle-dialog/vehicle-dialog.component';
-import { PdfUploadComponent } from '../../../../core/components/pdf-upload/pdf-upload.component';
 
 @Component({
   selector: 'app-customer-detail',

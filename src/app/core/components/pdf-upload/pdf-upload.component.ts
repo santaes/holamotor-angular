@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfService } from '../../services/pdf.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+// @ts-ignore
 import Tesseract from 'tesseract.js';
 
 @Component({
