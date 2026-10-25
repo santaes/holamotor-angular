@@ -10,6 +10,7 @@ import { ClienteRoutingModule } from './cliente-routing.module';
 import { CustomerListComponent } from './components/customer-list/customer-list.component';
 import { CustomerFormComponent } from './components/customer-form/customer-form.component';
 import { CustomerDetailComponent } from './components/customer-detail/customer-detail.component';
+import { PdfUploadComponent } from '../../core/components/pdf-upload/pdf-upload.component';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -28,7 +29,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   declarations: [
     CustomerListComponent,
     CustomerFormComponent,
-    CustomerDetailComponent
+    CustomerDetailComponent,
+    PdfUploadComponent
   ],
   imports: [
     MatTooltipModule,

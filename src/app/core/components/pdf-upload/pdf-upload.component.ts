@@ -13,8 +13,6 @@ import Tesseract from 'tesseract.js';
 
 @Component({
   selector: 'app-pdf-upload',
-  standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSelectModule, TranslatePipe],
   templateUrl: './pdf-upload.component.html',
   styleUrls: ['./pdf-upload.component.css']
 })
