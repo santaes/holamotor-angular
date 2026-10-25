@@ -44,7 +44,18 @@ export class CustomerService {
 
   createCustomer(customer: Customer): Observable<Customer> {
     const customers = this.customers$.value;
-    const newCustomer = { ...customer, id: this.generateId(customers) };
+    const newId = this.generateId(customers);
+    const newCustomer = { ...customer, id: newId };
+
+    // Update vehicle clienteId to match the new customer ID
+    if (newCustomer.vehiculos) {
+      newCustomer.vehiculos = newCustomer.vehiculos.map(v => ({
+        ...v,
+        id: v.id || this.generateId(newCustomer.vehiculos || []),
+        clienteId: newId
+      }));
+    }
+
     customers.push(newCustomer);
     this.saveCustomers(customers);
     return of(newCustomer);

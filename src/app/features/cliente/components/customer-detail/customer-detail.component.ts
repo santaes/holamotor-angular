@@ -5,6 +5,7 @@ import { Customer, Vehicle, Communication } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { VehicleDialogComponent } from '../vehicle-dialog/vehicle-dialog.component';
 
 @Component({
   selector: 'app-customer-detail',
@@ -77,8 +78,26 @@ export class CustomerDetailComponent implements OnInit {
   }
 
   addVehicle(): void {
-    // Implement add vehicle dialog
-    this.snackBar.open(t('Funcionalidad de agregar vehículo en desarrollo'), t('Cerrar'), { duration: 3000 });
+    const dialogRef = this.dialog.open(VehicleDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe((vehicle: Vehicle) => {
+      if (vehicle && this.customer?.id) {
+        vehicle.clienteId = this.customer.id;
+        this.customerService.addVehicle(this.customer.id, vehicle).subscribe({
+          next: (newVehicle) => {
+            this.vehicles.push(newVehicle);
+            this.snackBar.open(t('Vehículo agregado exitosamente'), t('Cerrar'), { duration: 3000 });
+          },
+          error: (error) => {
+            console.error('Error adding vehicle:', error);
+            this.snackBar.open(t('Error al agregar vehículo'), t('Cerrar'), { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   addCommunication(): void {

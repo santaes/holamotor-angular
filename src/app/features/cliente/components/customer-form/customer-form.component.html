@@ -90,6 +90,30 @@
           <mat-label>{{ 'Notas' | t }}</mat-label>
           <textarea matInput formControlName="notas" rows="3"></textarea>
         </mat-form-field>
+
+        <h2>{{ 'Vehículos' | t }}</h2>
+        <div class="vehicles-section">
+          <button mat-raised-button color="primary" (click)="addVehicle()">
+            <mat-icon>add</mat-icon>
+            {{ 'Agregar Vehículo' | t }}
+          </button>
+          <div class="vehicles-list" *ngIf="vehicles.length > 0">
+            <mat-card class="vehicle-card" *ngFor="let vehicle of vehicles; let i = index">
+              <div class="vehicle-info">
+                <strong>{{ vehicle.marca }} {{ vehicle.modelo }} ({{ vehicle.anio }})</strong>
+                <div class="vehicle-details">
+                  <span>{{ 'Placa:' | t }} {{ vehicle.placa }}</span>
+                  <span *ngIf="vehicle.vin">{{ 'VIN:' | t }} {{ vehicle.vin }}</span>
+                  <span *ngIf="vehicle.color">{{ 'Color:' | t }} {{ vehicle.color }}</span>
+                  <span>{{ 'Kilometraje:' | t }} {{ vehicle.kilometraje }} km</span>
+                </div>
+              </div>
+              <button mat-icon-button color="warn" (click)="removeVehicle(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card>
+          </div>
+        </div>
       </mat-card-content>
 
       <mat-card-actions align="end">

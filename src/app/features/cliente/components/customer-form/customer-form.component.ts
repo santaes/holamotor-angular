@@ -2,9 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Customer } from '../../models/customer.model';
+import { Customer, Vehicle } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
+import { StorageService } from '../../../../core/services/storage.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { VehicleDialogComponent } from '../vehicle-dialog/vehicle-dialog.component';
 
 @Component({
   selector: 'app-customer-form',
@@ -16,13 +19,15 @@ export class CustomerFormComponent implements OnInit {
   isEditMode = false;
   customerId: number | null = null;
   pageTitle = 'Nuevo Cliente';
+  vehicles: Vehicle[] = [];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private customerService: CustomerService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.customerForm = this.createForm();
   }
@@ -57,6 +62,7 @@ export class CustomerFormComponent implements OnInit {
     this.customerService.getCustomerById(id).subscribe({
       next: (customer) => {
         this.customerForm.patchValue(customer);
+        this.vehicles = customer.vehiculos || [];
       },
       error: (error) => {
         console.error('Error loading customer:', error);
@@ -69,7 +75,8 @@ export class CustomerFormComponent implements OnInit {
     if (this.customerForm.valid) {
       const customer: Customer = {
         ...this.customerForm.value,
-        fechaRegistro: this.isEditMode ? new Date() : new Date()
+        fechaRegistro: this.isEditMode ? new Date() : new Date(),
+        vehiculos: this.vehicles
       };
 
       if (this.isEditMode && this.customerId) {
@@ -120,5 +127,29 @@ export class CustomerFormComponent implements OnInit {
       return t('Mínimo 2 caracteres');
     }
     return '';
+  }
+
+  addVehicle(): void {
+    const dialogRef = this.dialog.open(VehicleDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe((vehicle: Vehicle) => {
+      if (vehicle) {
+        const newVehicle: Vehicle = {
+          ...vehicle,
+          id: this.vehicles.length > 0 ? Math.max(...this.vehicles.map(v => v.id || 0)) + 1 : 1,
+          clienteId: this.customerId || 0
+        };
+        this.vehicles.push(newVehicle);
+        this.snackBar.open(t('Vehículo agregado'), t('Cerrar'), { duration: 2000 });
+      }
+    });
+  }
+
+  removeVehicle(index: number): void {
+    this.vehicles.splice(index, 1);
+    this.snackBar.open(t('Vehículo eliminado'), t('Cerrar'), { duration: 2000 });
   }
 }

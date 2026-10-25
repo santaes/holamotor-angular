@@ -1,0 +1,29 @@
+.vehicles-section {
+  margin-top: 20px;
+}
+
+.vehicles-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vehicle-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+}
+
+.vehicle-info {
+  flex: 1;
+}
+
+.vehicle-details {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
