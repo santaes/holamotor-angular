@@ -29,17 +29,26 @@
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>{{ 'Marca' | t }}</mat-label>
-        <input matInput formControlName="marca">
+        <mat-select formControlName="marca">
+          <mat-option value="">Seleccione una marca</mat-option>
+          <mat-option *ngFor="let make of carMakes" [value]="make.name">{{ make.name }}</mat-option>
+        </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'Modelo' | t }}</mat-label>
-        <input matInput formControlName="modelo">
+        <mat-select formControlName="modelo" [disabled]="!form.get('marca')?.value">
+          <mat-option value="">Seleccione un modelo</mat-option>
+          <mat-option *ngFor="let model of filteredModels" [value]="model">{{ model }}</mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>{{ 'Año' | t }}</mat-label>
-        <input matInput formControlName="anio" type="number">
+        <mat-select formControlName="anio">
+          <mat-option value="">Seleccione un año</mat-option>
+          <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
+        </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'Placa' | t }}</mat-label>

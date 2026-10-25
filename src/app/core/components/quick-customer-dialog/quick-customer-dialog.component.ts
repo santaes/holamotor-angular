@@ -6,18 +6,26 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { StorageService } from '../../services/storage.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { CarCatalogService } from '../../services/car-catalog.service';
 
 /** Small dialog to register a customer (and optionally a vehicle) without leaving the current form. */
 @Component({
   selector: 'app-quick-customer-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSelectModule, TranslatePipe],
   templateUrl: './quick-customer-dialog.component.html'
 })
 export class QuickCustomerDialogComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly carCatalog = inject(CarCatalogService);
+
+  carMakes = this.carCatalog.getCarMakes();
+  years = this.carCatalog.getYears();
+  filteredModels: string[] = [];
+
   form = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
     apellido: ['', Validators.required],
@@ -32,7 +40,16 @@ export class QuickCustomerDialogComponent {
   constructor(
     private storage: StorageService,
     private dialogRef: MatDialogRef<QuickCustomerDialogComponent>
-  ) {}
+  ) {
+    this.form.get('marca')?.valueChanges.subscribe(make => {
+      if (make) {
+        this.filteredModels = this.carCatalog.getModelsByMake(make);
+        this.form.get('modelo')?.setValue('');
+      } else {
+        this.filteredModels = [];
+      }
+    });
+  }
 
   save(): void {
     if (this.form.invalid) {

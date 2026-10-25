@@ -6,17 +6,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { Vehicle } from '../../models/customer.model';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { CarCatalogService } from '../../../../core/services/car-catalog.service';
 
 @Component({
   selector: 'app-vehicle-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSelectModule, TranslatePipe],
   templateUrl: './vehicle-dialog.component.html'
 })
 export class VehicleDialogComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly carCatalog = inject(CarCatalogService);
+
+  carMakes = this.carCatalog.getCarMakes();
+  years = this.carCatalog.getYears();
+  filteredModels: string[] = [];
+
   form = this.fb.group({
     marca: ['', [Validators.required, Validators.minLength(2)]],
     modelo: ['', [Validators.required, Validators.minLength(2)]],
@@ -29,7 +37,16 @@ export class VehicleDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<VehicleDialogComponent>
-  ) {}
+  ) {
+    this.form.get('marca')?.valueChanges.subscribe(make => {
+      if (make) {
+        this.filteredModels = this.carCatalog.getModelsByMake(make);
+        this.form.get('modelo')?.setValue('');
+      } else {
+        this.filteredModels = [];
+      }
+    });
+  }
 
   save(): void {
     if (this.form.invalid) {
