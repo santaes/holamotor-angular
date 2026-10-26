@@ -3,6 +3,7 @@ import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
+import { ExcelParserService } from '../../services/excel-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -15,9 +16,11 @@ export class InvoiceListComponent implements OnInit {
   displayedColumns: string[] = ['numeroFactura', 'clienteNombre', 'fechaEmision', 'total', 'estado', 'acciones'];
   isLoading = true;
   filterStatus = '';
+  isImporting = false;
 
   constructor(
     private billingService: BillingService,
+    private excelParserService: ExcelParserService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
@@ -70,6 +73,39 @@ export class InvoiceListComponent implements OnInit {
         }
       });
     }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.importInvoiceFromExcel(file);
+    }
+  }
+
+  importInvoiceFromExcel(file: File): void {
+    this.isImporting = true;
+    this.excelParserService.parseInvoiceFromExcel(file).then(
+      (invoice) => {
+        this.billingService.createInvoice(invoice).subscribe({
+          next: (createdInvoice) => {
+            this.snackBar.open(t('Factura importada exitosamente'), t('Cerrar'), { duration: 3000 });
+            this.loadInvoices();
+            this.isImporting = false;
+          },
+          error: (error) => {
+            console.error('Error creating invoice:', error);
+            this.snackBar.open(t('Error al crear factura importada'), t('Cerrar'), { duration: 3000 });
+            this.isImporting = false;
+          }
+        });
+      },
+      (error) => {
+        console.error('Error parsing Excel file:', error);
+        this.snackBar.open(t('Error al procesar archivo Excel'), t('Cerrar'), { duration: 3000 });
+        this.isImporting = false;
+      }
+    );
   }
 
   getEstadoColor(estado: string): string {

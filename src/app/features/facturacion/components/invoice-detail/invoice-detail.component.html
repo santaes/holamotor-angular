@@ -1,5 +1,5 @@
 <div class="invoice-detail-container" *ngIf="!isLoading; else loading">
-  <div class="header-section">
+  <div class="header-section no-print">
     <div class="header-content">
       <button mat-button (click)="router.navigate(['/facturacion'])">
         <mat-icon>arrow_back</mat-icon>
@@ -11,6 +11,10 @@
         <mat-icon>print</mat-icon>
         {{ 'Imprimir' | t }}
       </button>
+      <button mat-raised-button color="warn" (click)="exportToExcel()">
+        <mat-icon>download</mat-icon>
+        {{ 'Exportar Excel' | t }}
+      </button>
       <button mat-raised-button color="accent" (click)="editInvoice()">
         <mat-icon>edit</mat-icon>
         {{ 'Editar' | t }}
@@ -18,149 +22,228 @@
     </div>
   </div>
 
-  <div class="invoice-info-section">
-    <mat-card class="info-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'Información de la Factura' | t }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>{{ 'Cliente:' | t }}</label>
-            <span>{{ invoice?.clienteNombre }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ 'Orden de Reparación:' | t }}</label>
-            <span>{{ invoice?.numeroOrden || 'N/A' }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ 'Fecha Emisión:' | t }}</label>
-            <span>{{ invoice?.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ 'Fecha Vencimiento:' | t }}</label>
-            <span>{{ invoice?.fechaVencimiento | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ 'Fecha Pago:' | t }}</label>
-            <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'dd/MM/yyyy HH:mm') : ('No pagada' | t) }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ 'Estado:' | t }}</label>
-            <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado | t }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ 'Método de Pago:' | t }}</label>
-            <span>{{ invoice?.metodoPago || 'N/A' }}</span>
-          </div>
+  <!-- Printable Invoice Template -->
+  <div class="printable-invoice" *ngIf="invoice">
+    <div class="invoice-header">
+      <div class="company-info">
+        <img src="favicon.ico" alt="Logo" class="company-logo">
+        <div class="company-details">
+          <h3>HolaMotor</h3>
+          <p>Taller de Reparación</p>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+      <div class="invoice-title">
+        <h1>FACTURA</h1>
+      </div>
+    </div>
+
+    <div class="invoice-meta">
+      <div class="client-info">
+        <h3>FACTURAR A</h3>
+        <p><strong>{{ invoice.clienteNombre }}</strong></p>
+        <p>ID: {{ invoice.clienteId }}</p>
+        <p>{{ invoice.notas || '' }}</p>
+      </div>
+      <div class="invoice-number">
+        <p><strong>FACTURA Nº</strong></p>
+        <p>{{ invoice.numeroFactura }}</p>
+        <p><strong>FECHA</strong></p>
+        <p>{{ invoice.fechaEmision | date:'dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+
+    <div class="invoice-items">
+      <table class="items-table-print">
+        <thead>
+          <tr>
+            <th>DESCRIPCION</th>
+            <th>Unidades</th>
+            <th>Precio Unitario</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of invoice.items">
+            <td>{{ item.descripcion }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.precioUnitario | money }}</td>
+            <td>{{ item.subtotal | money }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="invoice-totals">
+      <div class="signature-line">
+        <p>{{ 'Firma' | t }}</p>
+      </div>
+      <div class="totals">
+        <div class="total-row">
+          <span>{{ 'Subtotal' | t }}</span>
+          <span>{{ invoice.subtotal | money }}</span>
+        </div>
+        <div class="total-row final">
+          <span>{{ 'Total' | t }}</span>
+          <span><strong>{{ invoice.total | money }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="invoice-footer">
+      <p class="rebu-notice">EMPRESA ACOGIDA AL R.E.B.U (régimen de bienes usados) según artículo 135 de la ley 37/1992, de 28 de diciembre del impuesto sobre el valor añadido</p>
+      <div class="payment-info">
+        <p><strong>{{ 'Forma de pago:' | t }}</strong> {{ invoice.metodoPago || 'Efectivo' }}</p>
+        <p><strong>{{ 'Número de cuenta:' | t }}</strong> [Tu número de cuenta]</p>
+      </div>
+    </div>
   </div>
 
-  <div class="amounts-section">
-    <mat-card class="amounts-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'Resumen de Montos' | t }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="amounts-grid">
-          <div class="amount-item">
-            <label>{{ 'Subtotal:' | t }}</label>
-            <span>{{ (invoice?.subtotal || 0) | money }}</span>
+  <!-- Screen View (non-printable) -->
+  <div class="screen-view no-print">
+    <div class="invoice-info-section">
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>{{ 'Información de la Factura' | t }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>{{ 'Cliente:' | t }}</label>
+              <span>{{ invoice?.clienteNombre }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ 'Orden de Reparación:' | t }}</label>
+              <span>{{ invoice?.numeroOrden || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ 'Fecha Emisión:' | t }}</label>
+              <span>{{ invoice?.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ 'Fecha Vencimiento:' | t }}</label>
+              <span>{{ invoice?.fechaVencimiento | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ 'Fecha Pago:' | t }}</label>
+              <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'dd/MM/yyyy HH:mm') : ('No pagada' | t) }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ 'Estado:' | t }}</label>
+              <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado | t }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ 'Método de Pago:' | t }}</label>
+              <span>{{ invoice?.metodoPago || 'N/A' }}</span>
+            </div>
           </div>
-          <div class="amount-item">
-            <label>{{ 'Impuestos:' | t }}</label>
-            <span>{{ (invoice?.impuestos || 0) | money }}</span>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="amounts-section">
+      <mat-card class="amounts-card">
+        <mat-card-header>
+          <mat-card-title>{{ 'Resumen de Montos' | t }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="amounts-grid">
+            <div class="amount-item">
+              <label>{{ 'Subtotal:' | t }}</label>
+              <span>{{ (invoice?.subtotal || 0) | money }}</span>
+            </div>
+            <div class="amount-item">
+              <label>{{ 'Impuestos:' | t }}</label>
+              <span>{{ (invoice?.impuestos || 0) | money }}</span>
+            </div>
+            <div class="amount-item">
+              <label>{{ 'Descuento:' | t }}</label>
+              <span>-{{ (invoice?.descuento || 0) | money }}</span>
+            </div>
+            <div class="amount-item total">
+              <label>{{ 'Total:' | t }}</label>
+              <span class="total-amount">{{ (invoice?.total || 0) | money }}</span>
+            </div>
           </div>
-          <div class="amount-item">
-            <label>{{ 'Descuento:' | t }}</label>
-            <span>-{{ (invoice?.descuento || 0) | money }}</span>
-          </div>
-          <div class="amount-item total">
-            <label>{{ 'Total:' | t }}</label>
-            <span class="total-amount">{{ (invoice?.total || 0) | money }}</span>
-          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
+      <mat-tab label="Items">
+        <div class="tab-content">
+          <mat-card *ngIf="invoice?.items && invoice.items.length > 0; else noItems">
+            <table mat-table [dataSource]="invoice.items" class="items-table">
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Descripción' | t }}</th>
+                <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="cantidad">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Cantidad' | t }}</th>
+                <td mat-cell *matCellDef="let item">{{ item.cantidad }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="precioUnitario">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Precio Unitario' | t }}</th>
+                <td mat-cell *matCellDef="let item">{{ (item.precioUnitario || 0) | money }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="subtotal">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Subtotal' | t }}</th>
+                <td mat-cell *matCellDef="let item">{{ (item.subtotal || (item.cantidad * item.precioUnitario) || 0) | money }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+            </table>
+          </mat-card>
+          <ng-template #noItems>
+            <div class="no-data">
+              <mat-icon>list</mat-icon>
+              <p>{{ 'No hay items en la factura' | t }}</p>
+            </div>
+          </ng-template>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </mat-tab>
+
+      <mat-tab label="Pagos">
+        <div class="tab-content">
+          <mat-card *ngIf="invoice?.pagos && invoice.pagos.length > 0; else noPayments">
+            <table mat-table [dataSource]="invoice.pagos" class="payments-table">
+              <ng-container matColumnDef="monto">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Monto' | t }}</th>
+                <td mat-cell *matCellDef="let payment">{{ (payment.monto || 0) | money }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="metodo">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Método' | t }}</th>
+                <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Fecha' | t }}</th>
+                <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="referencia">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Referencia' | t }}</th>
+                <td mat-cell *matCellDef="let payment">{{ payment.referencia || '-' }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['monto', 'metodo', 'fecha', 'referencia']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['monto', 'metodo', 'fecha', 'referencia']"></tr>
+            </table>
+          </mat-card>
+          <ng-template #noPayments>
+            <div class="no-data">
+              <mat-icon>payments</mat-icon>
+              <p>{{ 'No hay pagos registrados' | t }}</p>
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
-
-  <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
-    <mat-tab label="Items">
-      <div class="tab-content">
-        <mat-card *ngIf="invoice?.items && invoice.items.length > 0; else noItems">
-          <table mat-table [dataSource]="invoice.items" class="items-table">
-            <ng-container matColumnDef="descripcion">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Descripción' | t }}</th>
-              <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="cantidad">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Cantidad' | t }}</th>
-              <td mat-cell *matCellDef="let item">{{ item.cantidad }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="precioUnitario">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Precio Unitario' | t }}</th>
-              <td mat-cell *matCellDef="let item">{{ (item.precioUnitario || 0) | money }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="subtotal">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Subtotal' | t }}</th>
-              <td mat-cell *matCellDef="let item">{{ (item.subtotal || (item.cantidad * item.precioUnitario) || 0) | money }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
-          </table>
-        </mat-card>
-        <ng-template #noItems>
-          <div class="no-data">
-            <mat-icon>list</mat-icon>
-            <p>{{ 'No hay items en la factura' | t }}</p>
-          </div>
-        </ng-template>
-      </div>
-    </mat-tab>
-
-    <mat-tab label="Pagos">
-      <div class="tab-content">
-        <mat-card *ngIf="invoice?.pagos && invoice.pagos.length > 0; else noPayments">
-          <table mat-table [dataSource]="invoice.pagos" class="payments-table">
-            <ng-container matColumnDef="monto">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Monto' | t }}</th>
-              <td mat-cell *matCellDef="let payment">{{ (payment.monto || 0) | money }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="metodo">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Método' | t }}</th>
-              <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="fecha">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Fecha' | t }}</th>
-              <td mat-cell *matCellDef="let payment">{{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="referencia">
-              <th mat-header-cell *matHeaderCellDef>{{ 'Referencia' | t }}</th>
-              <td mat-cell *matCellDef="let payment">{{ payment.referencia || '-' }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="['monto', 'metodo', 'fecha', 'referencia']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['monto', 'metodo', 'fecha', 'referencia']"></tr>
-          </table>
-        </mat-card>
-        <ng-template #noPayments>
-          <div class="no-data">
-            <mat-icon>payments</mat-icon>
-            <p>{{ 'No hay pagos registrados' | t }}</p>
-          </div>
-        </ng-template>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
 </div>
 
 <ng-template #loading>

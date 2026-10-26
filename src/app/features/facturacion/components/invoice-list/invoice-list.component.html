@@ -1,10 +1,17 @@
 <div class="invoice-list-container">
   <div class="header-section">
     <h1>{{ 'Facturación' | t }}</h1>
-    <button mat-raised-button color="primary" (click)="createInvoice()">
-      <mat-icon>add</mat-icon>
-      {{ 'Nueva Factura' | t }}
-    </button>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="createInvoice()">
+        <mat-icon>add</mat-icon>
+        {{ 'Nueva Factura' | t }}
+      </button>
+      <button mat-raised-button color="accent" (click)="fileInput.click()" [disabled]="isImporting">
+        <mat-icon>upload_file</mat-icon>
+        {{ 'Importar Excel' | t }}
+      </button>
+      <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept=".xlsx,.xls">
+    </div>
   </div>
 
   <div class="table-section" *ngIf="!isLoading; else loading">

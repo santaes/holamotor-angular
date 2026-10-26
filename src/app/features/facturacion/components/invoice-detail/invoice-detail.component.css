@@ -128,8 +128,206 @@
   gap: 16px;
 }
 
+/* Printable Invoice Template */
+.printable-invoice {
+  display: none;
+  background: white;
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  border: 1px solid #ddd;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #333;
+}
+
+.company-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.company-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.company-details h3 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+}
+
+.company-details p {
+  margin: 0;
+  color: #666;
+}
+
+.invoice-title h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #333;
+}
+
+.invoice-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.client-info,
+.invoice-number {
+  flex: 1;
+}
+
+.client-info h3,
+.invoice-number p {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.client-info p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.invoice-number p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.invoice-number strong {
+  color: #333;
+}
+
+.invoice-items {
+  margin-bottom: 30px;
+}
+
+.items-table-print {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.items-table-print thead {
+  background: #f5f5f5;
+}
+
+.items-table-print th {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #333;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.items-table-print td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.items-table-print tbody tr:last-child td {
+  border-bottom: 2px solid #333;
+}
+
+.invoice-totals {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.signature-line {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.signature-line p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.signature-line::after {
+  content: '';
+  display: block;
+  width: 200px;
+  height: 1px;
+  background: #333;
+  margin-top: 40px;
+}
+
+.totals {
+  flex: 1;
+  max-width: 300px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+.total-row.final {
+  font-size: 20px;
+  font-weight: bold;
+  padding-top: 15px;
+  border-top: 2px solid #333;
+}
+
+.invoice-footer {
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.rebu-notice {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.payment-info p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.payment-info strong {
+  color: #333;
+}
+
+.no-print {
+  display: block;
+}
+
+.screen-view {
+  display: block;
+}
+
 /* Print styles */
 @media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .screen-view {
+    display: none !important;
+  }
+
+  .printable-invoice {
+    display: block !important;
+  }
+
   /* Hide sidebar and navigation completely */
   mat-sidenav,
   .sidebar,

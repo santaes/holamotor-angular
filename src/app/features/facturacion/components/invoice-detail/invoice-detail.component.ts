@@ -3,6 +3,7 @@ import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
+import { ExcelParserService } from '../../services/excel-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Location } from '@angular/common';
 
@@ -20,6 +21,7 @@ export class InvoiceDetailComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router,
     private billingService: BillingService,
+    private excelParserService: ExcelParserService,
     private snackBar: MatSnackBar,
     private location: Location
   ) {}
@@ -58,6 +60,20 @@ export class InvoiceDetailComponent implements OnInit {
 
   printInvoice(): void {
     window.print();
+  }
+
+  exportToExcel(): void {
+    if (!this.invoice) return;
+
+    try {
+      const workbook = this.excelParserService.exportInvoiceToExcel(this.invoice);
+      const filename = `Factura_${this.invoice.numeroFactura}.xlsx`;
+      this.excelParserService.downloadExcel(workbook, filename);
+      this.snackBar.open(t('Factura exportada exitosamente'), t('Cerrar'), { duration: 3000 });
+    } catch (error) {
+      console.error('Error exporting invoice:', error);
+      this.snackBar.open(t('Error al exportar factura'), t('Cerrar'), { duration: 3000 });
+    }
   }
 
   getEstadoColor(estado: string): string {

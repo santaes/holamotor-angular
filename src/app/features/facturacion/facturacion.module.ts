@@ -25,6 +25,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { ExcelParserService } from './services/excel-parser.service';
+
 @NgModule({
   declarations: [
     InvoiceListComponent,
@@ -52,6 +54,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule
+  ],
+  providers: [
+    ExcelParserService
   ]
 })
 export class FacturacionModule {}
