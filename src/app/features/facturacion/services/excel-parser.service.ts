@@ -231,8 +231,8 @@ export class ExcelParserService {
     const data: any[][] = [];
 
     // Header
-    data.push(['HolaMotor', null, 'Taller de Reparación']);
-    data.push([null, null, null]);
+    data.push(['HOLAMOTOR S.L.U.', null, 'CIF B05727524']);
+    data.push(['C/Barranquet 3 bj 2, Villajoyosa, 03570', null, null]);
     data.push([null, null, null]);
     data.push([null, null, null]);
 
@@ -284,6 +284,7 @@ export class ExcelParserService {
     // Payment info
     data.push(['Forma de pago: ' + (invoice.metodoPago || 'Efectivo'), null, null, null]);
     data.push(['Número de cuenta bancaria', null, null, null]);
+    data.push(['C/Barranquet 3 bj 2, Villajoyosa, 03570', null, null, null]);
 
     return data;
   }

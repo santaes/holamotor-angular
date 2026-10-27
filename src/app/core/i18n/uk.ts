@@ -100,6 +100,7 @@ export const uk: Record<string, string> = {
   "Código Postal": "Поштовий індекс",
   "Código Postal:": "Поштовий індекс:",
   "Código, nombre, categoría...": "Код, назва, категорія...",
+  "Contacto:": "Контакт:",
   "Código:": "Код:",
   "Dashboard": "Головна",
   "Datos actualizados": "Дані оновлено",
