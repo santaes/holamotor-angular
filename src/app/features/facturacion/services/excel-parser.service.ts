@@ -233,7 +233,7 @@ export class ExcelParserService {
     // Header
     data.push(['HOLAMOTOR S.L.U.', null, 'CIF B05727524']);
     data.push(['C/Barranquet 3 bj 2, Villajoyosa, 03570', null, null]);
-    data.push([null, null, null]);
+    data.push(['Tel: 865741988', null, null]);
     data.push([null, null, null]);
 
     // FACTURA header
@@ -263,7 +263,7 @@ export class ExcelParserService {
     }
 
     // Totals
-    data.push(['Firma', null, 'SUBTOTAL', invoice.subtotal]);
+    data.push(['Firma del Director', null, 'SUBTOTAL', invoice.subtotal]);
     data.push([null, null, null, null]);
     data.push([null, null, null, null]);
     data.push([null, null, 'TOTAL', invoice.total]);

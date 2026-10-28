@@ -31,6 +31,7 @@
           <h3>HOLAMOTOR S.L.U.</h3>
           <p>CIF B05727524</p>
           <p>C/Barranquet 3 bj 2, Villajoyosa, 03570</p>
+          <p>Tel: 865741988</p>
         </div>
       </div>
       <div class="invoice-title">
@@ -76,7 +77,8 @@
 
     <div class="invoice-totals">
       <div class="signature-line">
-        <p>{{ 'Firma' | t }}</p>
+        <img src="assets/signature.png" alt="Firma del Director" class="signature-image">
+        <p>{{ 'Firma del Director' | t }}</p>
       </div>
       <div class="totals">
         <div class="total-row">
@@ -96,6 +98,7 @@
         <p><strong>{{ 'Forma de pago:' | t }}</strong> {{ invoice.metodoPago || 'Efectivo' }}</p>
         <p><strong>{{ 'Número de cuenta:' | t }}</strong> [Tu número de cuenta]</p>
         <p><strong>{{ 'Contacto:' | t }}</strong> C/Barranquet 3 bj 2, Villajoyosa, 03570</p>
+        <p><strong>{{ 'Teléfono:' | t }}</strong> 865741988</p>
       </div>
     </div>
   </div>

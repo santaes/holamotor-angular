@@ -249,6 +249,14 @@
 .signature-line {
   flex: 1;
   padding-right: 40px;
+  text-align: center;
+}
+
+.signature-image {
+  max-width: 200px;
+  max-height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
 }
 
 .signature-line p {
@@ -263,7 +271,7 @@
   width: 200px;
   height: 1px;
   background: #333;
-  margin-top: 40px;
+  margin: 20px auto 0;
 }
 
 .totals {
