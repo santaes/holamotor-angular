@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Invoice } from '../../models/billing.model';
+import { Invoice, InvoiceItem } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../../../core/services/storage.service';
@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
+import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
 
 @Component({
   selector: 'app-invoice-form',
@@ -50,6 +51,7 @@ export class InvoiceFormComponent implements OnInit {
 
   customers: any[] = [];
   vehicles: any[] = [];
+  items: InvoiceItem[] = [];
 
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
@@ -140,6 +142,7 @@ export class InvoiceFormComponent implements OnInit {
     this.billingService.getInvoiceById(id).subscribe({
       next: (invoice) => {
         this.invoiceForm.patchValue(invoice);
+        this.items = invoice.items || [];
       },
       error: (error) => {
         console.error('Error loading invoice:', error);
@@ -155,7 +158,7 @@ export class InvoiceFormComponent implements OnInit {
         fechaEmision: new Date(this.invoiceForm.value.fechaEmision),
         fechaVencimiento: new Date(this.invoiceForm.value.fechaVencimiento),
         fechaPago: this.invoiceForm.value.fechaPago ? new Date(this.invoiceForm.value.fechaPago) : undefined,
-        items: [],
+        items: this.items,
         pagos: []
       };
 
@@ -198,5 +201,45 @@ export class InvoiceFormComponent implements OnInit {
       return t('Valor mínimo es 0');
     }
     return '';
+  }
+
+  addItem(): void {
+    const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe((item: InvoiceItem) => {
+      if (item) {
+        const newItem: InvoiceItem = {
+          ...item,
+          id: this.items.length > 0 ? Math.max(...this.items.map(i => i.id || 0)) + 1 : 1,
+          subtotal: item.cantidad * item.precioUnitario
+        };
+        this.items.push(newItem);
+        this.recalculateTotals();
+        this.snackBar.open(t('Posición agregada'), t('Cerrar'), { duration: 2000 });
+      }
+    });
+  }
+
+  removeItem(index: number): void {
+    this.items.splice(index, 1);
+    this.recalculateTotals();
+    this.snackBar.open(t('Posición eliminada'), t('Cerrar'), { duration: 2000 });
+  }
+
+  recalculateTotals(): void {
+    const subtotal = this.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+    const taxRate = this.settingsService.value.taxRate;
+    const impuestos = Math.round(subtotal * taxRate) / 100;
+    const descuento = Number(this.invoiceForm.get('descuento')?.value) || 0;
+    const total = subtotal + impuestos - descuento;
+
+    this.invoiceForm.patchValue({
+      subtotal: Math.round(subtotal * 100) / 100,
+      impuestos: Math.round(impuestos * 100) / 100,
+      total: Math.round(total * 100) / 100
+    }, { emitEvent: false });
   }
 }

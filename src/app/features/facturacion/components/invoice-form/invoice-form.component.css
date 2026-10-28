@@ -1,0 +1,47 @@
+.items-section {
+  margin-top: 20px;
+}
+
+.items-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-details {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.item-subtotal {
+  font-weight: 500;
+  color: #000;
+}
+
+.no-items {
+  margin-top: 15px;
+  text-align: center;
+  color: #999;
+  padding: 20px;
+}
+
+.no-items mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+}

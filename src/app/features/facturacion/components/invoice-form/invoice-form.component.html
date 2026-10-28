@@ -139,6 +139,34 @@
           <mat-label>{{ 'Notas' | t }}</mat-label>
           <textarea matInput formControlName="notas" rows="3"></textarea>
         </mat-form-field>
+
+        <h2>{{ 'Posiciones' | t }}</h2>
+        <div class="items-section">
+          <button mat-raised-button color="primary" (click)="addItem()">
+            <mat-icon>add</mat-icon>
+            {{ 'Agregar Posición' | t }}
+          </button>
+          <div class="items-list" *ngIf="items.length > 0">
+            <mat-card class="item-card" *ngFor="let item of items; let i = index">
+              <div class="item-info">
+                <strong>{{ item.descripcion }}</strong>
+                <div class="item-details">
+                  <span>{{ 'Tipo:' | t }} {{ item.tipo }}</span>
+                  <span>{{ 'Cantidad:' | t }} {{ item.cantidad }}</span>
+                  <span>{{ 'Precio Unitario:' | t }} {{ item.precioUnitario | money }}</span>
+                  <span class="item-subtotal">{{ 'Subtotal:' | t }} {{ item.subtotal | money }}</span>
+                </div>
+              </div>
+              <button mat-icon-button color="warn" (click)="removeItem(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card>
+          </div>
+          <div class="no-items" *ngIf="items.length === 0">
+            <mat-icon>list</mat-icon>
+            <p>{{ 'No hay posiciones agregadas' | t }}</p>
+          </div>
+        </div>
       </mat-card-content>
 
       <mat-card-actions align="end">

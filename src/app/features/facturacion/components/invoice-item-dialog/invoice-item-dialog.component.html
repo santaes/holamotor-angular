@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ 'Agregar Posición' | t }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'Descripción' | t }}</mat-label>
+      <input matInput formControlName="descripcion" required>
+      <mat-error *ngIf="form.get('descripcion')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+      <mat-error *ngIf="form.get('descripcion')?.hasError('minlength')">{{ 'Mínimo 2 caracteres' | t }}</mat-error>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Cantidad' | t }}</mat-label>
+        <input matInput formControlName="cantidad" type="number" min="1" required>
+        <mat-error *ngIf="form.get('cantidad')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+        <mat-error *ngIf="form.get('cantidad')?.hasError('min')">{{ 'Mínimo 1' | t }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Precio Unitario' | t }}</mat-label>
+        <input matInput formControlName="precioUnitario" type="number" min="0" required>
+        <mat-error *ngIf="form.get('precioUnitario')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+        <mat-error *ngIf="form.get('precioUnitario')?.hasError('min')">{{ 'Valor mínimo es 0' | t }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Tipo' | t }}</mat-label>
+        <mat-select formControlName="tipo" required>
+          <mat-option value="Parte">{{ 'Parte' | t }}</mat-option>
+          <mat-option value="Labor">{{ 'Labor' | t }}</mat-option>
+          <mat-option value="Servicio">{{ 'Servicio' | t }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('tipo')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Subtotal' | t }}</mat-label>
+        <input matInput [value]="(form.get('cantidad')?.value || 0) * (form.get('precioUnitario')?.value || 0) | money" disabled>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">{{ 'Cancelar' | t }}</button>
+  <button mat-raised-button color="primary" (click)="save()">
+    <mat-icon>add</mat-icon>
+    {{ 'Agregar' | t }}
+  </button>
+</mat-dialog-actions>
