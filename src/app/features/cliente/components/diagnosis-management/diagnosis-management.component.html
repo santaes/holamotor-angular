@@ -1,0 +1,133 @@
+<div class="diagnosis-management-container">
+  <div class="header-section">
+    <h1>{{ 'Gestión de Diagnósticos' | t }}</h1>
+  </div>
+
+  <div class="content-grid">
+    <!-- Upload Form -->
+    <mat-card class="upload-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'Nuevo Diagnóstico' | t }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="diagnosisForm">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'Título' | t }}</mat-label>
+            <input matInput formControlName="titulo" required>
+            <mat-error *ngIf="diagnosisForm.get('titulo')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'Cliente' | t }}</mat-label>
+              <mat-select formControlName="clienteId">
+                <mat-option value="">{{ 'Seleccionar' | t }}</mat-option>
+                <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="selectedVehicles.length > 0">
+              <mat-label>{{ 'Vehículo' | t }}</mat-label>
+              <mat-select formControlName="vehiculoId">
+                <mat-option value="">{{ 'Seleccionar' | t }}</mat-option>
+                <mat-option *ngFor="let v of selectedVehicles" [value]="v.id">{{ v.marca }} {{ v.modelo }} ({{ v.anio }})</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="upload-section">
+            <input type="file" id="pdfInput" (change)="onFileSelected($event)" accept=".pdf" style="display: none;">
+            <button mat-raised-button color="primary" (click)="triggerFileInput()">
+              <mat-icon>upload_file</mat-icon>
+              {{ 'Seleccionar PDF' | t }}
+            </button>
+            <span *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</span>
+          </div>
+
+          <div class="action-buttons" *ngIf="selectedFile">
+            <button mat-stroked-button (click)="extractText()" [disabled]="isProcessing">
+              <mat-icon>text_snippet</mat-icon>
+              {{ 'Extraer Texto' | t }}
+            </button>
+            <mat-progress-bar *ngIf="isProcessing" mode="determinate" [value]="progress"></mat-progress-bar>
+          </div>
+
+          <div class="translation-section" *ngIf="extractedText">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'Idioma de Traducción' | t }}</mat-label>
+              <mat-select formControlName="idiomaTraduccion">
+                <mat-option value="en">English</mat-option>
+                <mat-option value="es">Español</mat-option>
+                <mat-option value="ru">Русский</mat-option>
+                <mat-option value="uk">Українська</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <button mat-stroked-button (click)="translateText()" [disabled]="isTranslating">
+              <mat-icon>translate</mat-icon>
+              {{ 'Traducir' | t }}
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'Notas' | t }}</mat-label>
+            <textarea matInput formControlName="notas" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button (click)="resetForm()">{{ 'Cancelar' | t }}</button>
+            <button mat-raised-button color="primary" (click)="saveDiagnosis()" [disabled]="!selectedFile || diagnosisForm.invalid || isUploading">
+              <mat-icon>save</mat-icon>
+              {{ isUploading ? ('Guardando...' | t) : ('Guardar' | t) }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Diagnoses List -->
+    <mat-card class="list-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'Diagnósticos Guardados' | t }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="isLoading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+        <div *ngIf="!isLoading && diagnoses.length === 0" class="no-data">
+          <mat-icon>description</mat-icon>
+          <p>{{ 'No hay diagnósticos guardados' | t }}</p>
+        </div>
+        <div class="diagnoses-list" *ngIf="!isLoading && diagnoses.length > 0">
+          <mat-card class="diagnosis-card" *ngFor="let diagnosis of diagnoses">
+            <div class="diagnosis-header">
+              <h3>{{ diagnosis.titulo }}</h3>
+              <div class="diagnosis-actions">
+                <button mat-icon-button (click)="viewDiagnosis(diagnosis)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteDiagnosis(diagnosis.id!)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="diagnosis-info">
+              <p><strong>{{ 'Fecha:' | t }}</strong> {{ diagnosis.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p *ngIf="diagnosis.clienteNombre"><strong>{{ 'Cliente:' | t }}</strong> {{ diagnosis.clienteNombre }}</p>
+              <p *ngIf="diagnosis.vehiculoInfo"><strong>{{ 'Vehículo:' | t }}</strong> {{ diagnosis.vehiculoInfo }}</p>
+              <p *ngIf="diagnosis.idiomaTraduccion"><strong>{{ 'Traducido a:' | t }}</strong> {{ diagnosis.idiomaTraduccion }}</p>
+            </div>
+            <div class="diagnosis-preview" *ngIf="diagnosis.textoOriginal">
+              <p><strong>{{ 'Texto Original:' | t }}</strong></p>
+              <p class="text-preview">{{ diagnosis.textoOriginal | slice:0:200 }}...</p>
+            </div>
+            <div class="diagnosis-preview" *ngIf="diagnosis.textoTraducido">
+              <p><strong>{{ 'Texto Traducido:' | t }}</strong></p>
+              <p class="text-preview">{{ diagnosis.textoTraducido | slice:0:200 }}...</p>
+            </div>
+          </mat-card>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

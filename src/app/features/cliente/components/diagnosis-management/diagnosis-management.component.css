@@ -1,0 +1,137 @@
+.diagnosis-management-container {
+  padding: 20px;
+}
+
+.header-section {
+  margin-bottom: 20px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1200px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row mat-form-field {
+  flex: 1;
+}
+
+.upload-section {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.file-name {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.action-buttons {
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.translation-section {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+}
+
+.diagnoses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.diagnosis-card {
+  padding: 15px;
+}
+
+.diagnosis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.diagnosis-header h3 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.diagnosis-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.diagnosis-info {
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.diagnosis-info p {
+  margin: 5px 0;
+}
+
+.diagnosis-preview {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.diagnosis-preview p {
+  margin: 5px 0;
+}
+
+.text-preview {
+  font-size: 0.85em;
+  color: #555;
+  line-height: 1.4;
+}

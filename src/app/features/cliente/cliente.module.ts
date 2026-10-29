@@ -11,6 +11,7 @@ import { CustomerListComponent } from './components/customer-list/customer-list.
 import { CustomerFormComponent } from './components/customer-form/customer-form.component';
 import { CustomerDetailComponent } from './components/customer-detail/customer-detail.component';
 import { PdfUploadComponent } from '../../core/components/pdf-upload/pdf-upload.component';
+import { DiagnosisManagementComponent } from './components/diagnosis-management/diagnosis-management.component';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -24,13 +25,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
     CustomerListComponent,
     CustomerFormComponent,
     CustomerDetailComponent,
-    PdfUploadComponent
+    PdfUploadComponent,
+    DiagnosisManagementComponent
   ],
   imports: [
     MatTooltipModule,
@@ -51,7 +54,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSelectModule,
     MatChipsModule,
     MatTabsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatProgressBarModule
   ]
 })
 export class ClienteModule {}

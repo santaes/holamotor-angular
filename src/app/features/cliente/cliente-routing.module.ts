@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { CustomerListComponent } from './components/customer-list/customer-list.component';
 import { CustomerFormComponent } from './components/customer-form/customer-form.component';
 import { CustomerDetailComponent } from './components/customer-detail/customer-detail.component';
+import { DiagnosisManagementComponent } from './components/diagnosis-management/diagnosis-management.component';
 
 const routes: Routes = [
   {
@@ -20,6 +21,10 @@ const routes: Routes = [
   {
     path: ':id/edit',
     component: CustomerFormComponent
+  },
+  {
+    path: 'diagnoses',
+    component: DiagnosisManagementComponent
   }
 ];
 

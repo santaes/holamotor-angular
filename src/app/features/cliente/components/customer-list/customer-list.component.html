@@ -1,10 +1,16 @@
 <div class="customer-list-container">
   <div class="header-section">
     <h1>{{ 'Gestión de Clientes' | t }}</h1>
-    <button mat-raised-button color="primary" routerLink="/clientes/new">
-      <mat-icon>add</mat-icon>
-      {{ 'Nuevo Cliente' | t }}
-    </button>
+    <div class="header-actions">
+      <button mat-raised-button color="accent" routerLink="/clientes/diagnoses">
+        <mat-icon>description</mat-icon>
+        {{ 'Gestión de Diagnósticos' | t }}
+      </button>
+      <button mat-raised-button color="primary" routerLink="/clientes/new">
+        <mat-icon>add</mat-icon>
+        {{ 'Nuevo Cliente' | t }}
+      </button>
+    </div>
   </div>
 
   <div class="search-section">
