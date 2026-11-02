@@ -116,4 +116,8 @@ export class SettingsComponent implements OnInit {
       this.snackBar.open(t('Datos de ejemplo restablecidos'), t('Cerrar'), { duration: 3000 });
     }
   }
+
+  openVerifactuDocs(): void {
+    window.open('/assets/VERIFACTU.md', '_blank');
+  }
 }

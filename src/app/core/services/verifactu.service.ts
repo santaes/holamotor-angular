@@ -68,6 +68,37 @@ export interface VerifactuCreateInvoiceResponse {
   firma?: string;
 }
 
+// AEAT VeriFactu compliant structures
+export interface FacturaOnlineInvoiceRequest {
+  factura: {
+    IDEmisorFactura: string;
+    NumSerieFactura: string;
+    FechaExpedicionFactura: string;
+    HoraExpedicionFactura: string;
+    Destinatarios: Array<{
+      NIF: string;
+      NombreRazon: string;
+    }>;
+    TipoDesglose: {
+      DesgloseFactura: {
+        Sujeta: {
+          NoExenta: {
+            TipoNoExenta: string;
+            DesgloseIVA: Array<{
+              BaseImponible: string;
+              TipoImpositivo: string;
+              CuotaRepercutida: string;
+            }>;
+          };
+        };
+      };
+    };
+    ImporteTotal: string;
+    Descripcion?: string;
+    Vencimiento?: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -159,5 +190,61 @@ export class VerifactuService {
    */
   isConfigured(): boolean {
     return !!this.getApiKey();
+  }
+
+  /**
+   * Send invoice to FacturaOnline/VeriFactu (AEAT compliant)
+   */
+  sendInvoice(request: FacturaOnlineInvoiceRequest): Observable<any> {
+    if (!this.getApiKey()) {
+      return throwError(() => new Error('Verifactu API key not configured'));
+    }
+
+    return this.http.post(
+      `${this.getBaseUrl()}/facturae/enviar`,
+      request,
+      { headers: this.getHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Verifactu send invoice error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get VeriFactu signature for an invoice
+   */
+  getInvoiceSignature(invoiceId: string): Observable<any> {
+    if (!this.getApiKey()) {
+      return throwError(() => new Error('Verifactu API key not configured'));
+    }
+
+    return this.http.get(
+      `${this.getBaseUrl()}/verifactu/signature/${invoiceId}`,
+      { headers: this.getHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Verifactu signature error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Generate QR code for VeriFactu compliance
+   */
+  generateQRCode(invoiceData: any): string {
+    // QR code format for VeriFactu: 
+    // Includes: NIF emitter, invoice number, date, total amount, signature
+    const qrData = [
+      invoiceData.IDEmisorFactura,
+      invoiceData.NumSerieFactura,
+      invoiceData.FechaExpedicionFactura,
+      invoiceData.ImporteTotal,
+      invoiceData.firma || ''
+    ].join('|');
+    
+    return btoa(qrData);
   }
 }

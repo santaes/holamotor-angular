@@ -78,32 +78,51 @@ export class InvoiceFormComponent implements OnInit {
   private setupTotals(): void {
     const f = this.invoiceForm;
     const num = (name: string) => Number(f.get(name)?.value) || 0;
-    const taxRate = this.settingsService.value.taxRate;
 
     // When subtotal changes, calculate IVA and total
     f.get('subtotal')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      if (!this.invoiceId) {
-        f.get('impuestos')?.setValue(Math.round(num('subtotal') * taxRate) / 100);
-      }
+      const taxRate = this.settingsService.value.taxRate;
+      const subtotal = num('subtotal');
+      const impuestos = Math.round(subtotal * taxRate) / 100;
+      const descuento = num('descuento');
+      const total = subtotal + impuestos - descuento;
+      f.get('impuestos')?.setValue(impuestos, { emitEvent: false });
+      f.get('total')?.setValue(Math.max(0, Math.round(total * 100) / 100), { emitEvent: false });
+    });
+
+    // When IVA changes, recalculate total
+    f.get('impuestos')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const subtotal = num('subtotal');
+      const impuestos = num('impuestos');
+      const descuento = num('descuento');
+      const total = subtotal + impuestos - descuento;
+      f.get('total')?.setValue(Math.max(0, Math.round(total * 100) / 100), { emitEvent: false });
     });
 
     // When total changes, calculate subtotal and IVA backwards
     f.get('total')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      if (!this.invoiceId) {
-        const total = num('total');
-        const discount = num('descuento');
-        // Formula: total = subtotal + (subtotal * taxRate/100) - discount
-        // Rearranged: subtotal = (total + discount) / (1 + taxRate/100)
-        const subtotal = (total + discount) / (1 + taxRate / 100);
-        f.get('subtotal')?.setValue(Math.max(0, Math.round(subtotal * 100) / 100), { emitEvent: false });
-        f.get('impuestos')?.setValue(Math.round(num('subtotal') * taxRate) / 100, { emitEvent: false });
-      }
+      const taxRate = this.settingsService.value.taxRate;
+      const total = num('total');
+      const discount = num('descuento');
+      // Formula: total = subtotal + (subtotal * taxRate/100) - discount
+      // Rearranged: subtotal = (total + discount) / (1 + taxRate/100)
+      const subtotal = (total + discount) / (1 + taxRate / 100);
+      f.get('subtotal')?.setValue(Math.max(0, Math.round(subtotal * 100) / 100), { emitEvent: false });
+      f.get('impuestos')?.setValue(Math.round(num('subtotal') * taxRate) / 100, { emitEvent: false });
     });
 
     // When discount changes, recalculate total
     f.get('descuento')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      const total = num('subtotal') + num('impuestos') - num('descuento');
+      const subtotal = num('subtotal');
+      const impuestos = num('impuestos');
+      const descuento = num('descuento');
+      const total = subtotal + impuestos - descuento;
       f.get('total')?.setValue(Math.max(0, Math.round(total * 100) / 100), { emitEvent: false });
+    });
+
+    // When tax rate changes in settings, recalculate all
+    this.settingsService.settings$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.recalculateTotals();
     });
   }
 
@@ -193,18 +212,18 @@ export class InvoiceFormComponent implements OnInit {
 
   sendToVerifactu(): void {
     if (!this.verifactuService.isConfigured()) {
-      this.snackBar.open(t('Verifactu no está configurado. Ve a Configuración para añadir tu API Key.'), t('Cerrar'), { duration: 5000 });
+      this.snackBar.open(t('VeriFactu no está configurado. Ve a Configuración para añadir tu API Key.'), t('Cerrar'), { duration: 5000 });
       return;
     }
 
     if (!this.invoiceForm.valid) {
-      this.snackBar.open(t('Por favor completa la factura antes de enviarla a Verifactu'), t('Cerrar'), { duration: 3000 });
+      this.snackBar.open(t('Por favor completa la factura antes de enviarla a VeriFactu'), t('Cerrar'), { duration: 3000 });
       return;
     }
 
     const settings = this.settingsService.value;
     if (!settings.taxId) {
-      this.snackBar.open(t('Configura tu NIF/CIF en Configuración antes de enviar a Verifactu'), t('Cerrar'), { duration: 5000 });
+      this.snackBar.open(t('Configura tu NIF/CIF en Configuración antes de enviar a VeriFactu'), t('Cerrar'), { duration: 5000 });
       return;
     }
 
@@ -222,13 +241,20 @@ export class InvoiceFormComponent implements OnInit {
     this.billingService.sendToVerifactu(invoice, settings.taxId, settings.workshopName).subscribe({
       next: (response) => {
         this.isSendingToVerifactu = false;
-        this.snackBar.open(t('Factura enviada a Verifactu exitosamente'), t('Cerrar'), { duration: 3000 });
-        console.log('Verifactu response:', response);
+        if (response.data && response.data.estado_registro === 'Correcto') {
+          this.snackBar.open(t('Factura enviada a AEAT exitosamente. CSV: ') + response.data.csv, t('Cerrar'), { duration: 5000 });
+          console.log('VeriFactu response:', response);
+        } else if (response.status === 'success' || response.id) {
+          this.snackBar.open(t('Factura enviada a VeriFactu exitosamente. ID: ') + (response.id || 'N/A'), t('Cerrar'), { duration: 5000 });
+          console.log('VeriFactu response:', response);
+        } else {
+          this.snackBar.open(t('Factura rechazada: ') + (response.data?.motivo_rechazo || response.mensaje || 'Error desconocido'), t('Cerrar'), { duration: 5000 });
+        }
       },
       error: (error) => {
         this.isSendingToVerifactu = false;
-        console.error('Error sending to Verifactu:', error);
-        this.snackBar.open(t('Error al enviar factura a Verifactu'), t('Cerrar'), { duration: 3000 });
+        console.error('Error sending to VeriFactu:', error);
+        this.snackBar.open(t('Error al enviar factura a VeriFactu'), t('Cerrar'), { duration: 3000 });
       }
     });
   }

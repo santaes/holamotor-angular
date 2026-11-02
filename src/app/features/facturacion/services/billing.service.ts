@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { Invoice, Quote } from '../models/billing.model';
 import { StorageService } from '../../../core/services/storage.service';
-import { VerifactuService, VerifactuCreateInvoiceRequest } from '../../../core/services/verifactu.service';
+import { VerifactuService, FacturaOnlineInvoiceRequest } from '../../../core/services/verifactu.service';
 
 @Injectable({
   providedIn: 'root'
@@ -214,43 +214,51 @@ export class BillingService {
     return of(quotes);
   }
 
-  // Verifactu Integration
+  // Verifactu Integration (FacturaOnline)
   sendToVerifactu(invoice: Invoice, emitterNif: string, emitterName?: string): Observable<any> {
     if (!this.verifactuService.isConfigured()) {
-      return throwError(() => new Error('Verifactu not configured'));
+      return throwError(() => new Error('FacturaOnline API key not configured'));
     }
 
-    const request: VerifactuCreateInvoiceRequest = {
-      serie: invoice.numeroFactura.split('-')[0] || '',
-      numero: invoice.numeroFactura,
-      fecha_expedicion: this.formatDate(invoice.fechaEmision),
-      fecha_operacion: this.formatDate(invoice.fechaEmision),
-      emisor: {
-        nif: emitterNif,
-        nombre: emitterName
-      },
-      receptor: {
-        nif: this.extractNif(invoice.clienteNombre) || '',
-        nombre: invoice.clienteNombre
-      },
-      lineas: invoice.items.map(item => ({
-        concepto: item.descripcion,
-        cantidad: item.cantidad,
-        precio: item.precioUnitario,
-        tipo_iva: '01'
-      })),
-      tipo_factura: 'F1',
-      clave_regimen_iva: '01',
-      importe_total: invoice.total,
-      fecha_vencimiento: this.formatDate(invoice.fechaVencimiento),
-      descripcion: invoice.notas
+    const request: FacturaOnlineInvoiceRequest = {
+      factura: {
+        IDEmisorFactura: emitterNif,
+        NumSerieFactura: invoice.numeroFactura,
+        FechaExpedicionFactura: this.formatDate(invoice.fechaEmision),
+        HoraExpedicionFactura: this.formatTime(invoice.fechaEmision),
+        Destinatarios: [{
+          NIF: this.extractNif(invoice.clienteNombre) || '',
+          NombreRazon: invoice.clienteNombre
+        }],
+        TipoDesglose: {
+          DesgloseFactura: {
+            Sujeta: {
+              NoExenta: {
+                TipoNoExenta: 'S2',
+                DesgloseIVA: [{
+                  BaseImponible: invoice.subtotal.toFixed(2),
+                  TipoImpositivo: '21',
+                  CuotaRepercutida: invoice.impuestos.toFixed(2)
+                }]
+              }
+            }
+          }
+        },
+        ImporteTotal: invoice.total.toFixed(2),
+        Descripcion: invoice.notas,
+        Vencimiento: this.formatDate(invoice.fechaVencimiento)
+      }
     };
 
-    return this.verifactuService.createInvoice(request);
+    return this.verifactuService.sendInvoice(request);
   }
 
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
+  }
+
+  private formatTime(date: Date): string {
+    return date.toTimeString().split(' ')[0].substring(0, 5);
   }
 
   private extractNif(clienteNombre: string): string {
