@@ -12,6 +12,7 @@ import { CustomerFormComponent } from './components/customer-form/customer-form.
 import { CustomerDetailComponent } from './components/customer-detail/customer-detail.component';
 import { PdfUploadComponent } from '../../core/components/pdf-upload/pdf-upload.component';
 import { DiagnosisManagementComponent } from './components/diagnosis-management/diagnosis-management.component';
+import { CommunicationDialogComponent } from './components/communication-dialog/communication-dialog.component';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -26,6 +27,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
   declarations: [

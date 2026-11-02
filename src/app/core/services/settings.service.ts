@@ -16,6 +16,8 @@ export interface AppSettings {
   notifyInvoices: boolean;
   notifyOrders: boolean;
   notifySync: boolean;
+  verifactuApiKey: string;
+  verifactuSandbox: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -31,7 +33,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   notifyAppointments: true,
   notifyInvoices: true,
   notifyOrders: true,
-  notifySync: true
+  notifySync: true,
+  verifactuApiKey: '',
+  verifactuSandbox: true
 };
 
 export const CURRENCIES = ['EUR', 'USD', 'UAH', 'RUB', 'GBP', 'PLN', 'MXN'];

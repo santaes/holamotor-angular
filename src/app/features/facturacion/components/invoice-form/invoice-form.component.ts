@@ -7,6 +7,7 @@ import { BillingService } from '../../services/billing.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../../../core/services/storage.service';
 import { SettingsService } from '../../../../core/services/settings.service';
+import { VerifactuService } from '../../../../core/services/verifactu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
@@ -23,6 +24,7 @@ export class InvoiceFormComponent implements OnInit {
   isEditMode = false;
   invoiceId: number | null = null;
   pageTitle = 'Nueva Factura';
+  isSendingToVerifactu = false;
 
   constructor(
     private fb: FormBuilder,
@@ -32,6 +34,7 @@ export class InvoiceFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private billingService: BillingService,
+    private verifactuService: VerifactuService,
     private snackBar: MatSnackBar
   ) {
     this.invoiceForm = this.createForm();
@@ -186,6 +189,48 @@ export class InvoiceFormComponent implements OnInit {
         });
       }
     }
+  }
+
+  sendToVerifactu(): void {
+    if (!this.verifactuService.isConfigured()) {
+      this.snackBar.open(t('Verifactu no está configurado. Ve a Configuración para añadir tu API Key.'), t('Cerrar'), { duration: 5000 });
+      return;
+    }
+
+    if (!this.invoiceForm.valid) {
+      this.snackBar.open(t('Por favor completa la factura antes de enviarla a Verifactu'), t('Cerrar'), { duration: 3000 });
+      return;
+    }
+
+    const settings = this.settingsService.value;
+    if (!settings.taxId) {
+      this.snackBar.open(t('Configura tu NIF/CIF en Configuración antes de enviar a Verifactu'), t('Cerrar'), { duration: 5000 });
+      return;
+    }
+
+    this.isSendingToVerifactu = true;
+
+    const invoice: Invoice = {
+      ...this.invoiceForm.value,
+      fechaEmision: new Date(this.invoiceForm.value.fechaEmision),
+      fechaVencimiento: new Date(this.invoiceForm.value.fechaVencimiento),
+      fechaPago: this.invoiceForm.value.fechaPago ? new Date(this.invoiceForm.value.fechaPago) : undefined,
+      items: this.items,
+      pagos: []
+    };
+
+    this.billingService.sendToVerifactu(invoice, settings.taxId, settings.workshopName).subscribe({
+      next: (response) => {
+        this.isSendingToVerifactu = false;
+        this.snackBar.open(t('Factura enviada a Verifactu exitosamente'), t('Cerrar'), { duration: 3000 });
+        console.log('Verifactu response:', response);
+      },
+      error: (error) => {
+        this.isSendingToVerifactu = false;
+        console.error('Error sending to Verifactu:', error);
+        this.snackBar.open(t('Error al enviar factura a Verifactu'), t('Cerrar'), { duration: 3000 });
+      }
+    });
   }
 
   cancel(): void {

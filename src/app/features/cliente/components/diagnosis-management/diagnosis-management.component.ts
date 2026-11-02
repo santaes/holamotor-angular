@@ -10,6 +10,8 @@ import { StorageService } from '../../../../core/services/storage.service';
 import { PdfService } from '../../../../core/services/pdf.service';
 // @ts-ignore
 import Tesseract from 'tesseract.js';
+// @ts-ignore
+import * as pdfjsLib from 'pdfjs-dist';
 
 @Component({
   selector: 'app-diagnosis-management',
@@ -114,19 +116,60 @@ export class DiagnosisManagementComponent implements OnInit {
     this.progress = 0;
 
     try {
-      const result = await Tesseract.recognize(
-        this.selectedFile,
-        'eng+spa',
-        {
-          logger: (m) => {
-            if (m.status === 'recognizing text') {
-              this.progress = Math.round(m.progress * 100);
+      // Set up pdf.js worker
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+      // Load PDF
+      const arrayBuffer = await this.selectedFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+      let fullText = '';
+      const totalPages = pdf.numPages;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const page = await pdf.getPage(i);
+        const scale = 2.0;
+        const viewport = page.getViewport({ scale });
+
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) {
+          throw new Error('Could not get canvas context');
+        }
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render page to canvas
+        await page.render({
+          canvasContext: context,
+          viewport: viewport,
+          canvas: canvas
+        }).promise;
+
+        // Convert canvas to image blob
+        const blob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((blob) => resolve(blob!), 'image/png');
+        });
+
+        // Extract text from image using Tesseract
+        const result = await Tesseract.recognize(
+          blob,
+          'eng+spa',
+          {
+            logger: (m) => {
+              if (m.status === 'recognizing text') {
+                const overallProgress = ((i - 1) / totalPages) * 100 + (m.progress * 100 / totalPages);
+                this.progress = Math.round(overallProgress);
+              }
             }
           }
-        }
-      );
+        );
 
-      this.extractedText = result.data.text;
+        fullText += result.data.text + '\n\n';
+      }
+
+      this.extractedText = fullText.trim();
       this.isProcessing = false;
       this.snackBar.open(t('Texto extraído exitosamente'), t('Cerrar'), { duration: 3000 });
     } catch (error) {
@@ -167,6 +210,12 @@ export class DiagnosisManagementComponent implements OnInit {
     try {
       // Upload PDF first
       const uploadResult = await this.pdfService.uploadPdf(this.selectedFile).toPromise();
+
+      if (!uploadResult) {
+        this.isUploading = false;
+        this.snackBar.open(t('Error al subir PDF'), t('Cerrar'), { duration: 3000 });
+        return;
+      }
 
       const formValue = this.diagnosisForm.value;
       const customer = this.customers.find(c => c.id === +formValue.clienteId);

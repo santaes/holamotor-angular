@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { Invoice, Quote } from '../models/billing.model';
 import { StorageService } from '../../../core/services/storage.service';
+import { VerifactuService, VerifactuCreateInvoiceRequest } from '../../../core/services/verifactu.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,10 @@ export class BillingService {
   private invoices$ = new BehaviorSubject<Invoice[]>([]);
   private quotes$ = new BehaviorSubject<Quote[]>([]);
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private verifactuService: VerifactuService
+  ) {
     this.loadData();
     this.storageService.changes$.subscribe(key => {
       if (['invoices', 'quotes'].includes(key)) {
@@ -208,6 +212,50 @@ export class BillingService {
   getQuotesByCustomer(customerId: number): Observable<Quote[]> {
     const quotes = this.quotes$.value.filter(q => q.clienteId === customerId);
     return of(quotes);
+  }
+
+  // Verifactu Integration
+  sendToVerifactu(invoice: Invoice, emitterNif: string, emitterName?: string): Observable<any> {
+    if (!this.verifactuService.isConfigured()) {
+      return throwError(() => new Error('Verifactu not configured'));
+    }
+
+    const request: VerifactuCreateInvoiceRequest = {
+      serie: invoice.numeroFactura.split('-')[0] || '',
+      numero: invoice.numeroFactura,
+      fecha_expedicion: this.formatDate(invoice.fechaEmision),
+      fecha_operacion: this.formatDate(invoice.fechaEmision),
+      emisor: {
+        nif: emitterNif,
+        nombre: emitterName
+      },
+      receptor: {
+        nif: this.extractNif(invoice.clienteNombre) || '',
+        nombre: invoice.clienteNombre
+      },
+      lineas: invoice.items.map(item => ({
+        concepto: item.descripcion,
+        cantidad: item.cantidad,
+        precio: item.precioUnitario,
+        tipo_iva: '01'
+      })),
+      tipo_factura: 'F1',
+      clave_regimen_iva: '01',
+      importe_total: invoice.total,
+      fecha_vencimiento: this.formatDate(invoice.fechaVencimiento),
+      descripcion: invoice.notas
+    };
+
+    return this.verifactuService.createInvoice(request);
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  private extractNif(clienteNombre: string): string {
+    const match = clienteNombre.match(/\b[A-Z]?\d{8}[A-Z]?\b/i);
+    return match ? match[0] : '';
   }
 
   private generateId(items: any[]): number {

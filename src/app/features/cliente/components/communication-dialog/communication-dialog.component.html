@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>{{ 'Agregar Comunicación' | t }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Tipo' | t }}</mat-label>
+        <mat-select formControlName="tipo" required>
+          <mat-option value="Llamada">{{ 'Llamada' | t }}</mat-option>
+          <mat-option value="Email">{{ 'Email' | t }}</mat-option>
+          <mat-option value="SMS">{{ 'SMS' | t }}</mat-option>
+          <mat-option value="WhatsApp">{{ 'WhatsApp' | t }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('tipo')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'Fecha' | t }}</mat-label>
+        <input matInput [matDatepicker]="fechaPicker" formControlName="fecha" required>
+        <mat-datepicker-toggle matSuffix [for]="fechaPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fechaPicker></mat-datepicker>
+        <mat-error *ngIf="form.get('fecha')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'Asunto' | t }}</mat-label>
+      <input matInput formControlName="asunto" required>
+      <mat-error *ngIf="form.get('asunto')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+      <mat-error *ngIf="form.get('asunto')?.hasError('minlength')">{{ 'Mínimo 2 caracteres' | t }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'Mensaje' | t }}</mat-label>
+      <textarea matInput formControlName="mensaje" rows="4" required></textarea>
+      <mat-error *ngIf="form.get('mensaje')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+      <mat-error *ngIf="form.get('mensaje')?.hasError('minlength')">{{ 'Mínimo 5 caracteres' | t }}</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">{{ 'Cancelar' | t }}</button>
+  <button mat-raised-button color="primary" (click)="save()">
+    <mat-icon>add</mat-icon>
+    {{ 'Agregar' | t }}
+  </button>
+</mat-dialog-actions>

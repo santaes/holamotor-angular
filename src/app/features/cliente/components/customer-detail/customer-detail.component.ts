@@ -6,6 +6,7 @@ import { CustomerService } from '../../services/customer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { VehicleDialogComponent } from '../vehicle-dialog/vehicle-dialog.component';
+import { CommunicationDialogComponent } from '../communication-dialog/communication-dialog.component';
 
 @Component({
   selector: 'app-customer-detail',
@@ -101,8 +102,26 @@ export class CustomerDetailComponent implements OnInit {
   }
 
   addCommunication(): void {
-    // Implement add communication dialog
-    this.snackBar.open(t('Funcionalidad de agregar comunicación en desarrollo'), t('Cerrar'), { duration: 3000 });
+    const dialogRef = this.dialog.open(CommunicationDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe((communication: Communication) => {
+      if (communication && this.customer?.id) {
+        communication.clienteId = this.customer.id;
+        this.customerService.addCommunication(this.customer.id, communication).subscribe({
+          next: (newCommunication) => {
+            this.communications.push(newCommunication);
+            this.snackBar.open(t('Comunicación agregada exitosamente'), t('Cerrar'), { duration: 3000 });
+          },
+          error: (error) => {
+            console.error('Error adding communication:', error);
+            this.snackBar.open(t('Error al agregar comunicación'), t('Cerrar'), { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   getLoyaltyColor(level: string): string {

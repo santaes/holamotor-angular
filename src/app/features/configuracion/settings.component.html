@@ -80,6 +80,19 @@
           <mat-slide-toggle formControlName="notifyOrders" color="primary">{{ 'Avisar de órdenes listas' | t }}</mat-slide-toggle>
           <mat-slide-toggle formControlName="notifySync" color="primary">{{ 'Avisar de cambios en otros dispositivos' | t }}</mat-slide-toggle>
         </div>
+
+        <h2><mat-icon>receipt_long</mat-icon> Verifactu (Facturación Electrónica España)</h2>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>API Key</mat-label>
+          <input matInput formControlName="verifactuApiKey" type="password">
+          <mat-icon matPrefix>vpn_key</mat-icon>
+          <mat-hint>{{ 'Obtén tu API key en verifacti.com' | t }}</mat-hint>
+        </mat-form-field>
+        <div class="toggles">
+          <mat-slide-toggle formControlName="verifactuSandbox" color="primary">
+            {{ 'Modo Sandbox (Pruebas)' | t }}
+          </mat-slide-toggle>
+        </div>
       </mat-card-content>
     </mat-card>
   </form>

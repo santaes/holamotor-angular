@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "concurrently \"ng serve --host 0.0.0.0 --port 4200\" \"node server/index.js\"",
+    "start": "concurrently \"ng serve --host 0.0.0.0 --port 4200\" \"cross-env DATA_DIR=./data node server/index.js\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "server": "node server/index.js",
-    "start:prod": "ng build && node server/index.js"
+    "server": "cross-env DATA_DIR=./data node server/index.js",
+    "start:prod": "ng build && cross-env DATA_DIR=./data node server/index.js"
   },
   "private": true,
   "dependencies": {
@@ -22,6 +22,7 @@
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
+    "pdfjs-dist": "^6.4.299",
     "rxjs": "~7.8.0",
     "tesseract.js": "^5.1.0",
     "tslib": "^2.6.0",
@@ -36,6 +37,7 @@
     "@babel/types": "^8.0.8",
     "@types/node": "^20.0.0",
     "concurrently": "^10.0.6",
+    "cross-env": "^7.0.3",
     "typescript": "~5.3.0"
   },
   "allowScripts": {

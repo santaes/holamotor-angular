@@ -171,6 +171,10 @@
 
       <mat-card-actions align="end">
         <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
+        <button mat-stroked-button color="accent" type="button" (click)="sendToVerifactu()" [disabled]="isSendingToVerifactu">
+          <mat-icon>receipt_long</mat-icon>
+          {{ 'Enviar a Verifactu' | t }}
+        </button>
         <button mat-raised-button color="primary" type="submit" [disabled]="invoiceForm.invalid">
           <mat-icon>save</mat-icon>
           {{ isEditMode ? ('Actualizar' | t) : ('Guardar' | t) }}

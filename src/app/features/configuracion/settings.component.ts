@@ -38,7 +38,9 @@ export class SettingsComponent implements OnInit {
       notifyAppointments: [s.notifyAppointments],
       notifyInvoices: [s.notifyInvoices],
       notifyOrders: [s.notifyOrders],
-      notifySync: [s.notifySync]
+      notifySync: [s.notifySync],
+      verifactuApiKey: [s.verifactuApiKey],
+      verifactuSandbox: [s.verifactuSandbox]
     });
   }
 
