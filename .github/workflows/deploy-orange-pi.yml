@@ -1,0 +1,52 @@
+name: Deploy to Orange Pi
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ORANGE_PI_SSH_KEY }}" > ~/.ssh/orange_pi_key
+          chmod 600 ~/.ssh/orange_pi_key
+          ssh-keyscan -H ${{ secrets.ORANGE_PI_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Orange Pi
+        run: |
+          # Deploy using rsync and SSH
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/orange_pi_key -o StrictHostKeyChecking=no" \
+            --exclude 'node_modules' \
+            --exclude 'dist' \
+            --exclude '.git' \
+            --exclude 'data' \
+            --exclude '.github' \
+            ./ ${{ secrets.ORANGE_PI_USER }}@${{ secrets.ORANGE_PI_IP }}:${{ secrets.ORANGE_PI_DIR }}/
+
+      - name: Make deployment script executable
+        run: |
+          ssh -i ~/.ssh/orange_pi_key -o StrictHostKeyChecking=no \
+            ${{ secrets.ORANGE_PI_USER }}@${{ secrets.ORANGE_PI_IP }} \
+            "chmod +x ${{ secrets.ORANGE_PI_DIR }}/deploy-orange-pi-local.sh"
+
+      - name: Restart service on Orange Pi
+        run: |
+          ssh -i ~/.ssh/orange_pi_key -o StrictHostKeyChecking=no \
+            ${{ secrets.ORANGE_PI_USER }}@${{ secrets.ORANGE_PI_IP }} \
+            "cd ${{ secrets.ORANGE_PI_DIR }} && ./deploy-orange-pi-local.sh"
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/orange_pi_key -o StrictHostKeyChecking=no \
+            ${{ secrets.ORANGE_PI_USER }}@${{ secrets.ORANGE_PI_IP }} \
+            "cd ${{ secrets.ORANGE_PI_DIR }} && (docker-compose ps || sudo systemctl status holamotor --no-pager)"
