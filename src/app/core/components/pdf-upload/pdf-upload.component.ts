@@ -8,8 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfService } from '../../services/pdf.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { t } from '../../i18n/i18n';
 // @ts-ignore
-import Tesseract from 'tesseract.js';
+import * as pdfjsLib from 'pdfjs-dist';
 
 @Component({
   selector: 'app-pdf-upload',
@@ -32,14 +33,17 @@ export class PdfUploadComponent {
   constructor(
     private pdfService: PdfService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    // Set up pdf.js worker using reliable CDN
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
       if (file.type !== 'application/pdf') {
-        this.snackBar.open('Please select a PDF file', 'Close', { duration: 3000 });
+        this.snackBar.open(t('Please select a PDF file'), t('Cerrar'), { duration: 3000 });
         return;
       }
       this.selectedFile = file;
@@ -58,12 +62,12 @@ export class PdfUploadComponent {
           originalName: result.originalName,
           url: result.url
         });
-        this.snackBar.open('PDF uploaded successfully', 'Close', { duration: 3000 });
+        this.snackBar.open(t('PDF uploaded successfully'), t('Cerrar'), { duration: 3000 });
       },
       error: (error) => {
         this.isUploading = false;
         console.error('Upload error:', error);
-        this.snackBar.open('Error uploading PDF', 'Close', { duration: 3000 });
+        this.snackBar.open(t('Error uploading PDF'), t('Cerrar'), { duration: 3000 });
       }
     });
   }
@@ -75,26 +79,28 @@ export class PdfUploadComponent {
     this.progress = 0;
 
     try {
-      const result = await Tesseract.recognize(
-        this.selectedFile,
-        'eng+spa',
-        {
-          logger: (m) => {
-            if (m.status === 'recognizing text') {
-              this.progress = Math.round(m.progress * 100);
-            }
-          }
-        }
-      );
+      // Convert PDF to text using pdf.js
+      const arrayBuffer = await this.selectedFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
 
-      this.extractedText = result.data.text;
+      const totalPages = pdf.numPages;
+      for (let i = 1; i <= totalPages; i++) {
+        this.progress = Math.round((i / totalPages) * 100);
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+
+      this.extractedText = fullText.trim();
       this.textExtracted.emit(this.extractedText);
       this.isProcessing = false;
-      this.snackBar.open('Text extracted successfully', 'Close', { duration: 3000 });
+      this.snackBar.open(t('Text extracted successfully'), t('Cerrar'), { duration: 3000 });
     } catch (error) {
       this.isProcessing = false;
-      console.error('OCR error:', error);
-      this.snackBar.open('Error extracting text', 'Close', { duration: 3000 });
+      console.error('PDF text extraction error:', error);
+      this.snackBar.open(t('Error extracting text'), t('Cerrar'), { duration: 3000 });
     }
   }
 
@@ -106,12 +112,12 @@ export class PdfUploadComponent {
       next: (result) => {
         this.translatedText = result.translatedText;
         this.isTranslating = false;
-        this.snackBar.open('Text translated successfully', 'Close', { duration: 3000 });
+        this.snackBar.open(t('Text translated successfully'), t('Cerrar'), { duration: 3000 });
       },
       error: (error) => {
         this.isTranslating = false;
         console.error('Translation error:', error);
-        this.snackBar.open('Error translating text', 'Close', { duration: 3000 });
+        this.snackBar.open(t('Error translating text'), t('Cerrar'), { duration: 3000 });
       }
     });
   }

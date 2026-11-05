@@ -1,5 +1,6 @@
 import { ru } from './ru';
 import { uk } from './uk';
+import { es } from './es';
 
 export type Lang = 'es' | 'ru' | 'uk';
 
@@ -10,7 +11,7 @@ export const LANGUAGES: { code: Lang; label: string; locale: string }[] = [
 ];
 
 const STORAGE_KEY = 'holamotor_lang';
-const dictionaries: Record<Lang, Record<string, string>> = { es: {}, ru, uk };
+const dictionaries: Record<Lang, Record<string, string>> = { es, ru, uk };
 
 function detectLang(): Lang {
   const saved = localStorage.getItem(STORAGE_KEY) as Lang | null;

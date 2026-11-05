@@ -140,12 +140,12 @@ export class DiagnosisManagementComponent implements OnInit {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        // Render page to canvas
-        await page.render({
+        // Render page to canvas (pdf.js v3 API)
+        const renderContext = {
           canvasContext: context,
-          viewport: viewport,
-          canvas: canvas
-        }).promise;
+          viewport: viewport
+        };
+        await page.render(renderContext).promise;
 
         // Convert canvas to image blob
         const blob = await new Promise<Blob>((resolve) => {
