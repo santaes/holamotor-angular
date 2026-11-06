@@ -1,25 +1,48 @@
 # Orange Pi Quick Reference
 
+## Detect Your OS
+```bash
+scp detect-os.sh oem@orange-os:~/
+ssh oem@orange-os
+chmod +x detect-os.sh
+./detect-os.sh
+```
+
 ## Fast Commands
 
 ### Copy files to Orange Pi
 ```bash
+# Universal scripts (works with any Linux distro)
+scp setup-complete-orange-pi-universal.sh oem@orange-os:~/
+scp install-libretranslate-universal.sh oem@orange-os:~/
+
+# Debian/Ubuntu specific (if using apt)
 scp setup-complete-orange-pi.sh pi@orangepi-ip:~/
 scp install-libretranslate.sh pi@orangepi-ip:~/
 ```
 
 ### SSH into Orange Pi
 ```bash
+ssh oem@orange-os
+# or
 ssh pi@orangepi-ip
 ```
 
 ### Run setup scripts
 ```bash
-# Complete setup (HolaMotor + LibreTranslate)
+# Universal setup (works with any Linux distro)
+chmod +x setup-complete-orange-pi-universal.sh
+./setup-complete-orange-pi-universal.sh
+
+# Universal LibreTranslate only
+chmod +x install-libretranslate-universal.sh
+./install-libretranslate-universal.sh
+
+# Debian/Ubuntu only (if using apt)
 chmod +x setup-complete-orange-pi.sh
 ./setup-complete-orange-pi.sh
 
-# LibreTranslate only
+# Debian/Ubuntu LibreTranslate only
 chmod +x install-libretranslate.sh
 ./install-libretranslate.sh
 ```
