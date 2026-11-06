@@ -25,7 +25,7 @@ cd "$PROJECT_DIR"
 
 # Check if running with Docker
 if [ -f "docker-compose.yml" ]; then
-  docker-compose down || true
+  docker compose down || true
   echo "✅ Docker containers stopped"
 else
   # Check if running with systemd
@@ -36,7 +36,7 @@ fi
 # 3. Rebuild and start
 echo "🔨 Rebuilding and starting application..."
 if [ -f "docker-compose.yml" ]; then
-  docker-compose up -d --build
+  docker compose up -d --build
   echo "✅ Docker container rebuilt and started"
 else
   # Need to rebuild locally
@@ -51,7 +51,7 @@ fi
 # 4. Check status
 echo "✅ Checking status..."
 if [ -f "docker-compose.yml" ]; then
-  docker-compose ps
+  docker compose ps
 else
   sudo systemctl status holamotor --no-pager
 fi
