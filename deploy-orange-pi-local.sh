@@ -85,7 +85,75 @@ if [ -d "$PROJECT_DIR/data" ]; then
   echo "✅ Backup created: $BACKUP_DIR/data-backup-$TIMESTAMP.tar.gz"
 fi
 
-# 3. Stop existing service/container
+# 3. Ensure HolaMotor systemd service is configured with LibreTranslate
+echo "⚙️  Ensuring HolaMotor service configuration..."
+if ! command -v docker &> /dev/null || [ ! -f "docker-compose.yml" ]; then
+  # Only for non-Docker deployments
+  USER=$(whoami)
+  HM_DATA_DIR="$HOME/holamotor-data"
+  mkdir -p "$HM_DATA_DIR/pdfs"
+
+  # Check if service file exists and has LIBRETRANSLATE_URL
+  if [ -f "/etc/systemd/system/holamotor.service" ]; then
+    if ! sudo grep -q "LIBRETRANSLATE_URL" /etc/systemd/system/holamotor.service; then
+      echo "📝 Updating HolaMotor service with LibreTranslate URL..."
+      sudo tee /etc/systemd/system/holamotor.service > /dev/null <<EOF
+[Unit]
+Description=HolaMotor Workshop Management
+After=network.target libretranslate.service
+
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$PROJECT_DIR
+Environment="PORT=8080"
+Environment="HOST=0.0.0.0"
+Environment="DATA_DIR=$HM_DATA_DIR"
+Environment="STATIC_DIR=$PROJECT_DIR/dist/holamotor-taller"
+Environment="HOLAMOTOR_LANG=es"
+Environment="LIBRETRANSLATE_URL=http://localhost:5000"
+ExecStart=/usr/bin/node $PROJECT_DIR/server/index.js
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+      sudo systemctl daemon-reload
+      echo "✅ HolaMotor service updated"
+    fi
+  else
+    # Create service file if it doesn't exist
+    echo "📝 Creating HolaMotor service..."
+    sudo tee /etc/systemd/system/holamotor.service > /dev/null <<EOF
+[Unit]
+Description=HolaMotor Workshop Management
+After=network.target libretranslate.service
+
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$PROJECT_DIR
+Environment="PORT=8080"
+Environment="HOST=0.0.0.0"
+Environment="DATA_DIR=$HM_DATA_DIR"
+Environment="STATIC_DIR=$PROJECT_DIR/dist/holamotor-taller"
+Environment="HOLAMOTOR_LANG=es"
+Environment="LIBRETRANSLATE_URL=http://localhost:5000"
+ExecStart=/usr/bin/node $PROJECT_DIR/server/index.js
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl enable holamotor
+    echo "✅ HolaMotor service created"
+  fi
+fi
+
+# 4. Stop existing service/container
 echo "🛑 Stopping existing service..."
 cd "$PROJECT_DIR"
 
@@ -99,7 +167,7 @@ else
   echo "✅ Systemd service stopped"
 fi
 
-# 4. Rebuild and start
+# 5. Rebuild and start
 echo "🔨 Rebuilding and starting application..."
 if command -v docker &> /dev/null && [ -f "docker-compose.yml" ]; then
   docker compose up -d --build
@@ -114,7 +182,7 @@ else
   fi
 fi
 
-# 5. Check status
+# 6. Check status
 echo "✅ Checking status..."
 if command -v docker &> /dev/null && [ -f "docker-compose.yml" ]; then
   docker compose ps
@@ -122,9 +190,28 @@ else
   sudo systemctl status holamotor --no-pager
 fi
 
-# 6. Check LibreTranslate status
+# 7. Check LibreTranslate status
 echo "🌐 Checking LibreTranslate status..."
 sudo systemctl status libretranslate --no-pager || echo "⚠️  LibreTranslate service not found"
+
+# 8. Wait for LibreTranslate to be ready and test it
+echo "🧪 Testing LibreTranslate connection..."
+if command -v curl &> /dev/null; then
+  for i in {1..30}; do
+    if curl -s http://localhost:5000/specs > /dev/null 2>&1; then
+      echo "✅ LibreTranslate is ready!"
+      break
+    fi
+    if [ $i -eq 30 ]; then
+      echo "⚠️  LibreTranslate not responding after 30 seconds (may still be downloading models)"
+    else
+      echo "⏳ Waiting for LibreTranslate to start... ($i/30)"
+      sleep 1
+    fi
+  done
+else
+  echo "⚠️  curl not available, skipping LibreTranslate connection test"
+fi
 
 echo "🎉 Deployment complete!"
 echo "🌐 Access the app at: http://$(hostname -I | awk '{print $1}'):8080"
