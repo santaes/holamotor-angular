@@ -23,8 +23,8 @@ fi
 echo "🛑 Stopping existing service..."
 cd "$PROJECT_DIR"
 
-# Check if running with Docker
-if [ -f "docker-compose.yml" ]; then
+# Check if Docker is available and docker-compose.yml exists
+if command -v docker &> /dev/null && [ -f "docker-compose.yml" ]; then
   docker compose down || true
   echo "✅ Docker containers stopped"
 else
@@ -35,7 +35,7 @@ fi
 
 # 3. Rebuild and start
 echo "🔨 Rebuilding and starting application..."
-if [ -f "docker-compose.yml" ]; then
+if command -v docker &> /dev/null && [ -f "docker-compose.yml" ]; then
   docker compose up -d --build
   echo "✅ Docker container rebuilt and started"
 else
@@ -50,7 +50,7 @@ fi
 
 # 4. Check status
 echo "✅ Checking status..."
-if [ -f "docker-compose.yml" ]; then
+if command -v docker &> /dev/null && [ -f "docker-compose.yml" ]; then
   docker compose ps
 else
   sudo systemctl status holamotor --no-pager
