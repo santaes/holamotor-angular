@@ -343,7 +343,26 @@ async function handleTranslation(req, res) {
       return sendError(req, res, 400, 'invalidJson');
     }
 
-    // Try to call LibreTranslate API
+    // Try MyMemory Translation API (free, no key required)
+    try {
+      const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`;
+      const response = await fetch(myMemoryUrl);
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseStatus === 200 && result.responseData) {
+          return send(res, 200, {
+            translatedText: result.responseData.translatedText,
+            source: result.responseData.detectedLanguage || source,
+            target: target
+          });
+        }
+      }
+    } catch (err) {
+      console.log('MyMemory translation failed, trying LibreTranslate');
+    }
+
+    // Fallback to LibreTranslate if available
     try {
       const response = await fetch(`${LIBRETRANSLATE_URL}/translate`, {
         method: 'POST',
@@ -367,10 +386,10 @@ async function handleTranslation(req, res) {
         });
       }
     } catch (err) {
-      console.log('Translation service not available, returning original text');
+      console.log('LibreTranslate not available, returning original text');
     }
 
-    // Fallback: return original text if translation service is not available
+    // Final fallback: return original text if no translation service is available
     return send(res, 200, {
       translatedText: text,
       source: source,
