@@ -214,4 +214,4 @@ else
 fi
 
 echo "🎉 Deployment complete!"
-echo "🌐 Access the app at: http://$(hostname -I | awk '{print $1}'):8080"
+echo "🌐 Access the app at: http://192.168.1.134:8080"

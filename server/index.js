@@ -343,13 +343,30 @@ async function handleTranslation(req, res) {
       return sendError(req, res, 400, 'invalidJson');
     }
 
+    // Create a timeout for fetch requests
+    const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    };
+
     // Try MyMemory Translation API (free, no key required)
     try {
       const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`;
-      const response = await fetch(myMemoryUrl);
+      console.log('Trying MyMemory API:', myMemoryUrl.substring(0, 100) + '...');
+      const response = await fetchWithTimeout(myMemoryUrl, {}, 10000);
 
+      console.log('MyMemory response status:', response.status);
       if (response.ok) {
         const result = await response.json();
+        console.log('MyMemory result:', JSON.stringify(result).substring(0, 200));
         if (result.responseStatus === 200 && result.responseData) {
           return send(res, 200, {
             translatedText: result.responseData.translatedText,
@@ -359,12 +376,12 @@ async function handleTranslation(req, res) {
         }
       }
     } catch (err) {
-      console.log('MyMemory translation failed, trying LibreTranslate');
+      console.log('MyMemory translation failed:', err.message);
     }
 
     // Fallback to LibreTranslate if available
     try {
-      const response = await fetch(`${LIBRETRANSLATE_URL}/translate`, {
+      const response = await fetchWithTimeout(`${LIBRETRANSLATE_URL}/translate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -375,7 +392,7 @@ async function handleTranslation(req, res) {
           target: target,
           format: 'text'
         })
-      });
+      }, 5000);
 
       if (response.ok) {
         const result = await response.json();
