@@ -343,33 +343,48 @@ async function handleTranslation(req, res) {
       return sendError(req, res, 400, 'invalidJson');
     }
 
-    // Call LibreTranslate API
-    const response = await fetch(`${LIBRETRANSLATE_URL}/translate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        q: text,
-        source: source,
-        target: target,
-        format: 'text'
-      })
-    });
+    // Try to call LibreTranslate API
+    try {
+      const response = await fetch(`${LIBRETRANSLATE_URL}/translate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          q: text,
+          source: source,
+          target: target,
+          format: 'text'
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error('Translation service error');
+      if (response.ok) {
+        const result = await response.json();
+        return send(res, 200, {
+          translatedText: result.translatedText,
+          source: result.detected_language?.language || source,
+          target: target
+        });
+      }
+    } catch (err) {
+      console.log('Translation service not available, returning original text');
     }
 
-    const result = await response.json();
+    // Fallback: return original text if translation service is not available
     return send(res, 200, {
-      translatedText: result.translatedText,
-      source: result.detected_language?.language || source,
+      translatedText: text,
+      source: source,
       target: target
     });
   } catch (err) {
     console.error('Translation error:', err);
-    return sendError(req, res, 500, 'internalError');
+    // Return original text on error instead of 500
+    const body = await readBody(req);
+    return send(res, 200, {
+      translatedText: body.text,
+      source: body.source || 'auto',
+      target: body.target || 'en'
+    });
   }
 }
 

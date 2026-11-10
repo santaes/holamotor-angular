@@ -21,7 +21,6 @@ export interface TranslationResult {
 })
 export class PdfService {
   private readonly apiUrl = '/api';
-  private readonly libreTranslateUrl = 'https://libretranslate.de/translate';
 
   constructor(private http: HttpClient) {}
 
@@ -32,35 +31,20 @@ export class PdfService {
   }
 
   translateText(text: string, source: string = 'auto', target: string = 'en'): Observable<TranslationResult> {
-    // Try server API first, fallback to LibreTranslate
+    // Try server API first
     return this.http.post<TranslationResult>(`${this.apiUrl}/translate`, {
       text,
       source,
       target
     }).pipe(
-      catchError(() => {
-        // Fallback to LibreTranslate (free API)
-        return this.http.post<any>(this.libreTranslateUrl, {
-          q: text,
-          source: source === 'auto' ? 'en' : source,
-          target: target,
-          format: 'text'
-        }).pipe(
-          map(response => ({
-            translatedText: response.translatedText,
-            source: response.source || source,
-            target: target
-          })),
-          catchError(error => {
-            console.error('Translation API error:', error);
-            // Return original text if translation fails
-            return of({
-              translatedText: text,
-              source: source,
-              target: target
-            });
-          })
-        );
+      catchError(error => {
+        console.error('Translation API error:', error);
+        // Return original text if translation fails
+        return of({
+          translatedText: text,
+          source: source,
+          target: target
+        });
       })
     );
   }
