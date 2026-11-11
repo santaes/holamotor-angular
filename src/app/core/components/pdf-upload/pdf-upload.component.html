@@ -98,5 +98,14 @@
   <div class="translated-section" *ngIf="translatedText">
     <h3>{{ 'Translated Text' | t }}</h3>
     <textarea [(ngModel)]="translatedText" rows="10" class="text-area"></textarea>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="printTranslatedText()"
+      class="print-button"
+    >
+      <mat-icon>print</mat-icon>
+      {{ 'Print' | t }}
+    </button>
   </div>
 </div>

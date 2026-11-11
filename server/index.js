@@ -357,58 +357,46 @@ async function handleTranslation(req, res) {
       }
     };
 
-    // Try MyMemory Translation API (free, no key required)
-    try {
-      const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`;
-      console.log('Trying MyMemory API:', myMemoryUrl.substring(0, 100) + '...');
-      const response = await fetchWithTimeout(myMemoryUrl, {}, 10000);
+    // Function to translate a single chunk using Yandex Translate
+    const translateChunk = async (chunk) => {
+      try {
+        // Yandex Translate API (free, no key required for basic usage)
+        const yandexUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(chunk)}`;
+        const response = await fetchWithTimeout(yandexUrl, {}, 10000);
 
-      console.log('MyMemory response status:', response.status);
-      if (response.ok) {
-        const result = await response.json();
-        console.log('MyMemory result:', JSON.stringify(result).substring(0, 200));
-        if (result.responseStatus === 200 && result.responseData) {
-          return send(res, 200, {
-            translatedText: result.responseData.translatedText,
-            source: result.responseData.detectedLanguage || source,
-            target: target
-          });
+        if (response.ok) {
+          const result = await response.json();
+          if (result && result[0]) {
+            // Google Translate API returns array of arrays, join all translated parts
+            return result[0].map(item => item[0]).join('');
+          }
         }
+        return chunk; // Return original if translation fails
+      } catch (err) {
+        console.log('Chunk translation failed:', err.message);
+        return chunk; // Return original on error
       }
-    } catch (err) {
-      console.log('MyMemory translation failed:', err.message);
+    };
+
+    // Split text into chunks (Google Translate has ~5000 char limit)
+    const chunkSize = 5000;
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
     }
 
-    // Fallback to LibreTranslate if available
-    try {
-      const response = await fetchWithTimeout(`${LIBRETRANSLATE_URL}/translate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          q: text,
-          source: source,
-          target: target,
-          format: 'text'
-        })
-      }, 5000);
+    console.log(`Translating ${chunks.length} chunks (${text.length} chars total)...`);
 
-      if (response.ok) {
-        const result = await response.json();
-        return send(res, 200, {
-          translatedText: result.translatedText,
-          source: result.detected_language?.language || source,
-          target: target
-        });
-      }
-    } catch (err) {
-      console.log('LibreTranslate not available, returning original text');
-    }
+    // Translate all chunks
+    const translatedChunks = await Promise.all(chunks.map(chunk => translateChunk(chunk)));
 
-    // Final fallback: return original text if no translation service is available
+    // Combine translated chunks
+    const translatedText = translatedChunks.join('');
+
+    console.log('Translation complete');
+
     return send(res, 200, {
-      translatedText: text,
+      translatedText: translatedText,
       source: source,
       target: target
     });

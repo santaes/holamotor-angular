@@ -18,4 +18,7 @@ export const es: Record<string, string> = {
   "Select target language": "Seleccionar idioma de destino",
   "Processing": "Procesando",
   "Uploading": "Subiendo",
+  "Print": "Imprimir",
+  "Translated Diagnostic Report": "Informe de Diagnóstico Traducido",
+  "Could not open print window": "No se pudo abrir la ventana de impresión",
 };
