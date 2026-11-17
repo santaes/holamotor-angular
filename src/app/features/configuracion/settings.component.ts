@@ -4,8 +4,10 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -20,8 +22,12 @@ import { LANGUAGES, Lang, currentLang, setLang, t } from '../../core/i18n/i18n';
     MatCardModule,
     MatIconModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
-    MatSlideToggleModule, TranslatePipe, ReactiveFormsModule],
+    MatSlideToggleModule,
+    MatButtonModule,
+    TranslatePipe,
+    ReactiveFormsModule],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })

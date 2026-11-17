@@ -3,10 +3,13 @@ import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
@@ -21,10 +24,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatCardModule,
     MatIconModule,
     MatFormFieldModule,
+    MatInputModule,
     MatDatepickerModule,
+    MatNativeDateModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatTooltipModule, TranslatePipe],
+    MatTooltipModule,
+    MatButtonModule,
+    TranslatePipe],
   templateUrl: './appointment-list.component.html',
   styleUrls: ['./appointment-list.component.css']
 })

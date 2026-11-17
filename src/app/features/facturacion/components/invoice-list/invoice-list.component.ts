@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
@@ -22,7 +23,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatIconModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatTooltipModule, TranslatePipe, MoneyPipe],
+    MatTooltipModule,
+    MatButtonModule,
+    TranslatePipe,
+    MoneyPipe],
   templateUrl: './invoice-list.component.html',
   styleUrls: ['./invoice-list.component.css']
 })

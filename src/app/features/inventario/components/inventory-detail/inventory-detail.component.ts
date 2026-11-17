@@ -4,6 +4,7 @@ import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,7 +18,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   imports: [CommonModule,
     MatCardModule,
     MatIconModule,
-    MatProgressSpinnerModule, TranslatePipe, MoneyPipe],
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    TranslatePipe,
+    MoneyPipe],
   templateUrl: './inventory-detail.component.html',
   styleUrls: ['./inventory-detail.component.css']
 })

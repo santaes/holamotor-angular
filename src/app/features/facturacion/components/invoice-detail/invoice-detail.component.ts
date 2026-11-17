@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,7 +24,10 @@ import { Location } from '@angular/common';
     MatIconModule,
     MatTabsModule,
     MatProgressSpinnerModule,
-    MatTableModule, TranslatePipe, MoneyPipe],
+    MatTableModule,
+    MatButtonModule,
+    TranslatePipe,
+    MoneyPipe],
   templateUrl: './invoice-detail.component.html',
   styleUrls: ['./invoice-detail.component.css']
 })

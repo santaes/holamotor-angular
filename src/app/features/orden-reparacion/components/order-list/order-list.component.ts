@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
@@ -32,6 +33,7 @@ import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
     MatTooltipModule,
     TranslatePipe,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule],
   templateUrl: './order-list.component.html',

@@ -4,9 +4,12 @@ import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -28,9 +31,14 @@ import { QuickCustomerDialogComponent } from '../../../../core/components/quick-
     MatCardModule,
     MatIconModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatCheckboxModule, TranslatePipe, ReactiveFormsModule],
+    MatNativeDateModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    TranslatePipe,
+    ReactiveFormsModule],
   templateUrl: './appointment-form.component.html',
   styleUrls: ['./appointment-form.component.css']
 })

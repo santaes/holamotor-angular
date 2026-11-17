@@ -5,9 +5,11 @@ import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
@@ -22,9 +24,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatCardModule,
     MatIconModule,
     MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatTooltipModule, TranslatePipe, MoneyPipe, FormsModule],
+    MatTooltipModule,
+    MatButtonModule,
+    TranslatePipe,
+    MoneyPipe,
+    FormsModule],
   templateUrl: './inventory-list.component.html',
   styleUrls: ['./inventory-list.component.css']
 })
