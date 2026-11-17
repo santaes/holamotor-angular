@@ -1,0 +1,91 @@
+/* Document Cards */
+.documents-list {
+  margin-bottom: 24px;
+}
+
+.document-card {
+  margin-bottom: 16px;
+  border-radius: var(--hm-radius-sm);
+  box-shadow: var(--hm-shadow);
+  transition: box-shadow var(--hm-transition);
+}
+
+.document-card:hover {
+  box-shadow: var(--hm-shadow-lg);
+}
+
+.document-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.doc-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--hm-primary-soft);
+  border-radius: var(--hm-radius-sm);
+  color: var(--hm-primary);
+}
+
+.doc-icon mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--hm-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--hm-text-2);
+}
+
+.doc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.doc-actions button {
+  color: var(--hm-text-2);
+}
+
+.doc-actions button:hover {
+  color: var(--hm-primary);
+}
+
+.doc-actions button[color="warn"]:hover {
+  color: var(--hm-danger);
+}
+
+/* Upload Section */
+.upload-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hm-border);
+}
+
+.upload-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--hm-text);
+}

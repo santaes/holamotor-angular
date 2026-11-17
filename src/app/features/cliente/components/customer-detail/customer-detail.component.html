@@ -74,10 +74,47 @@
         <div class="tab-header">
           <h2>{{ 'Documentos del Cliente' | t }}</h2>
         </div>
-        <app-pdf-upload
-          (pdfUploaded)="onPdfUploaded($event)"
-          (textExtracted)="onTextExtracted($event)"
-        ></app-pdf-upload>
+        
+        <!-- Documents List -->
+        <div class="documents-list" *ngIf="documents.length > 0; else noDocuments">
+          <mat-card class="document-card" *ngFor="let doc of documents">
+            <div class="document-header">
+              <div class="doc-icon">
+                <mat-icon>description</mat-icon>
+              </div>
+              <div class="doc-info">
+                <h3>{{ doc.originalName }}</h3>
+                <p>{{ doc.uploadDate | date:'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+              <div class="doc-actions">
+                <button mat-icon-button (click)="viewDocument(doc)" [matTooltip]="'Ver' | t">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button (click)="downloadDocument(doc)" [matTooltip]="'Descargar' | t">
+                  <mat-icon>download</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteDocument(doc.id!)" [matTooltip]="'Eliminar' | t">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+        <ng-template #noDocuments>
+          <div class="no-data">
+            <mat-icon>folder_open</mat-icon>
+            <p>{{ 'No hay documentos subidos' | t }}</p>
+          </div>
+        </ng-template>
+
+        <!-- PDF Upload Component -->
+        <div class="upload-section">
+          <h3>{{ 'Subir Nuevo Documento' | t }}</h3>
+          <app-pdf-upload
+            (pdfUploaded)="onPdfUploaded($event)"
+            (textExtracted)="onTextExtracted($event)"
+          ></app-pdf-upload>
+        </div>
       </div>
     </mat-tab>
 

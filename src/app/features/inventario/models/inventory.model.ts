@@ -17,6 +17,8 @@ export interface InventoryItem {
   fechaUltimaCompra?: Date;
   fechaUltimaVenta?: Date;
   estado: 'Activo' | 'Inactivo';
+  version?: number;
+  lastModified?: Date;
 }
 
 export interface Supplier {

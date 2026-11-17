@@ -14,6 +14,18 @@ export interface Customer {
   estado: 'Activo' | 'Inactivo';
   vehiculos?: Vehicle[];
   historialComunicaciones?: Communication[];
+  documentos?: Document[];
+  version?: number;
+  lastModified?: Date;
+}
+
+export interface Document {
+  id?: number;
+  filename: string;
+  originalName: string;
+  url: string;
+  uploadDate: Date;
+  tipo: string;
 }
 
 export interface Vehicle {

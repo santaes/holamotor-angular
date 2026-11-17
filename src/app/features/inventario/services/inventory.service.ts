@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { InventoryItem, Supplier, PurchaseOrder } from '../models/inventory.model';
 import { StorageService } from '../../../core/services/storage.service';
+import { TransactionService } from '../../../core/services/transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,10 @@ export class InventoryService {
   private suppliers$ = new BehaviorSubject<Supplier[]>([]);
   private purchaseOrders$ = new BehaviorSubject<PurchaseOrder[]>([]);
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private transactionService: TransactionService
+  ) {
     this.loadData();
     this.storageService.changes$.subscribe(key => {
       if (['inventory', 'purchaseOrders', 'suppliers'].includes(key)) {
@@ -59,6 +63,11 @@ export class InventoryService {
   }
 
   createInventoryItem(item: InventoryItem): Observable<InventoryItem> {
+    // Input validation
+    if (!item.nombre || !item.codigo || item.cantidad < 0 || item.precioCompra < 0 || item.precioVenta < 0) {
+      return throwError(() => new Error('Nombre, código, cantidad y precios son requeridos y deben ser válidos'));
+    }
+
     const items = this.items$.value;
     const newItem = { ...item, id: this.generateId(items) };
     items.push(newItem);
@@ -66,15 +75,29 @@ export class InventoryService {
     return of(newItem);
   }
 
-  updateInventoryItem(id: number, item: InventoryItem): Observable<InventoryItem> {
+  updateInventoryItem(id: number, item: InventoryItem, expectedVersion?: number): Observable<InventoryItem> {
+    // Input validation
+    if (!item.nombre || !item.codigo || item.cantidad < 0 || item.precioCompra < 0 || item.precioVenta < 0) {
+      return throwError(() => new Error('Nombre, código, cantidad y precios son requeridos y deben ser válidos'));
+    }
+
     const items = this.items$.value;
     const index = items.findIndex(i => i.id === id);
     if (index !== -1) {
-      items[index] = { ...item, id };
+      const existingItem = items[index];
+
+      // Optimistic locking check
+      if (expectedVersion !== undefined && existingItem.version !== expectedVersion) {
+        return throwError(() => new Error('El item ha sido modificado por otro usuario. Por favor, recarga los datos.'));
+      }
+
+      // Update with new version
+      const updatedItem = this.transactionService.addVersion({ ...item, id });
+      items[index] = updatedItem;
       this.saveItems(items);
-      return of(items[index]);
+      return of(updatedItem);
     }
-    throw new Error('Item not found');
+    return throwError(() => new Error('Item not found'));
   }
 
   deleteInventoryItem(id: number): Observable<void> {
@@ -96,15 +119,33 @@ export class InventoryService {
     return of(items);
   }
 
-  updateStock(id: number, quantity: number): Observable<InventoryItem> {
+  updateStock(id: number, quantity: number, expectedVersion?: number): Observable<InventoryItem> {
+    // Input validation
+    if (quantity < 0) {
+      return throwError(() => new Error('La cantidad no puede ser negativa'));
+    }
+
     const items = this.items$.value;
     const index = items.findIndex(i => i.id === id);
     if (index !== -1) {
-      items[index].cantidad = quantity;
+      const existingItem = items[index];
+
+      // Optimistic locking check
+      if (expectedVersion !== undefined && existingItem.version !== expectedVersion) {
+        return throwError(() => new Error('El item ha sido modificado por otro usuario. Por favor, recarga los datos.'));
+      }
+
+      // Update stock with new version
+      const updatedItem = this.transactionService.addVersion({
+        ...existingItem,
+        cantidad: quantity
+      });
+      items[index] = updatedItem;
       this.saveItems(items);
-      return of(items[index]);
+
+      return of(updatedItem);
     }
-    throw new Error('Item not found');
+    return throwError(() => new Error('Item not found'));
   }
 
   // Suppliers
@@ -197,7 +238,35 @@ export class InventoryService {
   }
 
   receivePurchaseOrder(id: number): Observable<PurchaseOrder> {
-    return this.updatePurchaseOrderStatus(id, 'Recibido');
+    const orders = this.purchaseOrders$.value;
+    const index = orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      const order = orders[index];
+      // Validate order can be received
+      if (order.estado !== 'Pendiente' && order.estado !== 'Enviado') {
+        return throwError(() => new Error('La orden de compra debe estar en estado Pendiente o Enviado para ser recibida'));
+      }
+
+      // Update order status
+      order.estado = 'Recibido';
+      order.fechaEntregaReal = new Date();
+      this.savePurchaseOrders(orders);
+
+      // Update inventory stock for each item in the order
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(orderItem => {
+          const items = this.items$.value;
+          const itemIndex = items.findIndex(i => i.id === orderItem.inventarioId);
+          if (itemIndex !== -1) {
+            items[itemIndex].cantidad += orderItem.cantidad;
+          }
+        });
+        this.saveItems(this.items$.value);
+      }
+
+      return of(order);
+    }
+    return throwError(() => new Error('Purchase order not found'));
   }
 
   private generateId(items: any[]): number {

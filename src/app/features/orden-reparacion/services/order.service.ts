@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { RepairOrder } from '../models/order.model';
 import { StorageService } from '../../../core/services/storage.service';
+import { TransactionService } from '../../../core/services/transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,10 @@ import { StorageService } from '../../../core/services/storage.service';
 export class OrderService {
   private orders$ = new BehaviorSubject<RepairOrder[]>([]);
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private transactionService: TransactionService
+  ) {
     this.loadOrders();
     this.storageService.changes$.subscribe(key => {
       if (['orders'].includes(key)) {
@@ -42,6 +46,11 @@ export class OrderService {
   }
 
   createOrder(order: RepairOrder): Observable<RepairOrder> {
+    // Input validation
+    if (!order.clienteId || !order.vehiculoId || !order.descripcionProblema) {
+      return throwError(() => new Error('Cliente, vehículo y descripción del problema son requeridos'));
+    }
+
     const orders = this.orders$.value;
     const newOrder = { ...order, id: this.generateId(orders) };
     orders.push(newOrder);
@@ -49,15 +58,29 @@ export class OrderService {
     return of(newOrder);
   }
 
-  updateOrder(id: number, order: RepairOrder): Observable<RepairOrder> {
+  updateOrder(id: number, order: RepairOrder, expectedVersion?: number): Observable<RepairOrder> {
+    // Input validation
+    if (!order.clienteId || !order.vehiculoId || !order.descripcionProblema) {
+      return throwError(() => new Error('Cliente, vehículo y descripción del problema son requeridos'));
+    }
+
     const orders = this.orders$.value;
     const index = orders.findIndex(o => o.id === id);
     if (index !== -1) {
-      orders[index] = { ...order, id };
+      const existingOrder = orders[index];
+
+      // Optimistic locking check
+      if (expectedVersion !== undefined && existingOrder.version !== expectedVersion) {
+        return throwError(() => new Error('La orden ha sido modificada por otro usuario. Por favor, recarga los datos.'));
+      }
+
+      // Update with new version
+      const updatedOrder = this.transactionService.addVersion({ ...order, id });
+      orders[index] = updatedOrder;
       this.saveOrders(orders);
-      return of(orders[index]);
+      return of(updatedOrder);
     }
-    throw new Error('Order not found');
+    return throwError(() => new Error('Order not found'));
   }
 
   deleteOrder(id: number): Observable<void> {
@@ -78,7 +101,24 @@ export class OrderService {
   }
 
   approveOrder(id: number): Observable<RepairOrder> {
-    return this.updateOrderStatus(id, 'En Progreso');
+    const orders = this.orders$.value;
+    const index = orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      const order = orders[index];
+      // Validate order can be approved
+      if (order.estado !== 'Pendiente' && order.estado !== 'En Progreso') {
+        return throwError(() => new Error('La orden debe estar en estado Pendiente o En Progreso para ser aprobada'));
+      }
+
+      // Set approval status and update order status
+      order.aprobadoPorCliente = true;
+      order.aprobadoPorClienteFecha = new Date();
+      order.estado = 'En Progreso';
+      this.saveOrders(orders);
+
+      return of(order);
+    }
+    return throwError(() => new Error('Order not found'));
   }
 
   getOrdersByStatus(status: string): Observable<RepairOrder[]> {

@@ -19,6 +19,8 @@ export interface Appointment {
   creadoPor?: string;
   fechaCreacion: Date;
   ordenReparacionId?: number;
+  version?: number;
+  lastModified?: Date;
 }
 
 export interface RecurringAppointment {

@@ -12,11 +12,11 @@ export class CarCatalogService {
   private carMakes: CarMake[] = [
     {
       name: 'Toyota',
-      models: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Prius', 'Sienna', 'Tacoma', 'Tundra', '4Runner', 'Land Cruiser', 'Avalon', 'Venza', 'C-HR', 'Yaris', 'Supra', 'GR86', 'Mirai', 'Sequoia', 'Tundra', 'Hilux']
+      models: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Prius', 'Sienna', 'Tacoma', 'Tundra', '4Runner', 'Land Cruiser', 'Avalon', 'Venza', 'C-HR', 'Yaris', 'Supra', 'GR86', 'Mirai', 'Sequoia', 'Hilux']
     },
     {
       name: 'Honda',
-      models: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Fit', 'HR-V', 'Passport', 'Ridgeline', 'Insight', 'Clarity', 'NSX', 'City', 'Jazz', 'BR-V', 'HR-V', 'Civic Type R']
+      models: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Fit', 'HR-V', 'Passport', 'Ridgeline', 'Insight', 'Clarity', 'NSX', 'City', 'Jazz', 'BR-V', 'Civic Type R']
     },
     {
       name: 'Ford',
@@ -36,7 +36,7 @@ export class CarCatalogService {
     },
     {
       name: 'Mercedes-Benz',
-      models: ['C-Class', 'E-Class', 'S-Class', 'A-Class', 'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'G-Class', 'CLS', 'CLA', 'SL', 'SLC', 'AMG GT', 'EQC', 'EQS', 'Maybach S-Class', 'B-Class']
+      models: ['C-Class', 'E-Class', 'S-Class', 'A-Class', 'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'G-Class', 'CLS', 'CLA', 'SL', 'SLC', 'AMG GT', 'EQC', 'EQS', 'Maybach S-Class', 'B-Class', 'EQE', 'EQB', 'EQA', 'EQV', 'Maybach']
     },
     {
       name: 'Audi',
@@ -244,27 +244,27 @@ export class CarCatalogService {
     },
     {
       name: 'BYD',
-      models: ['Han', 'Tang', 'Qin', 'Song', 'Yuan', 'Seal', 'Dolphin', 'Atto 3', 'Fang Cheng Bao']
+      models: ['Han', 'Tang', 'Qin', 'Song', 'Yuan', 'Seal', 'Dolphin', 'Atto 3', 'Fang Cheng Bao', 'Yangwang', 'Denza']
     },
     {
       name: 'Geely',
-      models: ['Coolray', 'Azkarra', 'Tugella', 'Monjaro', 'Panda', 'Emgrand', 'Geometry']
+      models: ['Coolray', 'Azkarra', 'Tugella', 'Monjaro', 'Panda', 'Emgrand', 'Geometry', 'Preface', 'Xingyue', 'Haoyue', 'Galaxy']
     },
     {
       name: 'Chery',
-      models: ['Tiggo 8', 'Tiggo 7', 'Tiggo 5', 'Arrizo 5', 'Arrizo 6', 'Omoda 5', 'Jaecoo 7']
+      models: ['Tiggo 8', 'Tiggo 7', 'Tiggo 5', 'Arrizo 5', 'Arrizo 6', 'Omoda 5', 'Jaecoo 7', 'Arrizo 8', 'eQ1', 'eQ7', 'Exeed']
     },
     {
       name: 'Great Wall',
-      models: ['Haval H6', 'Haval Jolion', 'Wey', 'Tank 300', 'Tank 500', 'Poer', 'Cannon']
+      models: ['Haval H6', 'Haval Jolion', 'Wey', 'Tank 300', 'Tank 500', 'Poer', 'Cannon', 'Haval', 'Tank', 'ORA', 'Great Wall Pickup']
     },
     {
       name: 'NIO',
-      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5', 'EP9']
+      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5', 'EP9', 'ES7']
     },
     {
       name: 'XPeng',
-      models: ['P7', 'P5', 'G9', 'G6']
+      models: ['P7', 'P5', 'G9', 'G6', 'X9']
     },
     {
       name: 'Lucid',
@@ -280,7 +280,7 @@ export class CarCatalogService {
     },
     {
       name: 'Canoo',
-      models: ['Lifestyle Vehicle', 'MPDV']
+      models: ['Lifestyle Vehicle', 'MPDV', 'American Bulldog']
     },
     {
       name: 'Lotus',
@@ -428,11 +428,11 @@ export class CarCatalogService {
     },
     {
       name: 'Nio',
-      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5']
+      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5', 'ES7']
     },
     {
       name: 'Zeekr',
-      models: ['001', '009', 'X', '007']
+      models: ['001', '009', 'X', '007', 'FR']
     },
     {
       name: 'Avatr',
@@ -440,7 +440,7 @@ export class CarCatalogService {
     },
     {
       name: 'AITO',
-      models: ['M5', 'M7']
+      models: ['M5', 'M7', 'M9']
     },
     {
       name: 'Livan',
@@ -452,11 +452,11 @@ export class CarCatalogService {
     },
     {
       name: 'Tank',
-      models: ['300', '400', '500']
+      models: ['300', '400', '500', '400 Hi4-T', '500 Hi4-T']
     },
     {
       name: 'Omoda',
-      models: ['5', '7']
+      models: ['5', '7', 'Jaecoo 7']
     },
     {
       name: 'Jaecoo',
@@ -464,11 +464,11 @@ export class CarCatalogService {
     },
     {
       name: 'Dongfeng',
-      models: ['eπ 007', 'M-Hero']
+      models: ['eπ 007', 'M-Hero', 'eπ', 'Nammi', 'Fengshen', 'Forthing', 'Voyah', 'Seres', 'Aito']
     },
     {
       name: 'Hongqi',
-      models: ['H9', 'E-HS9', 'LS7']
+      models: ['H9', 'E-HS9', 'LS7', 'H5', 'H7', 'EH7']
     },
     {
       name: 'GAC',
@@ -476,27 +476,27 @@ export class CarCatalogService {
     },
     {
       name: 'Changan',
-      models: ['UNI-V', 'UNI-K', 'UNI-T', 'CS75', 'CS55', 'CS35']
+      models: ['UNI-V', 'UNI-K', 'UNI-T', 'CS75', 'CS55', 'CS35', 'Lamore', 'Qiyuan']
     },
     {
       name: 'FAW',
-      models: ['Bestune', 'Hongqi']
+      models: ['Bestune', 'Hongqi', 'Faw-Volkswagen', 'Faw-Toyota']
     },
     {
       name: 'SAIC',
-      models: ['Roewe', 'MG', 'Maxus']
+      models: ['Roewe', 'MG', 'Maxus', 'IM', 'Rising']
     },
     {
       name: 'BAIC',
-      models: ['Beijing', 'Arcfox']
+      models: ['Beijing', 'Arcfox', 'BAIC BJEV']
     },
     {
       name: 'JAC',
-      models: ['Jiayue', 'Refine']
+      models: ['Jiayue', 'Refine', 'JAC Volkswagen']
     },
     {
       name: 'Geely Galaxy',
-      models: ['L7', 'L6']
+      models: ['L7', 'L6', 'E8']
     },
     {
       name: 'Voyah',
@@ -508,7 +508,7 @@ export class CarCatalogService {
     },
     {
       name: 'Lynk & Co',
-      models: ['01', '02', '03', '05', '06', '08', '09']
+      models: ['01', '02', '03', '05', '06', '08', '09', 'Z10']
     },
     {
       name: 'Polestar',
@@ -595,10 +595,6 @@ export class CarCatalogService {
       models: ['Ocean', 'Pear', 'Ronin']
     },
     {
-      name: 'Canoo',
-      models: ['Lifestyle Vehicle', 'American Bulldog']
-    },
-    {
       name: 'Faraday Future',
       models: ['FF 91']
     },
@@ -632,7 +628,7 @@ export class CarCatalogService {
     },
     {
       name: 'Fang Cheng Bao',
-      models: ['Leopard 5']
+      models: ['Leopard 5', 'Leopard 3']
     },
     {
       name: 'Denza',
@@ -645,14 +641,6 @@ export class CarCatalogService {
     {
       name: 'Xiaomi',
       models: ['SU7']
-    },
-    {
-      name: 'Denza',
-      models: ['D9', 'N7']
-    },
-    {
-      name: 'Fang Cheng Bao',
-      models: ['Leopard 5']
     },
     {
       name: 'Yuniqu',
@@ -679,20 +667,12 @@ export class CarCatalogService {
       models: ['UNI-V', 'UNI-K', 'UNI-T']
     },
     {
-      name: 'Hongqi',
-      models: ['H5', 'H7', 'H9', 'E-HS9', 'LS7', 'EH7']
-    },
-    {
       name: 'JMC',
       models: ['Grand Avenue', 'Domain']
     },
     {
       name: 'Chery Exeed',
       models: ['VX', 'LX', 'TXL', 'Sterra ES', 'Sterra ET']
-    },
-    {
-      name: 'Geely Galaxy',
-      models: ['L7', 'L6', 'E8']
     },
     {
       name: 'Geely Haoyue',
@@ -741,10 +721,6 @@ export class CarCatalogService {
     {
       name: 'Arcfox',
       models: ['Kaola', 'Alpha T5', 'Alpha S', 'Alpha S HI']
-    },
-    {
-      name: 'Tank',
-      models: ['300', '400', '500', '400 Hi4-T', '500 Hi4-T']
     },
     {
       name: 'Wey',
@@ -807,10 +783,6 @@ export class CarCatalogService {
       models: ['5', '7', '9']
     },
     {
-      name: 'AITO',
-      models: ['M5', 'M7', 'M9']
-    },
-    {
       name: 'Qiyuan',
       models: ['520']
     },
@@ -820,7 +792,7 @@ export class CarCatalogService {
     },
     {
       name: 'Trumpchi',
-      models: ['GA6', 'GA8', 'GS3', 'GS4', 'GS8', 'M6', 'ES9', 'Empow', '', '']
+      models: ['GA6', 'GA8', 'GS3', 'GS4', 'GS8', 'M6', 'ES9', 'Empow', '']
     },
     {
       name: 'Aion',
@@ -839,30 +811,6 @@ export class CarCatalogService {
       models: ['007', '008']
     },
     {
-      name: 'M-Hero',
-      models: ['917']
-    },
-    {
-      name: 'Yangwang',
-      models: ['U8', 'U9']
-    },
-    {
-      name: 'Fang Cheng Bao',
-      models: ['Leopard 5', 'Leopard 3']
-    },
-    {
-      name: 'Deepal',
-      models: ['SL03', 'S7']
-    },
-    {
-      name: 'Avatr',
-      models: ['11', '12']
-    },
-    {
-      name: 'Livan',
-      models: ['7', '9']
-    },
-    {
       name: 'Geometry',
       models: ['A', 'C', 'E', 'G6', 'M6', 'Panda Mini']
     },
@@ -871,32 +819,8 @@ export class CarCatalogService {
       models: ['L6', 'L7', 'E8']
     },
     {
-      name: 'Zeekr',
-      models: ['001', '009', 'X', '007', 'FR']
-    },
-    {
-      name: 'Lynk & Co',
-      models: ['01', '02', '03', '05', '06', '08', '09', 'Z10']
-    },
-    {
-      name: 'Voyah',
-      models: ['Free', 'Dreamer', 'Zhiyin']
-    },
-    {
-      name: 'Dongfeng',
-      models: ['eπ', 'M-Hero', 'Nammi', 'Fengshen']
-    },
-    {
       name: 'Jetour',
       models: ['Traveler', 'X70', 'X90', 'Dashing', 'T2']
-    },
-    {
-      name: 'Omoda',
-      models: ['5', 'Jaecoo 7']
-    },
-    {
-      name: 'Jaecoo',
-      models: ['7']
     },
     {
       name: 'Exeed',
@@ -905,10 +829,6 @@ export class CarCatalogService {
     {
       name: 'Sterra',
       models: ['ES', 'ET']
-    },
-    {
-      name: 'Chery',
-      models: ['Tiggo 8', 'Tiggo 7', 'Tiggo 5', 'Arrizo 8', 'Arrizo 5', 'eQ1', 'eQ7']
     },
     {
       name: 'Iqiyi',
@@ -939,68 +859,8 @@ export class CarCatalogService {
       models: ['P7', 'P5', 'G9', 'G6', 'X9']
     },
     {
-      name: 'Nio',
-      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5', 'ES7']
-    },
-    {
-      name: 'Arcfox',
-      models: ['Kaola', 'Alpha T5', 'Alpha S', 'Alpha S HI']
-    },
-    {
-      name: 'Rising Auto',
-      models: ['R7', 'F7']
-    },
-    {
-      name: 'IM Motors',
-      models: ['L7', 'LS6', 'LS7']
-    },
-    {
-      name: 'Luxeed',
-      models: ['S7']
-    },
-    {
-      name: 'Xiaomi',
-      models: ['SU7']
-    },
-    {
-      name: 'Fang Cheng Bao',
-      models: ['Leopard 5']
-    },
-    {
       name: 'Yuniku',
       models: ['Chenghua']
-    },
-    {
-      name: 'M-Hero',
-      models: ['917']
-    },
-    {
-      name: 'Yangwang',
-      models: ['U8', 'U9']
-    },
-    {
-      name: 'Denza',
-      models: ['D9', 'N7', 'N8']
-    },
-    {
-      name: 'Aito',
-      models: ['M5', 'M7', 'M9']
-    },
-    {
-      name: 'Seres',
-      models: ['5', '7', '9']
-    },
-    {
-      name: 'Livan',
-      models: ['7', '9']
-    },
-    {
-      name: 'Geely',
-      models: ['Emgrand', 'Preface', 'Xingyue', 'Haoyue', 'Coolray', 'Azkarra', 'Tugella', 'Monjaro', 'Galaxy', 'Geometry']
-    },
-    {
-      name: 'Changan',
-      models: ['UNI-V', 'UNI-K', 'UNI-T', 'CS75', 'CS55', 'CS35', 'Lamore', 'Qiyuan']
     },
     {
       name: 'Changan Ford',
@@ -1091,20 +951,12 @@ export class CarCatalogService {
       models: ['A-Class', 'C-Class', 'E-Class', 'GLA', 'GLB', 'GLC', 'EQC', 'EQB', 'EQA']
     },
     {
-      name: 'Mercedes-Benz',
-      models: ['A-Class', 'B-Class', 'C-Class', 'E-Class', 'S-Class', 'CLA', 'CLS', 'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'G-Class', 'EQS', 'EQE', 'EQC', 'EQB', 'EQA', 'EQV', 'Maybach']
-    },
-    {
       name: 'Audi FAW',
       models: ['A3', 'A4L', 'A6L', 'Q3', 'Q5L', 'e-tron', 'Q4 e-tron']
     },
     {
       name: 'SAIC Audi',
       models: ['A7L', 'Q5 e-tron']
-    },
-    {
-      name: 'Volkswagen Anhui',
-      models: ['ID.UNYX']
     },
     {
       name: 'JAC Volkswagen',
@@ -1123,56 +975,12 @@ export class CarCatalogService {
       models: ['Model 3', 'Model Y', 'Model S', 'Model X']
     },
     {
-      name: 'BYD',
-      models: ['Han', 'Tang', 'Qin', 'Song', 'Yuan', 'Seal', 'Dolphin', 'Atto 3', 'Fang Cheng Bao', 'Yangwang', 'Denza']
-    },
-    {
-      name: 'GAC Aion',
-      models: ['Aion S', 'Aion Y', 'Aion V', 'Aion LX', 'Hyper GT', 'Hyper SSR']
-    },
-    {
-      name: 'Geely',
-      models: ['Emgrand', 'Preface', 'Xingyue', 'Haoyue', 'Coolray', 'Azkarra', 'Tugella', 'Monjaro', 'Galaxy', 'Geometry']
-    },
-    {
-      name: 'Changan',
-      models: ['UNI-V', 'UNI-K', 'UNI-T', 'CS75', 'CS55', 'CS35', 'Lamore', 'Qiyuan']
-    },
-    {
-      name: 'Chery',
-      models: ['Tiggo 8', 'Tiggo 7', 'Tiggo 5', 'Arrizo 8', 'Arrizo 5', 'eQ1', 'eQ7', 'Exeed']
-    },
-    {
-      name: 'Great Wall',
-      models: ['Haval', 'Wey', 'Tank', 'ORA', 'Great Wall Pickup']
-    },
-    {
-      name: 'Dongfeng',
-      models: ['Fengshen', 'Forthing', 'eπ', 'M-Hero', 'Nammi', 'Voyah', 'Seres', 'Aito']
-    },
-    {
-      name: 'SAIC',
-      models: ['Roewe', 'MG', 'Maxus', 'IM', 'Rising']
-    },
-    {
-      name: 'FAW',
-      models: ['Bestune', 'Hongqi', 'Faw-Volkswagen', 'Faw-Toyota']
-    },
-    {
-      name: 'BAIC',
-      models: ['Beijing', 'Arcfox', 'BAIC BJEV']
-    },
-    {
-      name: 'JAC',
-      models: ['Jiayue', 'Refine', 'JAC Volkswagen']
-    },
-    {
       name: 'Changan Automobile',
       models: ['Changan', 'Changan Ford', 'Changan Mazda', 'Deepal', 'Avatr', 'Oshan']
     },
     {
       name: 'GAC Group',
-      models: ['GAC Trumpchi', 'GAC Aion', 'GAC Toyota', 'GAC Honda', 'GAC Mitsubishi']
+      models: ['GAC Trumpchi', 'GAC Aion', 'GAC Toyota', 'GAC Honda', 'GAC Mitsubishi', 'Trumpchi', 'Aion', 'Hyper']
     },
     {
       name: 'Zhejiang Geely',
@@ -1207,460 +1015,12 @@ export class CarCatalogService {
       models: ['BYD', 'Fang Cheng Bao', 'Yangwang', 'Denza']
     },
     {
-      name: 'GAC Group',
-      models: ['Trumpchi', 'Aion', 'Hyper']
-    },
-    {
-      name: 'XPeng',
-      models: ['P7', 'P5', 'G9', 'G6', 'X9']
-    },
-    {
-      name: 'NIO',
-      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5', 'ES7']
-    },
-    {
       name: 'Li Auto',
       models: ['L7', 'L8', 'L9', 'MEGA']
     },
     {
-      name: 'Hozon',
-      models: ['Neta U', 'Neta V', 'Neta S', 'Neta GT']
-    },
-    {
-      name: 'Leapmotor',
-      models: ['S01', 'C11', 'C01', 'C16']
-    },
-    {
-      name: 'Zeekr',
-      models: ['001', '009', 'X', '007', 'FR']
-    },
-    {
-      name: 'Avatr',
-      models: ['11', '12']
-    },
-    {
-      name: 'IM Motors',
-      models: ['L7', 'LS6', 'LS7']
-    },
-    {
-      name: 'Rising Auto',
-      models: ['R7', 'F7']
-    },
-    {
-      name: 'Arcfox',
-      models: ['Kaola', 'Alpha T5', 'Alpha S', 'Alpha S HI']
-    },
-    {
-      name: 'Luxeed',
-      models: ['S7']
-    },
-    {
-      name: 'Xiaomi',
-      models: ['SU7']
-    },
-    {
-      name: 'Seresto',
-      models: ['SF5', 'SF7']
-    },
-    {
-      name: 'AITO',
-      models: ['M5', 'M7', 'M9']
-    },
-    {
-      name: 'Seres',
-      models: ['5', '7', '9']
-    },
-    {
-      name: 'Voyah',
-      models: ['Free', 'Dreamer', 'Zhiyin']
-    },
-    {
-      name: 'Dongfeng eπ',
-      models: ['007', '008']
-    },
-    {
-      name: 'M-Hero',
-      models: ['917']
-    },
-    {
-      name: 'Yangwang',
-      models: ['U8', 'U9']
-    },
-    {
-      name: 'Fang Cheng Bao',
-      models: ['Leopard 5']
-    },
-    {
-      name: 'Deepal',
-      models: ['SL03', 'S7']
-    },
-    {
-      name: 'Livan',
-      models: ['7', '9']
-    },
-    {
-      name: 'Geometry',
-      models: ['A', 'C', 'E', 'G6', 'M6', 'Panda Mini']
-    },
-    {
-      name: 'Galaxy',
-      models: ['L6', 'L7', 'E8']
-    },
-    {
-      name: 'Tank',
-      models: ['300', '400', '500']
-    },
-    {
-      name: 'Wey',
-      models: ['Coffee 01', 'Coffee 02', 'Coffee 03', 'Mountain', 'Lanshan']
-    },
-    {
-      name: 'Haval',
-      models: ['H6', 'H6 HEV', 'H6 PHEV', 'Jolion', 'Dargo', 'Chitu', 'Big Dog', 'Shenshou']
-    },
-    {
-      name: 'ORA',
-      models: ['Good Cat', 'Fancy Cat', 'Punk Cat', 'Lightning Cat', 'Ballet Cat']
-    },
-    {
-      name: 'Wuling',
-      models: ['Hongguang Mini EV', 'Bingo', 'Starlight', 'Cloud']
-    },
-    {
-      name: 'Baojun',
-      models: ['KiWi EV', 'RC-5', 'RS-5', 'RM-5', 'Yep']
-    },
-    {
-      name: 'New Jiachuan',
-      models: ['A00']
-    },
-    {
-      name: 'Jetour',
-      models: ['Traveler', 'X70', 'X90', 'Dashing', 'T2']
-    },
-    {
-      name: 'Omoda',
-      models: ['5', 'Jaecoo 7']
-    },
-    {
-      name: 'Jaecoo',
-      models: ['7']
-    },
-    {
-      name: 'Exeed',
-      models: ['VX', 'LX', 'TXL', 'Sterra ES', 'Sterra ET']
-    },
-    {
-      name: 'Sterra',
-      models: ['ES', 'ET']
-    },
-    {
       name: 'iCar',
       models: ['03', 'V23']
-    },
-    {
-      name: 'Kaiyi',
-      models: ['X5', 'X3']
-    },
-    {
-      name: 'Hozon',
-      models: ['Neta U', 'Neta V', 'Neta S', 'Neta GT']
-    },
-    {
-      name: 'Leapmotor',
-      models: ['S01', 'C11', 'C01', 'C16']
-    },
-    {
-      name: 'Zeekr',
-      models: ['001', '009', 'X', '007', 'FR']
-    },
-    {
-      name: 'Avatr',
-      models: ['11', '12']
-    },
-    {
-      name: 'IM Motors',
-      models: ['L7', 'LS6', 'LS7']
-    },
-    {
-      name: 'Rising Auto',
-      models: ['R7', 'F7']
-    },
-    {
-      name: 'Arcfox',
-      models: ['Kaola', 'Alpha T5', 'Alpha S', 'Alpha S HI']
-    },
-    {
-      name: 'Luxeed',
-      models: ['S7']
-    },
-    {
-      name: 'Xiaomi',
-      models: ['SU7']
-    },
-    {
-      name: 'Fang Cheng Bao',
-      models: ['Leopard 5']
-    },
-    {
-      name: 'Yuniku',
-      models: ['Chenghua']
-    },
-    {
-      name: 'M-Hero',
-      models: ['917']
-    },
-    {
-      name: 'Yangwang',
-      models: ['U8', 'U9']
-    },
-    {
-      name: 'Denza',
-      models: ['D9', 'N7', 'N8']
-    },
-    {
-      name: 'Aito',
-      models: ['M5', 'M7', 'M9']
-    },
-    {
-      name: 'Seres',
-      models: ['5', '7', '9']
-    },
-    {
-      name: 'Livan',
-      models: ['7', '9']
-    },
-    {
-      name: 'Geely',
-      models: ['Emgrand', 'Preface', 'Xingyue', 'Haoyue', 'Coolray', 'Azkarra', 'Tugella', 'Monjaro', 'Galaxy', 'Geometry']
-    },
-    {
-      name: 'Changan',
-      models: ['UNI-V', 'UNI-K', 'UNI-T', 'CS75', 'CS55', 'CS35', 'Lamore', 'Qiyuan']
-    },
-    {
-      name: 'Chery',
-      models: ['Tiggo 8', 'Tiggo 7', 'Tiggo 5', 'Arrizo 8', 'Arrizo 5', 'eQ1', 'eQ7', 'Exeed']
-    },
-    {
-      name: 'Great Wall',
-      models: ['Haval', 'Wey', 'Tank', 'ORA', 'Great Wall Pickup']
-    },
-    {
-      name: 'Dongfeng',
-      models: ['Fengshen', 'Forthing', 'eπ', 'M-Hero', 'Nammi', 'Voyah', 'Seres', 'Aito']
-    },
-    {
-      name: 'SAIC',
-      models: ['Roewe', 'MG', 'Maxus', 'IM', 'Rising']
-    },
-    {
-      name: 'FAW',
-      models: ['Bestune', 'Hongqi', 'Faw-Volkswagen', 'Faw-Toyota']
-    },
-    {
-      name: 'BAIC',
-      models: ['Beijing', 'Arcfox', 'BAIC BJEV']
-    },
-    {
-      name: 'JAC',
-      models: ['Jiayue', 'Refine', 'JAC Volkswagen']
-    },
-    {
-      name: 'Changan Automobile',
-      models: ['Changan', 'Changan Ford', 'Changan Mazda', 'Deepal', 'Avatr', 'Oshan']
-    },
-    {
-      name: 'GAC Group',
-      models: ['GAC Trumpchi', 'GAC Aion', 'GAC Toyota', 'GAC Honda', 'GAC Mitsubishi']
-    },
-    {
-      name: 'Zhejiang Geely',
-      models: ['Geely', 'Lynk & Co', 'Lotus', 'Proton', 'Volvo', 'Polestar', 'Geometry', 'Galaxy', 'Zeekr']
-    },
-    {
-      name: 'Dongfeng Motor',
-      models: ['Dongfeng', 'Fengshen', 'Forthing', 'Voyah', 'Seres', 'Aito', 'eπ', 'M-Hero', 'Nammi', 'Deepal']
-    },
-    {
-      name: 'SAIC Motor',
-      models: ['Roewe', 'MG', 'Maxus', 'IM', 'Rising', 'SAIC Volkswagen', 'SAIC GM', 'SAIC Skoda']
-    },
-    {
-      name: 'FAW Group',
-      models: ['Bestune', 'Hongqi', 'FAW-Volkswagen', 'FAW-Toyota']
-    },
-    {
-      name: 'BAIC Group',
-      models: ['Beijing', 'Arcfox', 'BAIC BJEV', 'BAIC Foton']
-    },
-    {
-      name: 'Chery Automobile',
-      models: ['Chery', 'Exeed', 'Jetour', 'Omoda', 'Jaecoo', 'iCar', 'Kaiyi']
-    },
-    {
-      name: 'Great Wall Motor',
-      models: ['Haval', 'Wey', 'Tank', 'ORA', 'GWM Pickup', 'Poer']
-    },
-    {
-      name: 'BYD Auto',
-      models: ['BYD', 'Fang Cheng Bao', 'Yangwang', 'Denza']
-    },
-    {
-      name: 'GAC Group',
-      models: ['Trumpchi', 'Aion', 'Hyper']
-    },
-    {
-      name: 'XPeng',
-      models: ['P7', 'P5', 'G9', 'G6', 'X9']
-    },
-    {
-      name: 'NIO',
-      models: ['ES8', 'ES6', 'EC6', 'ET7', 'ET5', 'ES7']
-    },
-    {
-      name: 'Li Auto',
-      models: ['L7', 'L8', 'L9', 'MEGA']
-    },
-    {
-      name: 'Hozon',
-      models: ['Neta U', 'Neta V', 'Neta S', 'Neta GT']
-    },
-    {
-      name: 'Leapmotor',
-      models: ['S01', 'C11', 'C01', 'C16']
-    },
-    {
-      name: 'Zeekr',
-      models: ['001', '009', 'X', '007', 'FR']
-    },
-    {
-      name: 'Avatr',
-      models: ['11', '12']
-    },
-    {
-      name: 'IM Motors',
-      models: ['L7', 'LS6', 'LS7']
-    },
-    {
-      name: 'Rising Auto',
-      models: ['R7', 'F7']
-    },
-    {
-      name: 'Arcfox',
-      models: ['Kaola', 'Alpha T5', 'Alpha S', 'Alpha S HI']
-    },
-    {
-      name: 'Luxeed',
-      models: ['S7']
-    },
-    {
-      name: 'Xiaomi',
-      models: ['SU7']
-    },
-    {
-      name: 'Seresto',
-      models: ['SF5', 'SF7']
-    },
-    {
-      name: 'AITO',
-      models: ['M5', 'M7', 'M9']
-    },
-    {
-      name: 'Seres',
-      models: ['5', '7', '9']
-    },
-    {
-      name: 'Voyah',
-      models: ['Free', 'Dreamer', 'Zhiyin']
-    },
-    {
-      name: 'Dongfeng eπ',
-      models: ['007', '008']
-    },
-    {
-      name: 'M-Hero',
-      models: ['917']
-    },
-    {
-      name: 'Yangwang',
-      models: ['U8', 'U9']
-    },
-    {
-      name: 'Fang Cheng Bao',
-      models: ['Leopard 5']
-    },
-    {
-      name: 'Deepal',
-      models: ['SL03', 'S7']
-    },
-    {
-      name: 'Livan',
-      models: ['7', '9']
-    },
-    {
-      name: 'Geometry',
-      models: ['A', 'C', 'E', 'G6', 'M6', 'Panda Mini']
-    },
-    {
-      name: 'Galaxy',
-      models: ['L6', 'L7', 'E8']
-    },
-    {
-      name: 'Tank',
-      models: ['300', '400', '500']
-    },
-    {
-      name: 'Wey',
-      models: ['Coffee 01', 'Coffee 02', 'Coffee 03', 'Mountain', 'Lanshan']
-    },
-    {
-      name: 'Haval',
-      models: ['H6', 'H6 HEV', 'H6 PHEV', 'Jolion', 'Dargo', 'Chitu', 'Big Dog', 'Shenshou']
-    },
-    {
-      name: 'ORA',
-      models: ['Good Cat', 'Fancy Cat', 'Punk Cat', 'Lightning Cat', 'Ballet Cat']
-    },
-    {
-      name: 'Wuling',
-      models: ['Hongguang Mini EV', 'Bingo', 'Starlight', 'Cloud']
-    },
-    {
-      name: 'Baojun',
-      models: ['KiWi EV', 'RC-5', 'RS-5', 'RM-5', 'Yep']
-    },
-    {
-      name: 'New Jiachuan',
-      models: ['A00']
-    },
-    {
-      name: 'Jetour',
-      models: ['Traveler', 'X70', 'X90', 'Dashing', 'T2']
-    },
-    {
-      name: 'Omoda',
-      models: ['5', 'Jaecoo 7']
-    },
-    {
-      name: 'Jaecoo',
-      models: ['7']
-    },
-    {
-      name: 'Exeed',
-      models: ['VX', 'LX', 'TXL', 'Sterra ES', 'Sterra ET']
-    },
-    {
-      name: 'Sterra',
-      models: ['ES', 'ET']
-    },
-    {
-      name: 'iCar',
-      models: ['03', 'V23']
-    },
-    {
-      name: 'Kaiyi',
-      models: ['X5', 'X3']
     }
   ];
 

@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { Customer, Vehicle, Communication } from '../models/customer.model';
+import { Customer, Vehicle, Communication, Document } from '../models/customer.model';
 import { StorageService } from '../../../core/services/storage.service';
+import { AppointmentService } from '../../citas/services/appointment.service';
+import { OrderService } from '../../orden-reparacion/services/order.service';
+import { DiagnosisService } from './diagnosis.service';
+import { TransactionService } from '../../../core/services/transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +14,13 @@ import { StorageService } from '../../../core/services/storage.service';
 export class CustomerService {
   private customers$ = new BehaviorSubject<Customer[]>([]);
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private appointmentService: AppointmentService,
+    private orderService: OrderService,
+    private diagnosisService: DiagnosisService,
+    private transactionService: TransactionService
+  ) {
     this.loadCustomers();
     this.storageService.changes$.subscribe(key => {
       if (['customers'].includes(key)) {
@@ -43,6 +53,17 @@ export class CustomerService {
   }
 
   createCustomer(customer: Customer): Observable<Customer> {
+    // Input validation
+    if (!customer.nombre || !customer.apellido || !customer.email || !customer.telefono) {
+      return throwError(() => new Error('Nombre, apellido, email y teléfono son requeridos'));
+    }
+    if (!this.isValidEmail(customer.email)) {
+      return throwError(() => new Error('Email inválido'));
+    }
+    if (!this.isValidPhone(customer.telefono)) {
+      return throwError(() => new Error('Teléfono inválido'));
+    }
+
     const customers = this.customers$.value;
     const newId = this.generateId(customers);
     const newCustomer = { ...customer, id: newId };
@@ -61,18 +82,57 @@ export class CustomerService {
     return of(newCustomer);
   }
 
-  updateCustomer(id: number, customer: Customer): Observable<Customer> {
+  updateCustomer(id: number, customer: Customer, expectedVersion?: number): Observable<Customer> {
+    // Input validation
+    if (!customer.nombre || !customer.apellido || !customer.email || !customer.telefono) {
+      return throwError(() => new Error('Nombre, apellido, email y teléfono son requeridos'));
+    }
+    if (!this.isValidEmail(customer.email)) {
+      return throwError(() => new Error('Email inválido'));
+    }
+    if (!this.isValidPhone(customer.telefono)) {
+      return throwError(() => new Error('Teléfono inválido'));
+    }
+
     const customers = this.customers$.value;
     const index = customers.findIndex(c => c.id === id);
     if (index !== -1) {
-      customers[index] = { ...customer, id };
+      const existingCustomer = customers[index];
+
+      // Optimistic locking check
+      if (expectedVersion !== undefined && existingCustomer.version !== expectedVersion) {
+        return throwError(() => new Error('El cliente ha sido modificado por otro usuario. Por favor, recarga los datos.'));
+      }
+
+      // Update with new version
+      const updatedCustomer = this.transactionService.addVersion({ ...customer, id });
+      customers[index] = updatedCustomer;
       this.saveCustomers(customers);
-      return of(customers[index]);
+      return of(updatedCustomer);
     }
-    throw new Error('Customer not found');
+    return throwError(() => new Error('Customer not found'));
   }
 
   deleteCustomer(id: number): Observable<void> {
+    // Cascade delete: remove related appointments, orders, and diagnoses
+    this.appointmentService.getAppointmentsByCustomer(id).subscribe(appointments => {
+      appointments.forEach(a => {
+        if (a.id) this.appointmentService.deleteAppointment(a.id).subscribe();
+      });
+    });
+
+    this.orderService.getOrdersByCustomer(id).subscribe(orders => {
+      orders.forEach(o => {
+        if (o.id) this.orderService.deleteOrder(o.id).subscribe();
+      });
+    });
+
+    this.diagnosisService.getDiagnosesByClient(id).subscribe(diagnoses => {
+      diagnoses.forEach(d => {
+        if (d.id) this.diagnosisService.deleteDiagnosis(d.id).subscribe();
+      });
+    });
+
     const customers = this.customers$.value.filter(c => c.id !== id);
     this.saveCustomers(customers);
     return of(void 0);
@@ -158,6 +218,34 @@ export class CustomerService {
     throw new Error('Customer not found');
   }
 
+  updateCommunication(customerId: number, communicationId: number, communication: Communication): Observable<Communication> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    if (customer && customer.historialComunicaciones) {
+      const index = customer.historialComunicaciones.findIndex(c => c.id === communicationId);
+      if (index !== -1) {
+        customer.historialComunicaciones[index] = { ...communication, id: communicationId };
+        this.saveCustomers(customers);
+        return of(customer.historialComunicaciones[index]);
+      }
+    }
+    throw new Error('Communication not found');
+  }
+
+  deleteCommunication(customerId: number, communicationId: number): Observable<void> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    if (customer && customer.historialComunicaciones) {
+      const index = customer.historialComunicaciones.findIndex(c => c.id === communicationId);
+      if (index !== -1) {
+        customer.historialComunicaciones.splice(index, 1);
+        this.saveCustomers(customers);
+        return of(void 0);
+      }
+    }
+    throw new Error('Communication not found');
+  }
+
   // Loyalty operations
   addLoyaltyPoints(customerId: number, points: number): Observable<Customer> {
     const customers = this.customers$.value;
@@ -170,7 +258,51 @@ export class CustomerService {
     throw new Error('Customer not found');
   }
 
+  // Document operations
+  getDocuments(customerId: number): Observable<Document[]> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    return of(customer?.documentos || []);
+  }
+
+  addDocument(customerId: number, document: Document): Observable<Document> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      const newDocument = { ...document, id: this.generateId(customer.documentos || []) };
+      if (!customer.documentos) customer.documentos = [];
+      customer.documentos.push(newDocument);
+      this.saveCustomers(customers);
+      return of(newDocument);
+    }
+    throw new Error('Customer not found');
+  }
+
+  deleteDocument(customerId: number, documentId: number): Observable<void> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    if (customer && customer.documentos) {
+      const index = customer.documentos.findIndex(d => d.id === documentId);
+      if (index !== -1) {
+        customer.documentos.splice(index, 1);
+        this.saveCustomers(customers);
+        return of(void 0);
+      }
+    }
+    throw new Error('Document not found');
+  }
+
   private generateId(items: any[]): number {
     return items.length > 0 ? Math.max(...items.map(i => i.id || 0)) + 1 : 1;
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  private isValidPhone(phone: string): boolean {
+    const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/;
+    return phoneRegex.test(phone);
   }
 }

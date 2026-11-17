@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { Appointment, RecurringAppointment } from '../models/appointment.model';
 import { StorageService } from '../../../core/services/storage.service';
+import { TransactionService } from '../../../core/services/transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,10 @@ export class AppointmentService {
   private appointments$ = new BehaviorSubject<Appointment[]>([]);
   private recurringAppointments$ = new BehaviorSubject<RecurringAppointment[]>([]);
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private transactionService: TransactionService
+  ) {
     this.loadData();
     this.storageService.changes$.subscribe(key => {
       if (['appointments', 'recurringAppointments'].includes(key)) {
@@ -50,6 +54,17 @@ export class AppointmentService {
   }
 
   createAppointment(appointment: Appointment): Observable<Appointment> {
+    // Input validation
+    if (!appointment.clienteId || !appointment.fecha || !appointment.horaInicio || !appointment.horaFin) {
+      return throwError(() => new Error('Cliente, fecha, hora de inicio y hora de fin son requeridos'));
+    }
+    if (new Date(appointment.fecha) < new Date()) {
+      return throwError(() => new Error('La fecha de la cita no puede ser en el pasado'));
+    }
+    if (this.hasTimeConflict(appointment)) {
+      return throwError(() => new Error('Existe un conflicto de horario con otra cita'));
+    }
+
     const appointments = this.appointments$.value;
     const newAppointment = { ...appointment, id: this.generateId(appointments) };
     appointments.push(newAppointment);
@@ -57,15 +72,35 @@ export class AppointmentService {
     return of(newAppointment);
   }
 
-  updateAppointment(id: number, appointment: Appointment): Observable<Appointment> {
+  updateAppointment(id: number, appointment: Appointment, expectedVersion?: number): Observable<Appointment> {
+    // Input validation
+    if (!appointment.clienteId || !appointment.fecha || !appointment.horaInicio || !appointment.horaFin) {
+      return throwError(() => new Error('Cliente, fecha, hora de inicio y hora de fin son requeridos'));
+    }
+    if (new Date(appointment.fecha) < new Date()) {
+      return throwError(() => new Error('La fecha de la cita no puede ser en el pasado'));
+    }
+    if (this.hasTimeConflict(appointment, id)) {
+      return throwError(() => new Error('Existe un conflicto de horario con otra cita'));
+    }
+
     const appointments = this.appointments$.value;
     const index = appointments.findIndex(a => a.id === id);
     if (index !== -1) {
-      appointments[index] = { ...appointment, id };
+      const existingAppointment = appointments[index];
+
+      // Optimistic locking check
+      if (expectedVersion !== undefined && existingAppointment.version !== expectedVersion) {
+        return throwError(() => new Error('La cita ha sido modificada por otro usuario. Por favor, recarga los datos.'));
+      }
+
+      // Update with new version
+      const updatedAppointment = this.transactionService.addVersion({ ...appointment, id });
+      appointments[index] = updatedAppointment;
       this.saveAppointments(appointments);
-      return of(appointments[index]);
+      return of(updatedAppointment);
     }
-    throw new Error('Appointment not found');
+    return throwError(() => new Error('Appointment not found'));
   }
 
   deleteAppointment(id: number): Observable<void> {
@@ -123,11 +158,34 @@ export class AppointmentService {
     const appointments = this.appointments$.value;
     const index = appointments.findIndex(a => a.id === id);
     if (index !== -1) {
-      appointments[index].estado = 'Confirmada';
+      const appointment = appointments[index];
+      // Update status and mark reminder as sent
+      appointment.estado = 'Confirmada';
+      appointment.recordatorioEnviado = true;
       this.saveAppointments(appointments);
-      return of(appointments[index]);
+
+      return of(appointment);
     }
-    throw new Error('Appointment not found');
+    return throwError(() => new Error('Appointment not found'));
+  }
+
+  private hasTimeConflict(appointment: Appointment, excludeId?: number): boolean {
+    const appointments = this.appointments$.value;
+    const appointmentDate = new Date(appointment.fecha).toDateString();
+    const newStart = new Date(`${appointment.fecha}T${appointment.horaInicio}`).getTime();
+    const newEnd = new Date(`${appointment.fecha}T${appointment.horaFin}`).getTime();
+
+    return appointments.some(a => {
+      if (a.id === excludeId) return false;
+      if (new Date(a.fecha).toDateString() !== appointmentDate) return false;
+      if (a.estado === 'Cancelada' || a.estado === 'No Asistió') return false;
+
+      const existingStart = new Date(`${a.fecha}T${a.horaInicio}`).getTime();
+      const existingEnd = new Date(`${a.fecha}T${a.horaFin}`).getTime();
+
+      // Check for time overlap
+      return (newStart < existingEnd && newEnd > existingStart);
+    });
   }
 
   // Recurring appointments

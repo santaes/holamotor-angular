@@ -3,7 +3,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Customer, Vehicle, Communication } from '../../models/customer.model';
+import { Customer, Vehicle, Communication, Document } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { PdfUploadComponent } from '../../../../core/components/pdf-upload/pdf-upload.component';
 
@@ -29,6 +30,7 @@ import { PdfUploadComponent } from '../../../../core/components/pdf-upload/pdf-u
     MatTabsModule,
     MatChipsModule,
     MatTableModule,
+    MatTooltipModule,
     TranslatePipe,
     MatProgressSpinnerModule,
     PdfUploadComponent],
@@ -39,6 +41,7 @@ export class CustomerDetailComponent implements OnInit {
   customer: Customer | null = null;
   vehicles: Vehicle[] = [];
   communications: Communication[] = [];
+  documents: Document[] = [];
   isLoading = true;
   selectedTab = 0;
 
@@ -90,6 +93,15 @@ export class CustomerDetailComponent implements OnInit {
       error: (error) => {
         console.error('Error loading communications:', error);
         this.isLoading = false;
+      }
+    });
+
+    this.customerService.getDocuments(id).subscribe({
+      next: (documents) => {
+        this.documents = documents;
+      },
+      error: (error) => {
+        console.error('Error loading documents:', error);
       }
     });
   }
@@ -172,10 +184,25 @@ export class CustomerDetailComponent implements OnInit {
 
   onPdfUploaded(pdfInfo: { filename: string; originalName: string; url: string }): void {
     console.log('PDF uploaded:', pdfInfo);
-    // Store PDF reference in customer data
-    if (this.customer) {
-      if (!this.customer.notas) this.customer.notas = '';
-      this.customer.notas += `\n[PDF: ${pdfInfo.originalName} - ${pdfInfo.url}]`;
+    // Save document to customer
+    if (this.customer?.id) {
+      const document: Document = {
+        filename: pdfInfo.filename,
+        originalName: pdfInfo.originalName,
+        url: pdfInfo.url,
+        uploadDate: new Date(),
+        tipo: 'PDF'
+      };
+      this.customerService.addDocument(this.customer.id, document).subscribe({
+        next: (newDocument) => {
+          this.documents.push(newDocument);
+          this.snackBar.open(t('Documento agregado exitosamente'), t('Cerrar'), { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error adding document:', error);
+          this.snackBar.open(t('Error al agregar documento'), t('Cerrar'), { duration: 3000 });
+        }
+      });
     }
   }
 
@@ -185,6 +212,34 @@ export class CustomerDetailComponent implements OnInit {
     if (this.customer) {
       if (!this.customer.notas) this.customer.notas = '';
       this.customer.notas += `\n[OCR Text: ${text.substring(0, 200)}...]`;
+    }
+  }
+
+  viewDocument(doc: Document): void {
+    window.open(doc.url, '_blank');
+  }
+
+  downloadDocument(doc: Document): void {
+    const link = document.createElement('a');
+    link.href = doc.url;
+    link.download = doc.originalName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  deleteDocument(docId: number): void {
+    if (this.customer?.id) {
+      this.customerService.deleteDocument(this.customer.id, docId).subscribe({
+        next: () => {
+          this.documents = this.documents.filter(d => d.id !== docId);
+          this.snackBar.open(t('Documento eliminado exitosamente'), t('Cerrar'), { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error deleting document:', error);
+          this.snackBar.open(t('Error al eliminar documento'), t('Cerrar'), { duration: 3000 });
+        }
+      });
     }
   }
 }

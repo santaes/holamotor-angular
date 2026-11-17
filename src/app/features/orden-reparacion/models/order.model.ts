@@ -23,6 +23,8 @@ export interface RepairOrder {
   partesUsadas?: OrderPart[];
   labor?: OrderLabor[];
   pagos?: Payment[];
+  version?: number;
+  lastModified?: Date;
 }
 
 export interface OrderPart {
