@@ -257,6 +257,19 @@ async function handleApi(req, res, pathname) {
     return handleTranslation(req, res);
   }
 
+  // Google Calendar endpoints
+  if (pathname === '/api/calendar/auth' && req.method === 'POST') {
+    return handleGoogleAuth(req, res);
+  }
+
+  if (pathname === '/api/calendar/events' && req.method === 'GET') {
+    return handleGoogleCalendar(req, res, 'get');
+  }
+
+  if (pathname === '/api/calendar/events' && req.method === 'POST') {
+    return handleGoogleCalendarEvent(req, res, 'create');
+  }
+
   // Serve uploaded PDFs (GET/HEAD only; upload is POST and handled above)
   if (pathname.startsWith('/api/pdf/') && (req.method === 'GET' || req.method === 'HEAD')) {
     return serveStatic(req, res, pathname);
@@ -454,6 +467,135 @@ async function handleTranslation(req, res) {
       source: body.source || 'auto',
       target: body.target || 'en'
     });
+  }
+}
+
+// ---------- Google Calendar API ----------
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:4200/calendar/callback';
+const CALENDAR_TOKENS_FILE = path.join(DATA_DIR, 'google-calendar-tokens.json');
+
+async function handleGoogleAuth(req, res) {
+  const { code } = await readBody(req);
+  if (!code) return sendError(req, res, 400, 'invalidJson');
+
+  try {
+    // Exchange authorization code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        grant_type: 'authorization_code'
+      })
+    });
+
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.text();
+      console.error('Google OAuth error:', error);
+      return sendError(req, res, 400, 'invalidJson');
+    }
+
+    const tokens = await tokenResponse.json();
+    await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
+
+    return send(res, 200, { success: true });
+  } catch (err) {
+    console.error('Google auth error:', err);
+    return sendError(req, res, 500, 'internalError');
+  }
+}
+
+async function handleGoogleCalendar(req, res, action) {
+  try {
+    const tokens = JSON.parse(await fsp.readFile(CALENDAR_TOKENS_FILE, 'utf8'));
+
+    // Refresh token if expired
+    if (tokens.expiry_date && Date.now() >= tokens.expiry_date) {
+      const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          refresh_token: tokens.refresh_token,
+          client_id: GOOGLE_CLIENT_ID,
+          client_secret: GOOGLE_CLIENT_SECRET,
+          grant_type: 'refresh_token'
+        })
+      });
+
+      if (refreshResponse.ok) {
+        const newTokens = await refreshResponse.json();
+        Object.assign(tokens, newTokens);
+        await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
+      }
+    }
+
+    const calendarResponse = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` }
+    });
+
+    if (!calendarResponse.ok) {
+      return sendError(req, res, 500, 'internalError');
+    }
+
+    const events = await calendarResponse.json();
+    return send(res, 200, events);
+  } catch (err) {
+    console.error('Google Calendar error:', err);
+    return sendError(req, res, 500, 'internalError');
+  }
+}
+
+async function handleGoogleCalendarEvent(req, res, action) {
+  try {
+    const tokens = JSON.parse(await fsp.readFile(CALENDAR_TOKENS_FILE, 'utf8'));
+    const body = await readBody(req);
+
+    const event = {
+      summary: body.summary,
+      description: body.description,
+      start: {
+        dateTime: body.start,
+        timeZone: 'Europe/Madrid'
+      },
+      end: {
+        dateTime: body.end,
+        timeZone: 'Europe/Madrid'
+      },
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: 'email', minutes: 24 * 60 }, // 1 day before
+          { method: 'popup', minutes: 60 } // 1 hour before
+        ]
+      }
+    };
+
+    const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${tokens.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(event)
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Google Calendar event error:', error);
+      return sendError(req, res, 500, 'internalError');
+    }
+
+    const createdEvent = await response.json();
+    return send(res, 200, createdEvent);
+  } catch (err) {
+    console.error('Google Calendar event error:', err);
+    return sendError(req, res, 500, 'internalError');
   }
 }
 

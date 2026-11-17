@@ -1,3 +1,27 @@
 export const es: Record<string, string> = {
-  "ru": "ru"
+  "ru": "ru",
+  "Documento agregado exitosamente": "Documento agregado exitosamente",
+  "Error al agregar documento": "Error al agregar documento",
+  "Documento eliminado exitosamente": "Documento eliminado exitosamente",
+  "Error al eliminar documento": "Error al eliminar documento",
+  "No hay documentos subidos": "No hay documentos subidos",
+  "Subir Nuevo Documento": "Subir Nuevo Documento",
+  "Ver": "Ver",
+  "Descargar": "Descargar",
+  "Eliminar": "Eliminar",
+  "Google Calendar": "Google Calendar",
+  "Eventos y notificaciones de Google Calendar": "Eventos y notificaciones de Google Calendar",
+  "Conectar Google Calendar": "Conectar Google Calendar",
+  "Actualizar": "Actualizar",
+  "Próximos Eventos": "Próximos Eventos",
+  "Cargando eventos...": "Cargando eventos...",
+  "No hay eventos próximos": "No hay eventos próximos",
+  "Conecta tu Google Calendar": "Conecta tu Google Calendar",
+  "Para ver tus eventos y recibir notificaciones de citas": "Para ver tus eventos y recibir notificaciones de citas",
+  "Conectando con Google Calendar...": "Conectando con Google Calendar...",
+  "Conexión exitosa": "Conexión exitosa",
+  "Ver Calendario": "Ver Calendario",
+  "Error al conectar con Google Calendar": "Error al conectar con Google Calendar",
+  "Reintentar": "Reintentar",
+  "Error al cargar eventos": "Error al cargar eventos"
 };

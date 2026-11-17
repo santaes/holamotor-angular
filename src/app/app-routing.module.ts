@@ -34,6 +34,10 @@ const routes: Routes = [
   {
     path: 'configuracion',
     loadChildren: () => import('./features/configuracion/configuracion.module').then(m => m.ConfiguracionModule)
+  },
+  {
+    path: 'calendar',
+    loadChildren: () => import('./features/calendar/calendar.module').then(m => m.CalendarModule)
   }
 ];
 
