@@ -1,4 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,6 +23,14 @@ import { QuickCustomerDialogComponent } from '../../../../core/components/quick-
 
 @Component({
   selector: 'app-appointment-form',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatCheckboxModule, TranslatePipe, ReactiveFormsModule],
   templateUrl: './appointment-form.component.html',
   styleUrls: ['./appointment-form.component.css']
 })

@@ -18,7 +18,7 @@ const fs = require('fs');
 const fsp = fs.promises;
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(process.cwd());
 const PORT = Number(process.env.PORT) || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 const DATA_DIR = path.resolve(ROOT, process.env.DATA_DIR || 'data');
@@ -257,6 +257,11 @@ async function handleApi(req, res, pathname) {
     return handleTranslation(req, res);
   }
 
+  // Serve uploaded PDFs (GET/HEAD only; upload is POST and handled above)
+  if (pathname.startsWith('/api/pdf/') && (req.method === 'GET' || req.method === 'HEAD')) {
+    return serveStatic(req, res, pathname);
+  }
+
   const match = pathname.match(/^\/api\/data\/([^/]+)$/);
   if (!match) return sendError(req, res, 404, 'notFound');
 
@@ -334,6 +339,49 @@ async function handlePdfUpload(req, res) {
 
 // ---------- Translation Handler ----------
 
+// Split text into chunks no larger than maxSize, preferring line boundaries.
+// Each chunk records the separator that followed it in the original text ('\n'
+// for line-boundary splits, '' for mid-line hard splits) so the translated
+// output can be reassembled with the original formatting intact.
+function splitTextChunks(text, maxSize = 4500) {
+  if (text.length <= maxSize) return [{ text, sep: '' }];
+
+  const chunks = [];
+  const lines = text.split('\n');
+  let current = '';
+
+  const push = (sep) => {
+    if (current) chunks.push({ text: current, sep });
+    current = '';
+  };
+
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    const followedByNewline = li < lines.length - 1;
+
+    // A single line longer than maxSize must be hard-split
+    if (line.length > maxSize) {
+      push('\n');
+      for (let i = 0; i < line.length; i += maxSize) {
+        const isLast = i + maxSize >= line.length;
+        chunks.push({ text: line.slice(i, i + maxSize), sep: isLast && followedByNewline ? '\n' : '' });
+      }
+      continue;
+    }
+
+    const candidate = current ? current + '\n' + line : line;
+    if (candidate.length > maxSize && current) {
+      push('\n');
+      current = line;
+    } else {
+      current = candidate;
+    }
+  }
+
+  push('');
+  return chunks;
+}
+
 async function handleTranslation(req, res) {
   try {
     const body = await readBody(req);
@@ -378,20 +426,17 @@ async function handleTranslation(req, res) {
       }
     };
 
-    // Split text into chunks (Google Translate has ~5000 char limit)
-    const chunkSize = 5000;
-    const chunks = [];
-    for (let i = 0; i < text.length; i += chunkSize) {
-      chunks.push(text.slice(i, i + chunkSize));
-    }
+    // Split text into chunks on line boundaries (Google Translate has ~5000 char limit).
+    // Breaking at newlines keeps the original formatting intact after translation.
+    const chunks = splitTextChunks(text, 4500);
 
     console.log(`Translating ${chunks.length} chunks (${text.length} chars total)...`);
 
     // Translate all chunks
-    const translatedChunks = await Promise.all(chunks.map(chunk => translateChunk(chunk)));
+    const translatedChunks = await Promise.all(chunks.map(chunk => translateChunk(chunk.text)));
 
-    // Combine translated chunks
-    const translatedText = translatedChunks.join('');
+    // Reassemble using the original separators so line breaks are preserved
+    const translatedText = translatedChunks.map((t, i) => t + chunks[i].sep).join('');
 
     console.log('Translation complete');
 
@@ -418,8 +463,10 @@ async function serveStatic(req, res, pathname) {
   // Serve uploaded PDFs
   if (pathname.startsWith('/api/pdf/')) {
     const filename = pathname.replace('/api/pdf/', '');
-    const file = path.join(PDF_DIR, filename);
-    if (!file.startsWith(PDF_DIR)) return sendError(req, res, 403, 'forbidden');
+    const file = path.resolve(PDF_DIR, filename);
+    if (path.relative(PDF_DIR, file).startsWith('..') || path.isAbsolute(path.relative(PDF_DIR, file))) {
+      return sendError(req, res, 403, 'forbidden');
+    }
 
     const stat = await fsp.stat(file).catch(() => null);
     if (!stat) return sendError(req, res, 404, 'notFound');

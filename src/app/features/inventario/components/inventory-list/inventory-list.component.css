@@ -1,0 +1,9 @@
+/* Layout inherited from global design system (styles.scss) */
+
+.toggle-button.warning-mode {
+  color: var(--hm-danger);
+}
+
+.toggle-button.warning-mode mat-icon {
+  color: var(--hm-danger);
+}

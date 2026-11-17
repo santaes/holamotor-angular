@@ -1,6 +1,5 @@
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MoneyPipe } from '../../core/pipes/money.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -24,15 +23,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
-  declarations: [
-    AppointmentListComponent,
-    AppointmentFormComponent,
-    AppointmentDetailComponent
-  ],
   imports: [
-    MatTooltipModule,
     TranslatePipe,
     MoneyPipe,
     CommonModule,
@@ -51,7 +45,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    AppointmentListComponent,
+    AppointmentFormComponent,
+    AppointmentDetailComponent
   ]
 })
 export class CitasModule {}

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { Invoice, InvoiceItem } from '../models/billing.model';
 
 @Injectable({
@@ -17,14 +17,16 @@ export class ExcelParserService {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
-      reader.onload = (e: any) => {
+      reader.onload = async (e: any) => {
         try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null }) as any[][];
-
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.load(e.target.result);
+          const worksheet = workbook.worksheets[0];
+          if (!worksheet) {
+            reject(new Error('Excel file has no worksheets'));
+            return;
+          }
+          const jsonData = this.sheetToArray(worksheet);
           const invoice = this.extractInvoiceData(jsonData);
           resolve(invoice);
         } catch (error) {
@@ -35,6 +37,52 @@ export class ExcelParserService {
       reader.onerror = (error) => reject(error);
       reader.readAsArrayBuffer(file);
     });
+  }
+
+  /**
+   * Convert a worksheet to an array of arrays (like sheet_to_json with header:1, defval:null)
+   */
+  private sheetToArray(worksheet: ExcelJS.Worksheet): any[][] {
+    const rows: any[][] = [];
+    const colCount = worksheet.columnCount;
+
+    worksheet.eachRow({ includeEmpty: true }, (row) => {
+      const values: any[] = [];
+      for (let c = 1; c <= colCount; c++) {
+        values.push(this.cellValue(row.getCell(c)));
+      }
+      rows.push(values);
+    });
+
+    return rows;
+  }
+
+  /**
+   * Extract the primitive value from an ExcelJS cell (unwraps formulas, rich text, hyperlinks)
+   */
+  private cellValue(cell: ExcelJS.Cell): any {
+    const v = cell.value;
+    if (v === null || v === undefined) return null;
+    if (v instanceof Date) return v;
+    if (typeof v === 'object') {
+      const obj = v as any;
+      if ('result' in obj) return this.unwrapValue(obj.result);
+      if ('richText' in obj) return obj.richText.map((r: any) => r.text).join('');
+      if ('text' in obj) return obj.text;
+      if ('error' in obj) return null;
+    }
+    return v;
+  }
+
+  private unwrapValue(v: any): any {
+    if (v === null || v === undefined) return null;
+    if (v instanceof Date) return v;
+    if (typeof v === 'object') {
+      if ('richText' in v) return v.richText.map((r: any) => r.text).join('');
+      if ('text' in v) return v.text;
+      if ('result' in v) return this.unwrapValue(v.result);
+    }
+    return v;
   }
 
   /**
@@ -217,12 +265,12 @@ export class ExcelParserService {
   /**
    * Export an Invoice to Excel format matching the template
    */
-  exportInvoiceToExcel(invoice: Invoice): XLSX.WorkBook {
-    const workbook = XLSX.utils.book_new();
+  exportInvoiceToExcel(invoice: Invoice): ExcelJS.Workbook {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('REBU');
     const worksheetData = this.buildExcelData(invoice);
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'REBU');
+    worksheetData.forEach(row => worksheet.addRow(row));
 
     return workbook;
   }
@@ -307,7 +355,18 @@ export class ExcelParserService {
   /**
    * Download the workbook as an Excel file
    */
-  downloadExcel(workbook: XLSX.WorkBook, filename: string): void {
-    XLSX.writeFile(workbook, filename);
+  async downloadExcel(workbook: ExcelJS.Workbook, filename: string): Promise<void> {
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 }

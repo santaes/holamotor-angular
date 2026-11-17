@@ -1,4 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { MoneyPipe } from '../../../../core/pipes/money.pipe';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
@@ -8,6 +16,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-invoice-list',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTooltipModule, TranslatePipe, MoneyPipe],
   templateUrl: './invoice-list.component.html',
   styleUrls: ['./invoice-list.component.css']
 })

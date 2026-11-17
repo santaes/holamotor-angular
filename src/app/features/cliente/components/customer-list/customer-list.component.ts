@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { Customer } from '../../models/customer.model';
@@ -6,9 +9,36 @@ import { CustomerService } from '../../services/customer.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-customer-list',
+  standalone: true,
+  imports: [CommonModule,
+    RouterModule,
+    FormsModule,
+    MatButtonModule,
+    MatTableModule,
+    MatIconModule,
+    MatCardModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatTooltipModule,
+    TranslatePipe,
+    MatProgressSpinnerModule],
   templateUrl: './customer-list.component.html',
   styleUrls: ['./customer-list.component.css']
 })

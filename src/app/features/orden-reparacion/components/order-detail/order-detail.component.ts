@@ -1,12 +1,34 @@
 import { Component, OnInit } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RepairOrder } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MoneyPipe } from '../../../../core/pipes/money.pipe';
 
 @Component({
   selector: 'app-order-detail',
+  standalone: true,
+  imports: [CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatTabsModule,
+    MatChipsModule,
+    TranslatePipe,
+    MoneyPipe,
+    MatProgressSpinnerModule,
+    MatTableModule],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.css']
 })

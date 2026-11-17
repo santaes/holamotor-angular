@@ -1,6 +1,5 @@
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MoneyPipe } from '../../core/pipes/money.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -21,15 +20,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
-  declarations: [
-    InventoryListComponent,
-    InventoryFormComponent,
-    InventoryDetailComponent
-  ],
   imports: [
-    MatTooltipModule,
     TranslatePipe,
     MoneyPipe,
     CommonModule,
@@ -45,7 +39,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSnackBarModule,
     MatSelectModule,
     MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    InventoryListComponent,
+    InventoryFormComponent,
+    InventoryDetailComponent
   ]
 })
 export class InventarioModule {}

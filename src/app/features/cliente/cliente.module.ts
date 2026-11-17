@@ -1,6 +1,5 @@
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MoneyPipe } from '../../core/pipes/money.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -29,17 +28,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
-  declarations: [
-    CustomerListComponent,
-    CustomerFormComponent,
-    CustomerDetailComponent,
-    PdfUploadComponent,
-    DiagnosisManagementComponent
-  ],
   imports: [
-    MatTooltipModule,
     TranslatePipe,
     MoneyPipe,
     CommonModule,
@@ -58,7 +50,16 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatChipsModule,
     MatTabsModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTooltipModule,
+    CustomerListComponent,
+    CustomerFormComponent,
+    CustomerDetailComponent,
+    PdfUploadComponent,
+    DiagnosisManagementComponent,
+    CommunicationDialogComponent
   ]
 })
 export class ClienteModule {}

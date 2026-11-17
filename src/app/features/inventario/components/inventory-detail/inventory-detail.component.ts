@@ -1,4 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { MoneyPipe } from '../../../../core/pipes/money.pipe';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InventoryItem } from '../../models/inventory.model';
@@ -7,6 +13,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-inventory-detail',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule, TranslatePipe, MoneyPipe],
   templateUrl: './inventory-detail.component.html',
   styleUrls: ['./inventory-detail.component.css']
 })

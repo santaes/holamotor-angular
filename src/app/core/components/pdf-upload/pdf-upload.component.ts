@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,10 +11,20 @@ import { PdfService } from '../../services/pdf.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { t } from '../../i18n/i18n';
 // @ts-ignore
-import * as pdfjsLib from 'pdfjs-dist';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 @Component({
   selector: 'app-pdf-upload',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    TranslatePipe
+  ],
   templateUrl: './pdf-upload.component.html',
   styleUrls: ['./pdf-upload.component.css']
 })
@@ -29,13 +40,17 @@ export class PdfUploadComponent {
   translatedText = '';
   isTranslating = false;
   selectedTargetLang = 'en';
+  pdfUrl: SafeResourceUrl | null = null;
 
   constructor(
     private pdfService: PdfService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
+    private sanitizer: DomSanitizer
   ) {
-    // Set up pdf.js worker using reliable CDN
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    // Set up pdf.js worker for v6 legacy build
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.worker.min.mjs';
   }
 
   onFileSelected(event: Event): void {
@@ -47,6 +62,13 @@ export class PdfUploadComponent {
         return;
       }
       this.selectedFile = file;
+      // Create object URL for PDF preview
+      if (this.pdfUrl) {
+        URL.revokeObjectURL(this.pdfUrl as any);
+      }
+      const blobUrl = URL.createObjectURL(file);
+      this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
+      this.cdr.detectChanges();
     }
   }
 
@@ -54,9 +76,13 @@ export class PdfUploadComponent {
     if (!this.selectedFile) return;
 
     this.isUploading = true;
+    this.cdr.detectChanges();
     this.pdfService.uploadPdf(this.selectedFile).subscribe({
       next: (result) => {
-        this.isUploading = false;
+        this.ngZone.run(() => {
+          this.isUploading = false;
+          this.cdr.detectChanges();
+        });
         this.pdfUploaded.emit({
           filename: result.filename,
           originalName: result.originalName,
@@ -65,7 +91,10 @@ export class PdfUploadComponent {
         this.snackBar.open(t('PDF uploaded successfully'), t('Cerrar'), { duration: 3000 });
       },
       error: (error) => {
-        this.isUploading = false;
+        this.ngZone.run(() => {
+          this.isUploading = false;
+          this.cdr.detectChanges();
+        });
         console.error('Upload error:', error);
         this.snackBar.open(t('Error uploading PDF'), t('Cerrar'), { duration: 3000 });
       }
@@ -77,6 +106,7 @@ export class PdfUploadComponent {
 
     this.isProcessing = true;
     this.progress = 0;
+    this.cdr.detectChanges();
 
     try {
       // Convert PDF to text using pdf.js
@@ -86,36 +116,79 @@ export class PdfUploadComponent {
 
       const totalPages = pdf.numPages;
       for (let i = 1; i <= totalPages; i++) {
-        this.progress = Math.round((i / totalPages) * 100);
+        this.ngZone.run(() => {
+          this.progress = Math.round((i / totalPages) * 100);
+        });
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(' ');
-        fullText += pageText + '\n';
+        fullText += this.extractPageText(textContent.items) + '\n';
       }
 
-      this.extractedText = fullText.trim();
+      this.ngZone.run(() => {
+        this.extractedText = fullText.trim();
+        this.isProcessing = false;
+        this.cdr.detectChanges();
+      });
       this.textExtracted.emit(this.extractedText);
-      this.isProcessing = false;
       this.snackBar.open(t('Text extracted successfully'), t('Cerrar'), { duration: 3000 });
     } catch (error) {
-      this.isProcessing = false;
+      this.ngZone.run(() => {
+        this.isProcessing = false;
+        this.cdr.detectChanges();
+      });
       console.error('PDF text extraction error:', error);
       this.snackBar.open(t('Error extracting text'), t('Cerrar'), { duration: 3000 });
     }
+  }
+
+  /**
+   * Rebuild text lines from pdf.js text items using their Y coordinates
+   * and hasEOL flags, preserving the original layout (line breaks).
+   */
+  private extractPageText(items: any[]): string {
+    let text = '';
+    let prevY: number | null = null;
+
+    for (const item of items) {
+      const str = item.str ?? '';
+      if (!str) continue;
+
+      const y = item.transform?.[5];
+      const newLine = prevY !== null && typeof y === 'number' && Math.abs(y - prevY) > 2;
+
+      if (newLine) {
+        text += '\n';
+      } else if (text && !/\s$/.test(text) && !/^\s/.test(str)) {
+        text += ' ';
+      }
+
+      text += str;
+      if (item.hasEOL) text += '\n';
+      if (typeof y === 'number') prevY = y;
+    }
+
+    return text.replace(/\n{3,}/g, '\n\n').trimEnd();
   }
 
   translateText(targetLang: string = 'en'): void {
     if (!this.extractedText) return;
 
     this.isTranslating = true;
+    this.cdr.detectChanges();
     this.pdfService.translateText(this.extractedText, 'auto', targetLang).subscribe({
       next: (result) => {
-        this.translatedText = result.translatedText;
-        this.isTranslating = false;
+        this.ngZone.run(() => {
+          this.translatedText = result.translatedText;
+          this.isTranslating = false;
+          this.cdr.detectChanges();
+        });
         this.snackBar.open(t('Text translated successfully'), t('Cerrar'), { duration: 3000 });
       },
       error: (error) => {
-        this.isTranslating = false;
+        this.ngZone.run(() => {
+          this.isTranslating = false;
+          this.cdr.detectChanges();
+        });
         console.error('Translation error:', error);
         this.snackBar.open(t('Error translating text'), t('Cerrar'), { duration: 3000 });
       }
@@ -146,11 +219,6 @@ export class PdfUploadComponent {
             max-width: 800px;
             margin: 0 auto;
           }
-          h1 {
-            color: #333;
-            border-bottom: 2px solid #0066cc;
-            padding-bottom: 10px;
-          }
           .content {
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -170,7 +238,6 @@ export class PdfUploadComponent {
         </style>
       </head>
       <body>
-        <h1>${t('Translated Diagnostic Report')}</h1>
         <div class="content">${this.translatedText}</div>
         <div class="footer">
           <p>Generated by HolaMotor Workshop Management System</p>
@@ -190,9 +257,31 @@ export class PdfUploadComponent {
   }
 
   clearFile(): void {
-    this.selectedFile = null;
-    this.extractedText = '';
-    this.translatedText = '';
-    this.progress = 0;
+    this.ngZone.run(() => {
+      this.selectedFile = null;
+      this.extractedText = '';
+      this.translatedText = '';
+      this.progress = 0;
+      if (this.pdfUrl) {
+        URL.revokeObjectURL(this.pdfUrl as any);
+        this.pdfUrl = null;
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
+  printPdf(): void {
+    if (!this.pdfUrl || !this.selectedFile) return;
+
+    const blobUrl = URL.createObjectURL(this.selectedFile);
+    const printWindow = window.open(blobUrl, '_blank');
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print();
+        URL.revokeObjectURL(blobUrl);
+      };
+    } else {
+      this.snackBar.open(t('Could not open PDF for printing'), t('Cerrar'), { duration: 3000 });
+    }
   }
 }

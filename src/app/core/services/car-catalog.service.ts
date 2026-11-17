@@ -1668,8 +1668,17 @@ export class CarCatalogService {
     return this.carMakes;
   }
 
+  getMakeNames(): string[] {
+    return this.carMakes.map(m => m.name);
+  }
+
+  findMake(makeName: string): CarMake | undefined {
+    const q = (makeName || '').trim().toLowerCase();
+    return this.carMakes.find(m => m.name.toLowerCase() === q);
+  }
+
   getModelsByMake(makeName: string): string[] {
-    const make = this.carMakes.find(m => m.name === makeName);
+    const make = this.findMake(makeName);
     return make ? make.models : [];
   }
 

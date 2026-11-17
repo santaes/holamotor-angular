@@ -1,4 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../core/services/storage.service';
@@ -7,6 +15,13 @@ import { LANGUAGES, Lang, currentLang, setLang, t } from '../../core/i18n/i18n';
 
 @Component({
   selector: 'app-settings',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatSlideToggleModule, TranslatePipe, ReactiveFormsModule],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })

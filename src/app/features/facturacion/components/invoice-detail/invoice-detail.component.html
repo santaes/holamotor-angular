@@ -174,7 +174,7 @@
     </div>
 
     <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
-      <mat-tab label="Items">
+      <mat-tab [label]="'Items' | t">
         <div class="tab-content">
           <mat-card *ngIf="invoice?.items && invoice.items.length > 0; else noItems">
             <table mat-table [dataSource]="invoice.items" class="items-table">
@@ -211,7 +211,7 @@
         </div>
       </mat-tab>
 
-      <mat-tab label="Pagos">
+      <mat-tab [label]="'Pagos' | t">
         <div class="tab-content">
           <mat-card *ngIf="invoice?.pagos && invoice.pagos.length > 0; else noPayments">
             <table mat-table [dataSource]="invoice.pagos" class="payments-table">

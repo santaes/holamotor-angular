@@ -1,4 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,10 +22,20 @@ import { PdfService } from '../../../../core/services/pdf.service';
 // @ts-ignore
 import Tesseract from 'tesseract.js';
 // @ts-ignore
-import * as pdfjsLib from 'pdfjs-dist';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 @Component({
   selector: 'app-diagnosis-management',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule, TranslatePipe, ReactiveFormsModule],
   templateUrl: './diagnosis-management.component.html',
   styleUrls: ['./diagnosis-management.component.css']
 })
@@ -116,8 +137,8 @@ export class DiagnosisManagementComponent implements OnInit {
     this.progress = 0;
 
     try {
-      // Set up pdf.js worker
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      // Set up pdf.js worker for v6 legacy build
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.worker.min.mjs';
 
       // Load PDF
       const arrayBuffer = await this.selectedFile.arrayBuffer();
@@ -140,9 +161,9 @@ export class DiagnosisManagementComponent implements OnInit {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        // Render page to canvas (pdf.js v3 API)
+        // Render page to canvas (pdf.js v6 API)
         const renderContext = {
-          canvasContext: context,
+          canvas: canvas,
           viewport: viewport
         };
         await page.render(renderContext).promise;

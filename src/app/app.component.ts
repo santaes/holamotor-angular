@@ -1,10 +1,21 @@
 import { Component, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SettingsService } from './core/services/settings.service';
 import { AppNotification, NotificationService } from './core/services/notification.service';
 import { t, LANGUAGES, currentLang, setLang, Lang } from './core/i18n/i18n';
 import { NavigationEnd, Router } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatIconRegistry } from '@angular/material/icon';
+import { MatIconRegistry, MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe } from './core/i18n/translate.pipe';
 import { Subscription, filter } from 'rxjs';
 
 interface MenuItem {
@@ -15,6 +26,18 @@ interface MenuItem {
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule,
+    RouterModule,
+    FormsModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatBadgeModule,
+    MatDividerModule,
+    MatTooltipModule, TranslatePipe],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

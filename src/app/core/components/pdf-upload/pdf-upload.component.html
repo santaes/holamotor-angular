@@ -64,6 +64,26 @@
     <span>{{ 'Uploading' | t }}...</span>
   </div>
 
+  <div class="pdf-preview-section" *ngIf="pdfUrl">
+    <div class="pdf-preview-header">
+      <h3>{{ 'PDF Preview' | t }}</h3>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="printPdf()"
+        class="print-pdf-button"
+      >
+        <mat-icon>print</mat-icon>
+        {{ 'Print PDF' | t }}
+      </button>
+    </div>
+    <iframe
+      [src]="pdfUrl"
+      class="pdf-iframe"
+      type="application/pdf"
+    ></iframe>
+  </div>
+
   <div class="text-section" *ngIf="extractedText">
     <h3>{{ 'Extracted Text' | t }}</h3>
     <textarea [(ngModel)]="extractedText" rows="10" class="text-area"></textarea>

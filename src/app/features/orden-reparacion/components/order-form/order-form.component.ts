@@ -1,27 +1,58 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { RepairOrder } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { StorageService } from '../../../../core/services/storage.service';
 import { SettingsService } from '../../../../core/services/settings.service';
-import { MatDialog } from '@angular/material/dialog';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { merge } from 'rxjs';
+import { merge, Subscription } from 'rxjs';
 import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-order-form',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    TranslatePipe
+  ],
   templateUrl: './order-form.component.html',
   styleUrls: ['./order-form.component.css']
 })
-export class OrderFormComponent implements OnInit {
+export class OrderFormComponent implements OnInit, OnDestroy {
   orderForm: FormGroup;
   isEditMode = false;
   orderId: number | null = null;
   pageTitle = 'Nueva Orden de Reparación';
+
+  private subs = new Subscription();
 
   constructor(
     private fb: FormBuilder,
@@ -52,26 +83,26 @@ export class OrderFormComponent implements OnInit {
 
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
-    this.storage.changes$.pipe(takeUntilDestroyed()).subscribe(key => {
+    this.subs.add(this.storage.changes$.subscribe(key => {
       if (key === 'customers') {
         this.customers = this.storage.getItem<any[]>('customers') || [];
         const selected = this.customers.find(c => c.id === +this.orderForm.get('clienteId')?.value);
         this.vehicles = selected?.vehiculos || [];
       }
-    });
-    this.orderForm.get('clienteId')?.valueChanges.subscribe(id => {
+    }));
+    this.subs.add(this.orderForm.get('clienteId')?.valueChanges.subscribe(id => {
       const customer = this.customers.find(c => c.id === +id);
       this.vehicles = customer?.vehiculos || [];
       if (customer) {
         this.orderForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
       }
-    });
-    this.orderForm.get('vehiculoId')?.valueChanges.subscribe(id => {
+    }));
+    this.subs.add(this.orderForm.get('vehiculoId')?.valueChanges.subscribe(id => {
       const vehicle = this.vehicles.find(v => v.id === +id);
       if (vehicle) {
         this.orderForm.patchValue({ vehiculoInfo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` }, { emitEvent: false });
       }
-    });
+    }));
   }
 
   addCustomer(): void {
@@ -175,5 +206,9 @@ export class OrderFormComponent implements OnInit {
       return t('Valor mínimo es 0');
     }
     return '';
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

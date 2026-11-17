@@ -1,4 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { MoneyPipe } from '../../../../core/pipes/money.pipe';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Invoice } from '../../models/billing.model';
@@ -9,6 +17,13 @@ import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-invoice-detail',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatTabsModule,
+    MatProgressSpinnerModule,
+    MatTableModule, TranslatePipe, MoneyPipe],
   templateUrl: './invoice-detail.component.html',
   styleUrls: ['./invoice-detail.component.css']
 })
@@ -62,13 +77,13 @@ export class InvoiceDetailComponent implements OnInit {
     window.print();
   }
 
-  exportToExcel(): void {
+  async exportToExcel(): Promise<void> {
     if (!this.invoice) return;
 
     try {
       const workbook = this.excelParserService.exportInvoiceToExcel(this.invoice);
       const filename = `Factura_${this.invoice.numeroFactura}.xlsx`;
-      this.excelParserService.downloadExcel(workbook, filename);
+      await this.excelParserService.downloadExcel(workbook, filename);
       this.snackBar.open(t('Factura exportada exitosamente'), t('Cerrar'), { duration: 3000 });
     } catch (error) {
       console.error('Error exporting invoice:', error);

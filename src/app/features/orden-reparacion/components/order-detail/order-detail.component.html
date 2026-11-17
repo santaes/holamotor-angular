@@ -63,7 +63,7 @@
   </div>
 
   <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
-    <mat-tab label="Detalles del Problema">
+    <mat-tab [label]="'Detalles del Problema' | t">
       <div class="tab-content">
         <mat-card>
           <mat-card-content>
@@ -88,7 +88,7 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Partes Usadas">
+    <mat-tab [label]="'Partes Usadas' | t">
       <div class="tab-content">
         <mat-card *ngIf="order?.partesUsadas && order.partesUsadas.length > 0; else noParts">
           <table mat-table [dataSource]="order.partesUsadas" class="parts-table">
@@ -125,7 +125,7 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Labor">
+    <mat-tab [label]="'Labor' | t">
       <div class="tab-content">
         <mat-card *ngIf="order?.labor && order.labor.length > 0; else noLabor">
           <table mat-table [dataSource]="order.labor" class="labor-table">
@@ -167,7 +167,7 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Pagos">
+    <mat-tab [label]="'Pagos' | t">
       <div class="tab-content">
         <mat-card *ngIf="order?.pagos && order.pagos.length > 0; else noPayments">
           <table mat-table [dataSource]="order.pagos" class="payments-table">

@@ -7,6 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Observable, combineLatest } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { Vehicle } from '../../models/customer.model';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { CarCatalogService } from '../../../../core/services/car-catalog.service';
@@ -14,7 +17,7 @@ import { CarCatalogService } from '../../../../core/services/car-catalog.service
 @Component({
   selector: 'app-vehicle-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSelectModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSelectModule, MatAutocompleteModule, TranslatePipe],
   templateUrl: './vehicle-dialog.component.html'
 })
 export class VehicleDialogComponent {
@@ -22,8 +25,11 @@ export class VehicleDialogComponent {
   private readonly carCatalog = inject(CarCatalogService);
 
   carMakes = this.carCatalog.getCarMakes();
+  makeNames = this.carCatalog.getMakeNames();
   years = this.carCatalog.getYears();
-  filteredModels: string[] = [];
+
+  filteredMakes$!: Observable<string[]>;
+  filteredModels$!: Observable<string[]>;
 
   form = this.fb.group({
     marca: ['', [Validators.required, Validators.minLength(2)]],
@@ -38,14 +44,30 @@ export class VehicleDialogComponent {
   constructor(
     private dialogRef: MatDialogRef<VehicleDialogComponent>
   ) {
-    this.form.get('marca')?.valueChanges.subscribe(make => {
-      if (make) {
-        this.filteredModels = this.carCatalog.getModelsByMake(make);
-        this.form.get('modelo')?.setValue('');
-      } else {
-        this.filteredModels = [];
-      }
-    });
+    const marcaCtrl = this.form.get('marca')!;
+    const modeloCtrl = this.form.get('modelo')!;
+
+    this.filteredMakes$ = marcaCtrl.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterOptions(this.makeNames, value))
+    );
+
+    this.filteredModels$ = combineLatest([
+      marcaCtrl.valueChanges.pipe(startWith('')),
+      modeloCtrl.valueChanges.pipe(startWith(''))
+    ]).pipe(
+      map(([make, model]) => {
+        const match = this.carCatalog.findMake(make);
+        return match ? this.filterOptions(match.models, model) : [];
+      })
+    );
+
+    marcaCtrl.valueChanges.subscribe(() => modeloCtrl.setValue(''));
+  }
+
+  private filterOptions(options: string[], value: string | null): string[] {
+    const v = (value || '').trim().toLowerCase();
+    return v ? options.filter(o => o.toLowerCase().includes(v)) : options;
   }
 
   save(): void {
@@ -54,9 +76,13 @@ export class VehicleDialogComponent {
       return;
     }
     const v = this.form.getRawValue();
+    const marca = v.marca.trim();
+    const modelo = v.modelo.trim();
+    const make = this.carCatalog.findMake(marca);
+    const canonicalModel = make?.models.find(m => m.toLowerCase() === modelo.toLowerCase());
     const vehicle: Vehicle = {
-      marca: v.marca.trim(),
-      modelo: v.modelo.trim(),
+      marca: make?.name ?? marca,
+      modelo: canonicalModel ?? modelo,
       anio: Number(v.anio),
       placa: v.placa.trim().toUpperCase(),
       vin: v.vin?.trim() || '',

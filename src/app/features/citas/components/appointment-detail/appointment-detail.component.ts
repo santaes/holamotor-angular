@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Appointment } from '../../models/appointment.model';
@@ -7,6 +12,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-appointment-detail',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './appointment-detail.component.html',
   styleUrls: ['./appointment-detail.component.css']
 })

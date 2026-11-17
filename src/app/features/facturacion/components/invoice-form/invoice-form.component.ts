@@ -1,4 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MoneyPipe } from '../../../../core/pipes/money.pipe';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -16,6 +25,13 @@ import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-
 
 @Component({
   selector: 'app-invoice-form',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule, TranslatePipe, MoneyPipe, ReactiveFormsModule],
   templateUrl: './invoice-form.component.html',
   styleUrls: ['./invoice-form.component.css']
 })

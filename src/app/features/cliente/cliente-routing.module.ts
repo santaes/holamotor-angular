@@ -15,16 +15,16 @@ const routes: Routes = [
     component: CustomerFormComponent
   },
   {
+    path: 'diagnoses',
+    component: DiagnosisManagementComponent
+  },
+  {
     path: ':id',
     component: CustomerDetailComponent
   },
   {
     path: ':id/edit',
     component: CustomerFormComponent
-  },
-  {
-    path: 'diagnoses',
-    component: DiagnosisManagementComponent
   }
 ];
 

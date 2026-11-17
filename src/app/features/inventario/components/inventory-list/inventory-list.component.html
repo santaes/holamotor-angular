@@ -14,7 +14,7 @@
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
     <button mat-raised-button color="accent" (click)="search()">{{ 'Buscar' | t }}</button>
-    <button mat-button [color]="showLowStockOnly ? 'warn' : 'primary'" (click)="toggleLowStock()">
+    <button mat-button class="toggle-button" [class.warning-mode]="showLowStockOnly" (click)="toggleLowStock()">
       <mat-icon>{{ showLowStockOnly ? 'visibility_off' : 'warning' }}</mat-icon>
       {{ showLowStockOnly ? ('Ver Todos' | t) : ('Stock Bajo' | t) }}
     </button>

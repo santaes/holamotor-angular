@@ -1,4 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MoneyPipe } from '../../../../core/pipes/money.pipe';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { Router } from '@angular/router';
 import { InventoryItem } from '../../models/inventory.model';
@@ -7,6 +17,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-inventory-list',
+  standalone: true,
+  imports: [CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTooltipModule, TranslatePipe, MoneyPipe, FormsModule],
   templateUrl: './inventory-list.component.html',
   styleUrls: ['./inventory-list.component.css']
 })

@@ -1,9 +1,6 @@
+/* Diagnosis-specific layout */
 .diagnosis-management-container {
   padding: 20px;
-}
-
-.header-section {
-  margin-bottom: 20px;
 }
 
 .content-grid {
@@ -18,19 +15,7 @@
   }
 }
 
-.full-width {
-  width: 100%;
-}
-
-.form-row {
-  display: flex;
-  gap: 15px;
-}
-
-.form-row mat-form-field {
-  flex: 1;
-}
-
+/* Upload section */
 .upload-section {
   margin: 20px 0;
   display: flex;
@@ -40,16 +25,10 @@
 
 .file-name {
   font-size: 0.9em;
-  color: #666;
+  color: var(--hm-text-2);
 }
 
-.action-buttons {
-  margin: 15px 0;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
+/* Translation section */
 .translation-section {
   margin: 15px 0;
   display: flex;
@@ -57,31 +36,7 @@
   gap: 10px;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
-
-.no-data {
-  text-align: center;
-  color: #999;
-  padding: 40px;
-}
-
-.no-data mat-icon {
-  font-size: 48px;
-  height: 48px;
-  width: 48px;
-}
-
+/* Diagnoses list */
 .diagnoses-list {
   display: flex;
   flex-direction: column;
@@ -102,6 +57,8 @@
 .diagnosis-header h3 {
   margin: 0;
   font-size: 1.1em;
+  font-weight: 600;
+  color: var(--hm-text);
 }
 
 .diagnosis-actions {
@@ -112,7 +69,7 @@
 .diagnosis-info {
   margin-bottom: 10px;
   font-size: 0.9em;
-  color: #666;
+  color: var(--hm-text-2);
 }
 
 .diagnosis-info p {
@@ -121,9 +78,10 @@
 
 .diagnosis-preview {
   margin-top: 10px;
-  padding: 10px;
-  background: #f5f5f5;
-  border-radius: 4px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid var(--hm-border);
+  border-radius: var(--hm-radius-sm);
 }
 
 .diagnosis-preview p {
@@ -132,6 +90,7 @@
 
 .text-preview {
   font-size: 0.85em;
-  color: #555;
-  line-height: 1.4;
+  color: var(--hm-text-2);
+  line-height: 1.6;
+  white-space: pre-wrap;
 }

@@ -1,6 +1,5 @@
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MoneyPipe } from '../../core/pipes/money.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,17 +24,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ExcelParserService } from './services/excel-parser.service';
 
 @NgModule({
-  declarations: [
-    InvoiceListComponent,
-    InvoiceFormComponent,
-    InvoiceDetailComponent
-  ],
   imports: [
-    MatTooltipModule,
     TranslatePipe,
     MoneyPipe,
     CommonModule,
@@ -55,7 +49,11 @@ import { ExcelParserService } from './services/excel-parser.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTooltipModule,
+    InvoiceListComponent,
+    InvoiceFormComponent,
+    InvoiceDetailComponent
   ],
   providers: [
     ExcelParserService

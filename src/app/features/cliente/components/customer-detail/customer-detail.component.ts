@@ -1,15 +1,37 @@
 import { Component, OnInit } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Customer, Vehicle, Communication } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { VehicleDialogComponent } from '../vehicle-dialog/vehicle-dialog.component';
 import { CommunicationDialogComponent } from '../communication-dialog/communication-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { PdfUploadComponent } from '../../../../core/components/pdf-upload/pdf-upload.component';
 
 @Component({
   selector: 'app-customer-detail',
+  standalone: true,
+  imports: [CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatTabsModule,
+    MatChipsModule,
+    MatTableModule,
+    TranslatePipe,
+    MatProgressSpinnerModule,
+    PdfUploadComponent],
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.css']
 })

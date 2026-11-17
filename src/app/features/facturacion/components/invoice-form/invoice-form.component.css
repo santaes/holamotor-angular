@@ -25,18 +25,18 @@
   gap: 15px;
   margin-top: 5px;
   font-size: 0.9em;
-  color: #666;
+  color: var(--hm-text-2);
 }
 
 .item-subtotal {
   font-weight: 500;
-  color: #000;
+  color: var(--hm-text);
 }
 
 .no-items {
   margin-top: 15px;
   text-align: center;
-  color: #999;
+  color: var(--hm-text-2);
   padding: 20px;
 }
 

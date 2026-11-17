@@ -69,7 +69,7 @@
   </div>
 
   <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
-    <mat-tab label="Documentos">
+    <mat-tab [label]="'Documentos' | t">
       <div class="tab-content">
         <div class="tab-header">
           <h2>{{ 'Documentos del Cliente' | t }}</h2>
@@ -81,7 +81,7 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Vehículos">
+    <mat-tab [label]="'Vehículos' | t">
       <div class="tab-content">
         <div class="tab-header">
           <h2>{{ 'Vehículos del Cliente' | t }}</h2>
@@ -140,7 +140,7 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Historial de Comunicaciones">
+    <mat-tab [label]="'Historial de Comunicaciones' | t">
       <div class="tab-content">
         <div class="tab-header">
           <h2>{{ 'Historial de Comunicaciones' | t }}</h2>
