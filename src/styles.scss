@@ -153,10 +153,37 @@ h1, h2, h3, p { margin: 0; }
   transition: var(--hm-transition) !important;
 }
 
+/* Raised buttons - use primary color */
+.mat-mdc-raised-button:not([disabled]),
+.mat-mdc-unelevated-button:not([disabled]) {
+  background-color: var(--hm-primary) !important;
+  color: #ffffff !important;
+}
+
 .mat-mdc-raised-button:not([disabled]):hover,
 .mat-mdc-unelevated-button:not([disabled]):hover {
+  background-color: var(--hm-primary-hover) !important;
   transform: translateY(-1px);
   box-shadow: var(--hm-shadow-lg) !important;
+}
+
+/* Outlined buttons - use primary color for border and text */
+.mat-mdc-outlined-button:not([disabled]) {
+  border-color: var(--hm-primary) !important;
+  color: var(--hm-primary) !important;
+}
+
+.mat-mdc-outlined-button:not([disabled]):hover {
+  background-color: var(--hm-primary-soft) !important;
+}
+
+/* Text buttons - use primary color */
+.mat-mdc-button:not([disabled]) {
+  color: var(--hm-primary) !important;
+}
+
+.mat-mdc-button:not([disabled]):hover {
+  background-color: var(--hm-primary-soft) !important;
 }
 
 .mat-mdc-button-base .mat-icon,
@@ -178,8 +205,34 @@ h1, h2, h3, p { margin: 0; }
   border-radius: var(--hm-radius-sm) !important;
 }
 
+/* ---------- Material Surface Overrides ---------- */
+/* Override Material 3 surface container colors to remove pink tint */
+.mat-mdc-card,
+.mat-mdc-dialog-container,
+.mat-mdc-menu-panel,
+.mat-mdc-snack-bar-container,
+.mat-mdc-tooltip,
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel,
+.mat-mdc-form-field,
+.mat-mdc-table,
+.mat-mdc-paginator,
+.mat-mdc-expansion-panel,
+.mat-mdc-stepper,
+.mat-mdc-tab-group,
+.mat-mdc-list,
+.mat-mdc-tree,
+.mat-mdc-grid-list,
+.mat-mdc-bottom-sheet-container,
+.mat-mdc-datepicker-content,
+.mat-mdc-timepicker-content,
+.mat-mdc-color-picker {
+  background-color: var(--hm-surface) !important;
+}
+
 /* ---------- Cards ---------- */
 .mat-mdc-card {
+  background-color: var(--hm-surface) !important;
   border: 1px solid var(--hm-border);
   box-shadow: var(--hm-shadow) !important;
   border-radius: var(--hm-radius) !important;
