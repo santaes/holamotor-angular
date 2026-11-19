@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import * as QRCode from 'qrcode';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MoneyPipe } from '../../../../core/pipes/money.pipe';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
@@ -10,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -19,7 +22,7 @@ import { BillingService } from '../../services/billing.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from '../../../../core/services/storage.service';
 import { SettingsService } from '../../../../core/services/settings.service';
-import { VerifactuService } from '../../../../core/services/verifactu.service';
+import { VerifactuService, CertificateInfo } from '../../../../core/services/verifactu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
@@ -38,6 +41,7 @@ import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-
     MatDatepickerModule,
     MatNativeDateModule,
     MatButtonModule,
+    MatCheckboxModule,
     TranslatePipe,
     MoneyPipe,
     ReactiveFormsModule],
@@ -50,6 +54,10 @@ export class InvoiceFormComponent implements OnInit {
   invoiceId: number | null = null;
   pageTitle = 'Nueva Factura';
   isSendingToVerifactu = false;
+  certificateInfo: CertificateInfo | null = null;
+  qrCode: string = '';
+  qrCodeImage: SafeResourceUrl | null = null;
+  isSandboxMode = false;
 
   constructor(
     private fb: FormBuilder,
@@ -60,7 +68,9 @@ export class InvoiceFormComponent implements OnInit {
     private route: ActivatedRoute,
     private billingService: BillingService,
     private verifactuService: VerifactuService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef,
+    private sanitizer: DomSanitizer
   ) {
     this.invoiceForm = this.createForm();
     this.setupCustomerPicker();
@@ -75,6 +85,7 @@ export class InvoiceFormComponent implements OnInit {
       this.pageTitle = 'Editar Factura';
       this.loadInvoice(this.invoiceId);
     }
+    this.checkCertificateStatus();
   }
 
   customers: any[] = [];
@@ -189,7 +200,9 @@ export class InvoiceFormComponent implements OnInit {
     this.billingService.getInvoiceById(id).subscribe({
       next: (invoice) => {
         this.invoiceForm.patchValue(invoice);
-        this.items = invoice.items || [];
+        // Create new array reference to trigger change detection
+        this.items = [...(invoice.items || [])];
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading invoice:', error);
@@ -200,13 +213,14 @@ export class InvoiceFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.invoiceForm.valid) {
+      const formValue = this.invoiceForm.value;
       const invoice: Invoice = {
-        ...this.invoiceForm.value,
-        fechaEmision: new Date(this.invoiceForm.value.fechaEmision),
-        fechaVencimiento: new Date(this.invoiceForm.value.fechaVencimiento),
-        fechaPago: this.invoiceForm.value.fechaPago ? new Date(this.invoiceForm.value.fechaPago) : undefined,
+        ...formValue,
+        fechaEmision: new Date(formValue.fechaEmision),
+        fechaVencimiento: new Date(formValue.fechaVencimiento),
+        fechaPago: formValue.fechaPago ? new Date(formValue.fechaPago) : undefined,
         items: this.items,
-        pagos: []
+        pagos: this.createPaymentsFromForm(formValue)
       };
 
       if (this.isEditMode && this.invoiceId) {
@@ -237,7 +251,7 @@ export class InvoiceFormComponent implements OnInit {
 
   sendToVerifactu(): void {
     if (!this.verifactuService.isConfigured()) {
-      this.snackBar.open(t('VeriFactu no está configurado. Ve a Configuración para añadir tu API Key.'), t('Cerrar'), { duration: 5000 });
+      this.snackBar.open(t('VeriFactu no está configurado. Carga tu certificado digital y configura tu NIF/CIF.'), t('Cerrar'), { duration: 5000 });
       return;
     }
 
@@ -254,34 +268,185 @@ export class InvoiceFormComponent implements OnInit {
 
     this.isSendingToVerifactu = true;
 
+    const formValue = this.invoiceForm.value;
     const invoice: Invoice = {
-      ...this.invoiceForm.value,
-      fechaEmision: new Date(this.invoiceForm.value.fechaEmision),
-      fechaVencimiento: new Date(this.invoiceForm.value.fechaVencimiento),
-      fechaPago: this.invoiceForm.value.fechaPago ? new Date(this.invoiceForm.value.fechaPago) : undefined,
+      ...formValue,
+      fechaEmision: new Date(formValue.fechaEmision),
+      fechaVencimiento: new Date(formValue.fechaVencimiento),
+      fechaPago: formValue.fechaPago ? new Date(formValue.fechaPago) : undefined,
       items: this.items,
-      pagos: []
+      pagos: this.createPaymentsFromForm(formValue)
     };
 
-    this.billingService.sendToVerifactu(invoice, settings.taxId, settings.workshopName).subscribe({
+    // Prepare AEAT-compliant request
+    const aeatRequest = {
+      serie: invoice.numeroFactura.split('-')[0] || 'A',
+      numero: invoice.numeroFactura.split('-')[1] || invoice.numeroFactura,
+      fecha_expedicion: invoice.fechaEmision.toISOString().split('T')[0],
+      fecha_operacion: invoice.fechaEmision.toISOString().split('T')[0],
+      emisor: {
+        nif: settings.taxId,
+        nombre: settings.workshopName || 'Taller',
+        nombre_comercial: settings.workshopName || 'Taller'
+      },
+      receptor: {
+        nif: this.getCustomerNIF(invoice.clienteId),
+        nombre: invoice.clienteNombre,
+        direccion: this.getCustomerAddress(invoice.clienteId),
+        provincia: this.getCustomerProvince(invoice.clienteId),
+        pais: 'ES',
+        codigo_postal: this.getCustomerPostalCode(invoice.clienteId)
+      },
+      lineas: invoice.items.map(item => ({
+        concepto: item.descripcion,
+        cantidad: item.cantidad,
+        precio: item.precioUnitario,
+        tipo_iva: this.getIVAType(item.tipoIVA),
+        descuento: item.descuento || 0
+      })),
+      tipo_factura: 'F1' as const,
+      clave_regimen_iva: 'S1',
+      importe_total: invoice.total,
+      fecha_vencimiento: invoice.fechaVencimiento.toISOString().split('T')[0],
+      descripcion: invoice.notas || 'Servicios de taller'
+    };
+
+    this.verifactuService.createInvoice(aeatRequest).subscribe({
       next: (response) => {
         this.isSendingToVerifactu = false;
-        if (response.data && response.data.estado_registro === 'Correcto') {
-          this.snackBar.open(t('Factura enviada a AEAT exitosamente. CSV: ') + response.data.csv, t('Cerrar'), { duration: 5000 });
-          console.log('VeriFactu response:', response);
-        } else if (response.status === 'success' || response.id) {
-          this.snackBar.open(t('Factura enviada a VeriFactu exitosamente. ID: ') + (response.id || 'N/A'), t('Cerrar'), { duration: 5000 });
-          console.log('VeriFactu response:', response);
+        if (response.status === 'success' || response.id) {
+          this.snackBar.open(t('Factura enviada a AEAT exitosamente. ID: ') + (response.id || 'N/A'), t('Cerrar'), { duration: 5000 });
+          
+          // Generate QR code
+          if (response.qr_code) {
+            this.qrCode = response.qr_code;
+            this.generateQRCodeImage(response.qr_code).then(qrImage => {
+              this.qrCodeImage = qrImage;
+              this.cdr.detectChanges();
+            });
+          }
+          
+          console.log('AEAT VeriFactu response:', response);
+          this.cdr.detectChanges();
         } else {
-          this.snackBar.open(t('Factura rechazada: ') + (response.data?.motivo_rechazo || response.mensaje || 'Error desconocido'), t('Cerrar'), { duration: 5000 });
+          this.snackBar.open(t('Factura rechazada: ') + (response.mensaje || 'Error desconocido'), t('Cerrar'), { duration: 5000 });
         }
       },
       error: (error) => {
         this.isSendingToVerifactu = false;
-        console.error('Error sending to VeriFactu:', error);
-        this.snackBar.open(t('Error al enviar factura a VeriFactu'), t('Cerrar'), { duration: 3000 });
+        console.error('Error sending to AEAT VeriFactu:', error);
+        this.snackBar.open(t('Error al enviar factura a AEAT VeriFactu'), t('Cerrar'), { duration: 3000 });
       }
     });
+  }
+  
+  private checkCertificateStatus(): void {
+    setTimeout(() => {
+      this.certificateInfo = this.verifactuService.getCertificateInfo();
+      this.isSandboxMode = this.verifactuService.isSandboxMode();
+      this.cdr.detectChanges();
+    });
+  }
+  
+  isCertificateLoadedInSession(): boolean {
+    return this.verifactuService.isSessionLoaded();
+  }
+  
+  clearCertificate(): void {
+    this.verifactuService.clearCertificate();
+    this.certificateInfo = null;
+    this.snackBar.open(t('Certificado eliminado de la sesión'), t('Cerrar'), { duration: 3000 });
+    this.cdr.detectChanges();
+  }
+  
+  private async generateQRCodeImage(data: string): Promise<SafeResourceUrl> {
+    try {
+      // Decode the base64 data
+      const qrData = atob(data);
+      
+      // Generate QR code as data URL
+      const qrCodeDataUrl = await QRCode.toDataURL(qrData, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      });
+      
+      return this.sanitizer.bypassSecurityTrustResourceUrl(qrCodeDataUrl);
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      // Fallback to external API if local generation fails
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}`;
+      return this.sanitizer.bypassSecurityTrustResourceUrl(qrUrl);
+    }
+  }
+  
+  async onCertificateUpload(event: any): Promise<void> {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const password = prompt(t('Introduce la contraseña del certificado:'));
+    if (!password) return;
+    
+    try {
+      const info = await this.verifactuService.loadCertificate(file, password);
+      this.certificateInfo = info;
+      this.snackBar.open(t('Certificado cargado exitosamente'), t('Cerrar'), { duration: 3000 });
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Error loading certificate:', error);
+      this.snackBar.open(t('Error al cargar certificado: ') + (error instanceof Error ? error.message : 'Unknown error'), t('Cerrar'), { duration: 5000 });
+    }
+  }
+  
+  private createPaymentsFromForm(formValue: any): any[] {
+    // If invoice is paid, create a payment record
+    if (formValue.estado === 'Pagada' && formValue.total > 0) {
+      const paymentMethod = formValue.metodoPago || 'Efectivo';
+      const validMethods = ['Efectivo', 'Tarjeta', 'Transferencia', 'Cheque'];
+      const metodo = validMethods.includes(paymentMethod) ? paymentMethod : 'Efectivo';
+      
+      return [{
+        id: 1,
+        monto: formValue.total,
+        metodo: metodo,
+        fecha: formValue.fechaPago ? new Date(formValue.fechaPago) : new Date(),
+        referencia: `Pago factura ${formValue.numeroFactura}`,
+        notas: 'Pago automático al marcar como pagada'
+      }];
+    }
+    return [];
+  }
+
+  private getCustomerNIF(customerId: number): string {
+    const customer = this.customers.find(c => c.id === customerId);
+    return customer?.nif || customer?.documento || '00000000X';
+  }
+  
+  private getCustomerAddress(customerId: number): string {
+    const customer = this.customers.find(c => c.id === customerId);
+    return customer?.direccion || '';
+  }
+  
+  private getCustomerProvince(customerId: number): string {
+    const customer = this.customers.find(c => c.id === customerId);
+    return customer?.ciudad || '';
+  }
+  
+  private getCustomerPostalCode(customerId: number): string {
+    const customer = this.customers.find(c => c.id === customerId);
+    return customer?.codigoPostal || '';
+  }
+  
+  private getIVAType(tipoIVA?: string): string {
+    const ivaMap: { [key: string]: string } = {
+      '4': '4',
+      '10': '10',
+      '21': '21'
+    };
+    return ivaMap[tipoIVA || '21'] || '21';
   }
 
   cancel(): void {
@@ -312,17 +477,21 @@ export class InvoiceFormComponent implements OnInit {
           id: this.items.length > 0 ? Math.max(...this.items.map(i => i.id || 0)) + 1 : 1,
           subtotal: item.cantidad * item.precioUnitario
         };
-        this.items.push(newItem);
+        // Create new array reference to trigger change detection
+        this.items = [...this.items, newItem];
         this.recalculateTotals();
         this.snackBar.open(t('Posición agregada'), t('Cerrar'), { duration: 2000 });
+        this.cdr.detectChanges();
       }
     });
   }
 
   removeItem(index: number): void {
-    this.items.splice(index, 1);
+    // Create new array reference to trigger change detection
+    this.items = this.items.filter((_, i) => i !== index);
     this.recalculateTotals();
     this.snackBar.open(t('Posición eliminada'), t('Cerrar'), { duration: 2000 });
+    this.cdr.detectChanges();
   }
 
   recalculateTotals(): void {

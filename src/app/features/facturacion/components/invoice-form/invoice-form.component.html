@@ -1,7 +1,7 @@
 <div class="invoice-form-container">
   <div class="header-section">
     <h1>{{ pageTitle | t }}</h1>
-    <button mat-button (click)="cancel()">
+    <button mat-button type="button" (click)="cancel()">
       <mat-icon>arrow_back</mat-icon>
       {{ 'Volver' | t }}
     </button>
@@ -82,24 +82,24 @@
         <h2>{{ 'Estado y Método de Pago' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'Estado' | t }}</mat-label>
+            <mat-label>Estado</mat-label>
             <mat-select formControlName="estado">
-              <mat-option value="Borrador">{{ 'Borrador' | t }}</mat-option>
-              <mat-option value="Enviada">{{ 'Enviada' | t }}</mat-option>
-              <mat-option value="Pagada">{{ 'Pagada' | t }}</mat-option>
-              <mat-option value="Vencida">{{ 'Vencida' | t }}</mat-option>
-              <mat-option value="Cancelada">{{ 'Cancelada' | t }}</mat-option>
+              <mat-option value="Borrador">Borrador</mat-option>
+              <mat-option value="Enviada">Enviada</mat-option>
+              <mat-option value="Pagada">Pagada</mat-option>
+              <mat-option value="Vencida">Vencida</mat-option>
+              <mat-option value="Cancelada">Cancelada</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'Método de Pago' | t }}</mat-label>
+            <mat-label>Método de Pago</mat-label>
             <mat-select formControlName="metodoPago">
-              <mat-option value="">{{ 'Seleccionar' | t }}</mat-option>
-              <mat-option value="Efectivo">{{ 'Efectivo' | t }}</mat-option>
-              <mat-option value="Tarjeta">{{ 'Tarjeta' | t }}</mat-option>
-              <mat-option value="Transferencia">{{ 'Transferencia' | t }}</mat-option>
-              <mat-option value="Cheque">{{ 'Cheque' | t }}</mat-option>
+              <mat-option value="">Seleccionar</mat-option>
+              <mat-option value="Efectivo">Efectivo</mat-option>
+              <mat-option value="Tarjeta">Tarjeta</mat-option>
+              <mat-option value="Transferencia">Transferencia</mat-option>
+              <mat-option value="Cheque">Cheque</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -140,9 +140,45 @@
           <textarea matInput formControlName="notas" rows="3"></textarea>
         </mat-form-field>
 
+        <h2>{{ 'VeriFactu / AEAT' | t }}</h2>
+        <div class="verifactu-section">
+          <div class="mode-indicator" [class.sandbox]="isSandboxMode" [class.production]="!isSandboxMode">
+            <mat-icon>{{ isSandboxMode ? 'science' : 'verified' }}</mat-icon>
+            <span>{{ isSandboxMode ? ('Modo Sandbox (Pruebas)' | t) : ('Modo Producción (AEAT)' | t) }}</span>
+          </div>
+          
+          <div class="certificate-status">
+            <mat-icon [class.loaded]="certificateInfo">{{ certificateInfo ? 'verified_user' : 'security' }}</mat-icon>
+            <div class="cert-info">
+              <strong>{{ 'Certificado Digital' | t }}</strong>
+              <p *ngIf="certificateInfo">
+                {{ certificateInfo.subject }}<br>
+                {{ 'Válido hasta:' | t }} {{ certificateInfo.validTo | date:'dd/MM/yyyy' }}
+                <span *ngIf="isCertificateLoadedInSession()" class="session-badge">{{ 'Sesión activa' | t }}</span>
+              </p>
+              <p *ngIf="!certificateInfo">{{ 'No cargado' | t }}</p>
+            </div>
+            <input type="file" #certInput accept=".p12,.pfx" style="display: none" (change)="onCertificateUpload($event)">
+            <button mat-stroked-button color="primary" type="button" (click)="certInput.click()">
+              <mat-icon>upload</mat-icon>
+              {{ 'Cargar Certificado' | t }}
+            </button>
+            <button mat-stroked-button color="warn" type="button" *ngIf="certificateInfo" (click)="clearCertificate()">
+              <mat-icon>delete</mat-icon>
+              {{ 'Quitar' | t }}
+            </button>
+          </div>
+          
+          <div class="qr-code-section" *ngIf="qrCodeImage">
+            <h3>{{ 'Código QR VeriFactu' | t }}</h3>
+            <img [src]="qrCodeImage" alt="QR Code" class="qr-code">
+            <p class="qr-info">{{ 'Escanea este código para verificar la factura' | t }}</p>
+          </div>
+        </div>
+
         <h2>{{ 'Posiciones' | t }}</h2>
         <div class="items-section">
-          <button mat-raised-button color="primary" (click)="addItem()">
+          <button mat-raised-button color="primary" type="button" (click)="addItem()">
             <mat-icon>add</mat-icon>
             {{ 'Agregar Posición' | t }}
           </button>
@@ -157,7 +193,7 @@
                   <span class="item-subtotal">{{ 'Subtotal:' | t }} {{ item.subtotal | money }}</span>
                 </div>
               </div>
-              <button mat-icon-button color="warn" (click)="removeItem(i)">
+              <button mat-icon-button color="warn" type="button" (click)="removeItem(i)">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-card>

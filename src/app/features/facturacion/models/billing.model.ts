@@ -26,6 +26,8 @@ export interface InvoiceItem {
   precioUnitario: number;
   subtotal: number;
   tipo: 'Parte' | 'Labor' | 'Servicio';
+  tipoIVA?: '4' | '10' | '21';
+  descuento?: number;
 }
 
 export interface InvoicePayment {

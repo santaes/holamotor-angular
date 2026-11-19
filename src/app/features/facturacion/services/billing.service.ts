@@ -3,6 +3,7 @@ import { Observable, of, BehaviorSubject, throwError } from 'rxjs';
 import { Invoice, Quote } from '../models/billing.model';
 import { StorageService } from '../../../core/services/storage.service';
 import { VerifactuService, FacturaOnlineInvoiceRequest } from '../../../core/services/verifactu.service';
+// FacturaOnlineInvoiceRequest is used for type compatibility
 
 @Injectable({
   providedIn: 'root'
@@ -250,7 +251,7 @@ export class BillingService {
       }
     };
 
-    return this.verifactuService.sendInvoice(request);
+    return this.verifactuService.sendFacturaOnlineInvoice(request);
   }
 
   private formatDate(date: Date): string {
