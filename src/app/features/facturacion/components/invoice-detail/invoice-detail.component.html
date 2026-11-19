@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <!-- Printable Invoice Template -->
+  <!-- Printable Invoice Template - Always in Spanish -->
   <div class="printable-invoice" *ngIf="invoice">
     <div class="invoice-header">
       <div class="company-info">
@@ -78,15 +78,15 @@
     <div class="invoice-totals">
       <div class="signature-line">
         <img src="assets/signature.png" alt="Firma del Director" class="signature-image">
-        <p>{{ 'Firma del Director' | t }}</p>
+        <p>Firma del Director</p>
       </div>
       <div class="totals">
         <div class="total-row">
-          <span>{{ 'Subtotal' | t }}</span>
+          <span>Subtotal</span>
           <span>{{ invoice.subtotal | money }}</span>
         </div>
         <div class="total-row final">
-          <span>{{ 'Total' | t }}</span>
+          <span>Total</span>
           <span><strong>{{ invoice.total | money }}</strong></span>
         </div>
       </div>
@@ -95,10 +95,10 @@
     <div class="invoice-footer">
       <p class="rebu-notice">EMPRESA ACOGIDA AL R.E.B.U (régimen de bienes usados) según artículo 135 de la ley 37/1992, de 28 de diciembre del impuesto sobre el valor añadido</p>
       <div class="payment-info">
-        <p><strong>{{ 'Forma de pago:' | t }}</strong> {{ invoice.metodoPago || 'Efectivo' }}</p>
-        <p><strong>{{ 'Número de cuenta:' | t }}</strong> [Tu número de cuenta]</p>
-        <p><strong>{{ 'Contacto:' | t }}</strong> C/Barranquet 3 bj 2, Villajoyosa, 03570</p>
-        <p><strong>{{ 'Teléfono:' | t }}</strong> 865741988</p>
+        <p><strong>Forma de pago:</strong> {{ invoice.metodoPago || 'Efectivo' }}</p>
+        <p><strong>Número de cuenta:</strong> [Tu número de cuenta]</p>
+        <p><strong>Contacto:</strong> C/Barranquet 3 bj 2, Villajoyosa, 03570</p>
+        <p><strong>Teléfono:</strong> 865741988</p>
       </div>
     </div>
   </div>
@@ -133,11 +133,11 @@
               <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'dd/MM/yyyy HH:mm') : ('No pagada' | t) }}</span>
             </div>
             <div class="info-item">
-              <label>{{ 'Estado:' | t }}</label>
-              <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado | t }}</span>
+              <label>Estado:</label>
+              <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado }}</span>
             </div>
             <div class="info-item">
-              <label>{{ 'Método de Pago:' | t }}</label>
+              <label>Método de Pago:</label>
               <span>{{ invoice?.metodoPago || 'N/A' }}</span>
             </div>
           </div>
@@ -213,6 +213,12 @@
 
       <mat-tab [label]="'Pagos' | t">
         <div class="tab-content">
+          <div class="payment-actions" *ngIf="invoice && invoice.estado !== 'Cancelada'">
+            <button mat-raised-button color="primary" type="button" (click)="addPayment()">
+              <mat-icon>add</mat-icon>
+              {{ 'Agregar Pago' | t }}
+            </button>
+          </div>
           <mat-card *ngIf="invoice?.pagos && invoice.pagos.length > 0; else noPayments">
             <table mat-table [dataSource]="invoice.pagos" class="payments-table">
               <ng-container matColumnDef="monto">
@@ -221,7 +227,7 @@
               </ng-container>
 
               <ng-container matColumnDef="metodo">
-                <th mat-header-cell *matHeaderCellDef>{{ 'Método' | t }}</th>
+                <th mat-header-cell *matHeaderCellDef>Método</th>
                 <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
               </ng-container>
 

@@ -105,4 +105,58 @@ export class InvoiceDetailComponent implements OnInit {
       default: return '#999';
     }
   }
+
+  addPayment(): void {
+    if (!this.invoice) return;
+    
+    const paymentMethod = prompt(t('Método de pago (Efectivo, Tarjeta, Transferencia, Cheque):'), 'Efectivo');
+    if (!paymentMethod) return;
+    
+    const validMethods = ['Efectivo', 'Tarjeta', 'Transferencia', 'Cheque'];
+    if (!validMethods.includes(paymentMethod)) {
+      this.snackBar.open(t('Método de pago no válido'), t('Cerrar'), { duration: 3000 });
+      return;
+    }
+    
+    const amount = prompt(t('Monto del pago:'), this.invoice.total.toString());
+    if (!amount) return;
+    
+    const paymentAmount = parseFloat(amount);
+    if (isNaN(paymentAmount) || paymentAmount <= 0) {
+      this.snackBar.open(t('Monto no válido'), t('Cerrar'), { duration: 3000 });
+      return;
+    }
+    
+    const payment = {
+      id: (this.invoice.pagos?.length || 0) + 1,
+      monto: paymentAmount,
+      metodo: paymentMethod as 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Cheque',
+      fecha: new Date(),
+      referencia: `Pago manual factura ${this.invoice.numeroFactura}`,
+      notas: 'Pago registrado manualmente'
+    };
+    
+    const updatedInvoice = {
+      ...this.invoice,
+      pagos: [...(this.invoice.pagos || []), payment]
+    };
+    
+    // Check if fully paid
+    const totalPaid = updatedInvoice.pagos.reduce((sum, p) => sum + p.monto, 0);
+    if (totalPaid >= updatedInvoice.total) {
+      updatedInvoice.estado = 'Pagada';
+      updatedInvoice.fechaPago = new Date();
+    }
+    
+    this.billingService.updateInvoice(this.invoice.id!, updatedInvoice).subscribe({
+      next: () => {
+        this.snackBar.open(t('Pago registrado exitosamente'), t('Cerrar'), { duration: 3000 });
+        this.loadInvoice(this.invoice!.id!);
+      },
+      error: (error) => {
+        console.error('Error adding payment:', error);
+        this.snackBar.open(t('Error al registrar pago'), t('Cerrar'), { duration: 3000 });
+      }
+    });
+  }
 }

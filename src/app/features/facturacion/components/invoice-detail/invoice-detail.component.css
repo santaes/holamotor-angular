@@ -195,6 +195,16 @@
   color: #333;
 }
 
+.payment-actions {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.payment-actions button {
+  margin-left: 10px;
+}
+
 /* Print styles */
 @media print {
   .no-print {
