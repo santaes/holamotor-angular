@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
@@ -43,7 +43,8 @@ export class SettingsComponent implements OnInit {
     private fb: FormBuilder,
     private settings: SettingsService,
     private storage: StorageService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     const s = settings.value;
     this.form = this.fb.group({
@@ -70,8 +71,14 @@ export class SettingsComponent implements OnInit {
     if (this.serverMode) {
       fetch('api/health', { cache: 'no-store' })
         .then(res => res.json())
-        .then(body => (this.serverUptime = body.uptime))
-        .catch(() => (this.serverUptime = null));
+        .then(body => {
+          this.serverUptime = body.uptime;
+          this.cdr.detectChanges();
+        })
+        .catch(() => {
+          this.serverUptime = null;
+          this.cdr.detectChanges();
+        });
     }
   }
 
