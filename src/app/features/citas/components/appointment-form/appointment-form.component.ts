@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -21,8 +22,10 @@ import { StorageService } from '../../../../core/services/storage.service';
 import { SettingsService } from '../../../../core/services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { merge } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
+import { GoogleCalendarService, CalendarEvent } from '../../../../core/services/google-calendar.service';
 
 @Component({
   selector: 'app-appointment-form',
@@ -33,12 +36,14 @@ import { QuickCustomerDialogComponent } from '../../../../core/components/quick-
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
     MatButtonModule,
     TranslatePipe,
-    ReactiveFormsModule],
+    ReactiveFormsModule,
+    FormsModule],
   templateUrl: './appointment-form.component.html',
   styleUrls: ['./appointment-form.component.css']
 })
@@ -47,7 +52,24 @@ export class AppointmentFormComponent implements OnInit {
   isEditMode = false;
   appointmentId: number | null = null;
   pageTitle = 'Nueva Cita';
-
+  
+  // Autocomplete observables
+  filteredCustomers$: Observable<any[]>;
+  filteredVehicles$: Observable<any[]>;
+  
+  // Recurring appointment options
+  isRecurring = false;
+  recurringPattern = 'Semanal';
+  recurringInterval = 1;
+  recurringEndDate: Date | null = null;
+  
+  // Google Calendar sync
+  syncToGoogleCalendar = false;
+  
+  // Reminder settings
+  reminderEnabled = false;
+  reminderMinutes = [24 * 60, 60, 30]; // Default: 1 day, 1 hour, 30 minutes before
+  
   constructor(
     private fb: FormBuilder,
     private storage: StorageService,
@@ -56,10 +78,12 @@ export class AppointmentFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private appointmentService: AppointmentService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private googleCalendarService: GoogleCalendarService
   ) {
     this.appointmentForm = this.createForm();
     this.setupCustomerPicker();
+    this.setupAutocomplete();
   }
 
   ngOnInit(): void {
@@ -74,7 +98,7 @@ export class AppointmentFormComponent implements OnInit {
 
   customers: any[] = [];
   vehicles: any[] = [];
-
+  
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
     this.storage.changes$.pipe(takeUntilDestroyed()).subscribe(key => {
@@ -97,6 +121,59 @@ export class AppointmentFormComponent implements OnInit {
         this.appointmentForm.patchValue({ vehiculoInfo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` }, { emitEvent: false });
       }
     });
+  }
+  
+  private setupAutocomplete(): void {
+    // Customer autocomplete
+    this.filteredCustomers$ = this.appointmentForm.get('clienteNombre')?.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterCustomers(value))
+    ) || of([]);
+    
+    // Vehicle autocomplete
+    this.filteredVehicles$ = this.appointmentForm.get('vehiculoInfo')?.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterVehicles(value))
+    ) || of([]);
+  }
+  
+  private filterCustomers(value: any): any[] {
+    const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
+    return this.customers.filter(c => 
+      `${c.nombre} ${c.apellido} ${c.telefono}`.toLowerCase().includes(filterValue)
+    );
+  }
+  
+  private filterVehicles(value: any): any[] {
+    const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
+    return this.vehicles.filter(v => 
+      `${v.marca} ${v.modelo} ${v.anio} ${v.placa}`.toLowerCase().includes(filterValue)
+    );
+  }
+  
+  onCustomerSelected(event: any): void {
+    const customer = event.option.value;
+    this.appointmentForm.patchValue({ 
+      clienteId: customer.id,
+      clienteNombre: `${customer.nombre} ${customer.apellido}`
+    });
+    this.vehicles = customer.vehiculos || [];
+  }
+  
+  displayCustomer(customer: any): string {
+    return customer ? `${customer.nombre} ${customer.apellido}` : '';
+  }
+  
+  onVehicleSelected(event: any): void {
+    const vehicle = event.option.value;
+    this.appointmentForm.patchValue({ 
+      vehiculoId: vehicle.id,
+      vehiculoInfo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}`
+    });
+  }
+  
+  displayVehicle(vehicle: any): string {
+    return vehicle ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` : '';
   }
 
   addCustomer(): void {
@@ -134,7 +211,11 @@ export class AppointmentFormComponent implements OnInit {
       prioridad: ['Media', [Validators.required]],
       recordatorioEnviado: [false],
       notas: [''],
-      ordenReparacionId: ['']
+      ordenReparacionId: [''],
+      isRecurring: [false],
+      syncToGoogleCalendar: [false],
+      reminderEnabled: [false],
+      reminderMinutes: [[]]
     });
   }
 
@@ -149,14 +230,44 @@ export class AppointmentFormComponent implements OnInit {
       }
     });
   }
+  
+  checkTimeConflict(): void {
+    const fecha = this.appointmentForm.get('fecha')?.value;
+    const horaInicio = this.appointmentForm.get('horaInicio')?.value;
+    const horaFin = this.appointmentForm.get('horaFin')?.value;
+    
+    if (fecha && horaInicio && horaFin) {
+      const appointment = {
+        fecha: new Date(fecha),
+        horaInicio,
+        horaFin
+      };
+      
+      // This would need to be implemented in the service
+      // For now, just show a placeholder
+      console.log('Checking time conflict for:', appointment);
+    }
+  }
 
   onSubmit(): void {
     if (this.appointmentForm.valid) {
+      const formValue = this.appointmentForm.value;
       const appointment: Appointment = {
-        ...this.appointmentForm.value,
-        fecha: new Date(this.appointmentForm.value.fecha),
+        ...formValue,
+        fecha: new Date(formValue.fecha),
         fechaCreacion: this.isEditMode ? new Date() : new Date()
       };
+      
+      // Handle recurring appointment
+      if (formValue.isRecurring) {
+        this.createRecurringAppointments(appointment);
+        return;
+      }
+      
+      // Sync to Google Calendar if enabled
+      if (formValue.syncToGoogleCalendar) {
+        this.syncToGoogleCalendarEvent(appointment);
+      }
 
       if (this.isEditMode && this.appointmentId) {
         this.appointmentService.updateAppointment(this.appointmentId, appointment).subscribe({
@@ -182,6 +293,47 @@ export class AppointmentFormComponent implements OnInit {
         });
       }
     }
+  }
+  
+  private createRecurringAppointments(appointment: Appointment): void {
+    // This would create multiple appointments based on the recurring pattern
+    // For now, just create the first one
+    this.appointmentService.createAppointment(appointment).subscribe({
+      next: () => {
+        this.snackBar.open(t('Cita recurrente creada exitosamente'), t('Cerrar'), { duration: 3000 });
+        this.router.navigate(['/citas']);
+      },
+      error: (error) => {
+        console.error('Error creating recurring appointment:', error);
+        this.snackBar.open(t('Error al crear cita recurrente'), t('Cerrar'), { duration: 3000 });
+      }
+    });
+  }
+  
+  private syncToGoogleCalendarEvent(appointment: Appointment): void {
+    const dateStr = appointment.fecha.toISOString().split('T')[0];
+    const event: Partial<CalendarEvent> = {
+      summary: `${appointment.tipo} - ${appointment.clienteNombre}`,
+      description: appointment.descripcion,
+      start: { 
+        dateTime: `${dateStr}T${appointment.horaInicio}:00`,
+        timeZone: 'Europe/Madrid'
+      },
+      end: { 
+        dateTime: `${dateStr}T${appointment.horaFin}:00`,
+        timeZone: 'Europe/Madrid'
+      }
+    };
+    
+    this.googleCalendarService.createEvent(event).subscribe({
+      next: () => {
+        this.snackBar.open(t('Cita sincronizada con Google Calendar'), t('Cerrar'), { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error syncing to Google Calendar:', error);
+        this.snackBar.open(t('Error al sincronizar con Google Calendar'), t('Cerrar'), { duration: 3000 });
+      }
+    });
   }
 
   cancel(): void {

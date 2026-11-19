@@ -43,45 +43,38 @@
 
         <h2>{{ 'Cliente y Vehículo' | t }}<button type="button" mat-stroked-button color="primary" class="h2-action" (click)="addCustomer()"><mat-icon>person_add</mat-icon> {{ 'Nuevo cliente' | t }}</button></h2>
         <div class="form-row">
-          <mat-form-field appearance="outline" *ngIf="customers.length; else manualClienteId">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'Cliente' | t }}</mat-label>
-            <mat-select formControlName="clienteId" required>
-              <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}</mat-option>
-            </mat-select>
+            <input matInput 
+                   formControlName="clienteNombre" 
+                   [matAutocomplete]="customerAuto"
+                   required>
+            <mat-autocomplete #customerAuto="matAutocomplete" [displayWith]="displayCustomer" (optionSelected)="onCustomerSelected($event)">
+              <mat-option *ngFor="let c of filteredCustomers$ | async" [value]="c">
+                {{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}
+              </mat-option>
+            </mat-autocomplete>
             <mat-icon matPrefix>person</mat-icon>
-            <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
-          </mat-form-field>
-          <ng-template #manualClienteId><mat-form-field appearance="outline">
-            <mat-label>{{ 'ID Cliente' | t }}</mat-label>
-            <input matInput formControlName="clienteId" required type="number">
-            <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
-          </mat-form-field></ng-template>
-
-          <mat-form-field appearance="outline" *ngIf="!customers.length">
-            <mat-label>{{ 'Nombre Cliente' | t }}</mat-label>
-            <input matInput formControlName="clienteNombre" required>
             <mat-error>{{ getErrorMessage('clienteNombre') }}</mat-error>
           </mat-form-field>
+          <button type="button" mat-stroked-button color="primary" class="h2-action" (click)="addCustomer()">
+            <mat-icon>person_add</mat-icon> {{ 'Nuevo cliente' | t }}
+          </button>
         </div>
 
         <div class="form-row">
-          <mat-form-field appearance="outline" *ngIf="vehicles.length; else manualVehiculoId">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'Vehículo' | t }}</mat-label>
-            <mat-select formControlName="vehiculoId" required>
-              <mat-option *ngFor="let v of vehicles" [value]="v.id">{{ v.marca }} {{ v.modelo }} {{ v.anio }} · {{ v.placa }}</mat-option>
-            </mat-select>
+            <input matInput 
+                   formControlName="vehiculoInfo" 
+                   [matAutocomplete]="vehicleAuto"
+                   required>
+            <mat-autocomplete #vehicleAuto="matAutocomplete" [displayWith]="displayVehicle" (optionSelected)="onVehicleSelected($event)">
+              <mat-option *ngFor="let v of filteredVehicles$ | async" [value]="v">
+                {{ v.marca }} {{ v.modelo }} {{ v.anio }} · {{ v.placa }}
+              </mat-option>
+            </mat-autocomplete>
             <mat-icon matPrefix>directions_car</mat-icon>
-            <mat-error>{{ getErrorMessage('vehiculoId') }}</mat-error>
-          </mat-form-field>
-          <ng-template #manualVehiculoId><mat-form-field appearance="outline">
-            <mat-label>{{ 'ID Vehículo' | t }}</mat-label>
-            <input matInput formControlName="vehiculoId" required type="number">
-            <mat-error>{{ getErrorMessage('vehiculoId') }}</mat-error>
-          </mat-form-field></ng-template>
-
-          <mat-form-field appearance="outline" *ngIf="!vehicles.length">
-            <mat-label>{{ 'Información Vehículo' | t }}</mat-label>
-            <input matInput formControlName="vehiculoInfo" required [placeholder]="'Marca, Modelo, Año' | t">
             <mat-error>{{ getErrorMessage('vehiculoInfo') }}</mat-error>
           </mat-form-field>
         </div>
@@ -151,6 +144,51 @@
           <mat-checkbox formControlName="recordatorioEnviado">
             {{ 'Recordatorio Enviado' | t }}
           </mat-checkbox>
+          <mat-checkbox formControlName="syncToGoogleCalendar" (change)="syncToGoogleCalendar = $event.checked">
+            {{ 'Sincronizar con Google Calendar' | t }}
+          </mat-checkbox>
+          <mat-checkbox formControlName="isRecurring" (change)="isRecurring = $event.checked">
+            {{ 'Cita Recurrente' | t }}
+          </mat-checkbox>
+        </div>
+
+        <div *ngIf="isRecurring" class="recurring-section">
+          <h3>{{ 'Configuración de Recurrencia' | t }}</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'Patrón' | t }}</mat-label>
+              <mat-select [(ngModel)]="recurringPattern" [ngModelOptions]="{standalone: true}">
+                <mat-option value="Diario">{{ 'Diario' | t }}</mat-option>
+                <mat-option value="Semanal">{{ 'Semanal' | t }}</mat-option>
+                <mat-option value="Mensual">{{ 'Mensual' | t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'Intervalo' | t }}</mat-label>
+              <input matInput type="number" [(ngModel)]="recurringInterval" [ngModelOptions]="{standalone: true}" min="1">
+            </mat-form-field>
+          </div>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'Fecha Fin' | t }}</mat-label>
+            <input matInput [matDatepicker]="endDatePicker" [(ngModel)]="recurringEndDate" [ngModelOptions]="{standalone: true}">
+            <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="reminderEnabled" class="reminder-section">
+          <h3>{{ 'Recordatorios' | t }}</h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'Recordar antes (minutos)' | t }}</mat-label>
+            <mat-select [(ngModel)]="reminderMinutes" [ngModelOptions]="{standalone: true}" multiple>
+              <mat-option [value]="1440">{{ '1 día antes' | t }}</mat-option>
+              <mat-option [value]="60">{{ '1 hora antes' | t }}</mat-option>
+              <mat-option [value]="30">{{ '30 minutos antes' | t }}</mat-option>
+              <mat-option [value]="15">{{ '15 minutos antes' | t }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
