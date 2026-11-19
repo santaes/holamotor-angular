@@ -67,6 +67,14 @@ export class InvoiceListComponent implements OnInit {
     this.router.navigate(['/facturacion/new']);
   }
 
+  goToSandbox(): void {
+    this.router.navigate(['/facturacion/sandbox']);
+  }
+
+  goToPayments(): void {
+    this.router.navigate(['/facturacion/payments']);
+  }
+
   viewInvoice(id: number): void {
     this.router.navigate(['/facturacion', id]);
   }

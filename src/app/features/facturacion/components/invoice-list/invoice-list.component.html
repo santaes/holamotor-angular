@@ -10,6 +10,14 @@
         <mat-icon>upload_file</mat-icon>
         {{ 'Importar Excel' | t }}
       </button>
+      <button mat-raised-button color="warn" (click)="goToSandbox()">
+        <mat-icon>science</mat-icon>
+        {{ 'VeriFactu Sandbox' | t }}
+      </button>
+      <button mat-raised-button color="accent" (click)="goToPayments()">
+        <mat-icon>payments</mat-icon>
+        {{ 'Pagos' | t }}
+      </button>
       <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept=".xlsx,.xls">
     </div>
   </div>
