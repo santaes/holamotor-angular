@@ -159,7 +159,7 @@ interface SandboxTestResult {
 
     .sandbox-header {
       margin-bottom: 20px;
-      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
       color: white;
     }
 
@@ -168,6 +168,15 @@ interface SandboxTestResult {
       align-items: center;
       gap: 10px;
       font-size: 24px;
+      color: #ffffff;
+    }
+
+    .sandbox-header mat-card-subtitle {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .sandbox-header mat-icon {
+      color: #ffffff;
     }
 
     .test-config {
