@@ -62,7 +62,18 @@ export class VehicleDialogComponent {
       })
     );
 
-    marcaCtrl.valueChanges.subscribe(() => modeloCtrl.setValue(''));
+    marcaCtrl.valueChanges.subscribe(() => {
+      modeloCtrl.setValue('');
+      if (marcaCtrl.value) {
+        modeloCtrl.enable({ emitEvent: false });
+      } else {
+        modeloCtrl.disable({ emitEvent: false });
+      }
+    });
+
+    if (!marcaCtrl.value) {
+      modeloCtrl.disable({ emitEvent: false });
+    }
   }
 
   private filterOptions(options: string[], value: string | null): string[] {
