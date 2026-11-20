@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -94,7 +94,8 @@ export class CalendarCallbackComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private googleCalendarService: GoogleCalendarService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   private authCode: string | null = null;
@@ -107,6 +108,7 @@ export class CalendarCallbackComponent implements OnInit {
     } else if (!code) {
       this.error = true;
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -120,12 +122,14 @@ export class CalendarCallbackComponent implements OnInit {
         } else {
           this.error = true;
         }
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Auth error:', error);
         this.loading = false;
         this.error = true;
         this.snackBar.open(t('Error al conectar con Google Calendar'), t('Cerrar'), { duration: 3000 });
+        this.cdr.detectChanges();
       }
     });
   }
