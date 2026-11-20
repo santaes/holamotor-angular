@@ -161,7 +161,9 @@ export class AppointmentFormComponent implements OnInit {
   }
   
   displayCustomer(customer: any): string {
-    return customer ? `${customer.nombre} ${customer.apellido}` : '';
+    if (!customer) return '';
+    if (typeof customer === 'string') return customer;
+    return `${customer.nombre} ${customer.apellido}`;
   }
   
   onVehicleSelected(event: any): void {
@@ -173,7 +175,9 @@ export class AppointmentFormComponent implements OnInit {
   }
   
   displayVehicle(vehicle: any): string {
-    return vehicle ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}` : '';
+    if (!vehicle) return '';
+    if (typeof vehicle === 'string') return vehicle;
+    return `${vehicle.marca} ${vehicle.modelo} ${vehicle.anio} · ${vehicle.placa}`;
   }
 
   addCustomer(): void {
