@@ -58,7 +58,7 @@ export class AppointmentService {
     if (!appointment.clienteId || !appointment.fecha || !appointment.horaInicio || !appointment.horaFin) {
       return throwError(() => new Error('Cliente, fecha, hora de inicio y hora de fin son requeridos'));
     }
-    if (new Date(appointment.fecha) < new Date()) {
+    if (this.timeOnDate(appointment.fecha, appointment.horaInicio) < Date.now()) {
       return throwError(() => new Error('La fecha de la cita no puede ser en el pasado'));
     }
     if (this.hasTimeConflict(appointment)) {
@@ -76,9 +76,6 @@ export class AppointmentService {
     // Input validation
     if (!appointment.clienteId || !appointment.fecha || !appointment.horaInicio || !appointment.horaFin) {
       return throwError(() => new Error('Cliente, fecha, hora de inicio y hora de fin son requeridos'));
-    }
-    if (new Date(appointment.fecha) < new Date()) {
-      return throwError(() => new Error('La fecha de la cita no puede ser en el pasado'));
     }
     if (this.hasTimeConflict(appointment, id)) {
       return throwError(() => new Error('Existe un conflicto de horario con otra cita'));
@@ -169,19 +166,31 @@ export class AppointmentService {
     return throwError(() => new Error('Appointment not found'));
   }
 
-  private hasTimeConflict(appointment: Appointment, excludeId?: number): boolean {
-    const appointments = this.appointments$.value;
-    const appointmentDate = new Date(appointment.fecha).toDateString();
-    const newStart = new Date(`${appointment.fecha}T${appointment.horaInicio}`).getTime();
-    const newEnd = new Date(`${appointment.fecha}T${appointment.horaFin}`).getTime();
+  private timeOnDate(fecha: any, hhmm: string): number {
+    const d = fecha instanceof Date ? fecha : new Date(fecha);
+    const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const [h, m] = String(hhmm || '0:0').split(':').map(Number);
+    day.setHours(h || 0, m || 0, 0, 0);
+    return day.getTime();
+  }
 
-    return appointments.some(a => {
+  private sameDay(a: any, b: any): boolean {
+    const da = a instanceof Date ? a : new Date(a);
+    const db = b instanceof Date ? b : new Date(b);
+    return da.getFullYear() === db.getFullYear() && da.getMonth() === db.getMonth() && da.getDate() === db.getDate();
+  }
+
+  private hasTimeConflict(appointment: Appointment, excludeId?: number): boolean {
+    const newStart = this.timeOnDate(appointment.fecha, appointment.horaInicio);
+    const newEnd = this.timeOnDate(appointment.fecha, appointment.horaFin);
+
+    return this.appointments$.value.some(a => {
       if (a.id === excludeId) return false;
-      if (new Date(a.fecha).toDateString() !== appointmentDate) return false;
+      if (!this.sameDay(a.fecha, appointment.fecha)) return false;
       if (a.estado === 'Cancelada' || a.estado === 'No Asistió') return false;
 
-      const existingStart = new Date(`${a.fecha}T${a.horaInicio}`).getTime();
-      const existingEnd = new Date(`${a.fecha}T${a.horaFin}`).getTime();
+      const existingStart = this.timeOnDate(a.fecha, a.horaInicio);
+      const existingEnd = this.timeOnDate(a.fecha, a.horaFin);
 
       // Check for time overlap
       return (newStart < existingEnd && newEnd > existingStart);
