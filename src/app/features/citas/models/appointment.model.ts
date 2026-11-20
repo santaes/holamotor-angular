@@ -21,6 +21,9 @@ export interface Appointment {
   ordenReparacionId?: number;
   version?: number;
   lastModified?: Date;
+  origen?: 'local' | 'google';
+  googleEventId?: string;
+  htmlLink?: string;
 }
 
 export interface RecurringAppointment {

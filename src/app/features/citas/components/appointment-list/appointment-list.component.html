@@ -33,7 +33,10 @@
 
         <ng-container matColumnDef="clienteNombre">
           <th mat-header-cell *matHeaderCellDef>{{ 'Cliente' | t }}</th>
-          <td mat-cell *matCellDef="let appointment">{{ appointment.clienteNombre }}</td>
+          <td mat-cell *matCellDef="let appointment">
+            <mat-icon *ngIf="appointment.origen === 'google'" class="google-icon" [matTooltip]="'Google Calendar' | t">cloud</mat-icon>
+            {{ appointment.clienteNombre }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="vehiculoInfo">
@@ -56,18 +59,25 @@
         <ng-container matColumnDef="acciones">
           <th mat-header-cell *matHeaderCellDef>{{ 'Acciones' | t }}</th>
           <td mat-cell *matCellDef="let appointment">
-            <button mat-icon-button (click)="viewAppointment(appointment.id)" [matTooltip]="'Ver detalles' | t">
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button mat-icon-button (click)="editAppointment(appointment.id)" [matTooltip]="'Editar' | t">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="primary" (click)="confirmAppointment(appointment.id)" [matTooltip]="'Confirmar' | t" *ngIf="appointment.estado === 'Programada'">
-              <mat-icon>check_circle</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="cancelAppointment(appointment.id)" [matTooltip]="'Cancelar' | t" *ngIf="appointment.estado !== 'Cancelada' && appointment.estado !== 'Completada'">
-              <mat-icon>cancel</mat-icon>
-            </button>
+            <ng-container *ngIf="appointment.origen === 'google'; else localActions">
+              <a mat-icon-button [href]="appointment.htmlLink" target="_blank" rel="noopener" [matTooltip]="'Abrir en Google Calendar' | t">
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            </ng-container>
+            <ng-template #localActions>
+              <button mat-icon-button (click)="viewAppointment(appointment.id)" [matTooltip]="'Ver detalles' | t">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button (click)="editAppointment(appointment.id)" [matTooltip]="'Editar' | t">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="confirmAppointment(appointment.id)" [matTooltip]="'Confirmar' | t" *ngIf="appointment.estado === 'Programada'">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="cancelAppointment(appointment.id)" [matTooltip]="'Cancelar' | t" *ngIf="appointment.estado !== 'Cancelada' && appointment.estado !== 'Completada'">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </ng-template>
           </td>
         </ng-container>
 

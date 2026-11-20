@@ -36,6 +36,14 @@ export class GoogleCalendarService {
     );
   }
 
+  getEventsForRange(timeMin: string, timeMax: string): Observable<CalendarEvent[]> {
+    return this.http.get<any>(`${this.apiUrl}/events`, {
+      params: { timeMin, timeMax, singleEvents: 'true', orderBy: 'startTime' }
+    }).pipe(
+      map(response => (Array.isArray(response) ? response : response?.items || []))
+    );
+  }
+
   /** Returns true if the server has a valid Google Calendar token, false otherwise. */
   checkConnection(): Observable<boolean> {
     return this.http.get<{ connected: boolean }>(`${this.apiUrl}/status`).pipe(

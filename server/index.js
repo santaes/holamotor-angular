@@ -561,9 +561,16 @@ async function getGoogleTokens() {
 async function handleGoogleCalendar(req, res, action) {
   try {
     const tokens = await getGoogleTokens();
-    if (!tokens) return sendError(req, res, 401, 'forbidden');
+    if (!tokens) return send(res, 200, []);
 
-    const calendarResponse = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    const query = new URL(req.url, 'http://localhost').searchParams;
+    const params = new URLSearchParams({ singleEvents: 'true', orderBy: 'startTime' });
+    for (const key of ['timeMin', 'timeMax', 'q', 'maxResults']) {
+      const value = query.get(key);
+      if (value) params.set(key, value);
+    }
+
+    const calendarResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
       headers: { Authorization: `Bearer ${tokens.access_token}` }
     });
 
