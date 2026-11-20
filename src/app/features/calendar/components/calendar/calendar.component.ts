@@ -199,16 +199,10 @@ export class CalendarComponent implements OnInit {
   }
 
   checkConnection(): void {
-    this.loading = true;
-    this.googleCalendarService.getEvents().subscribe({
-      next: (events) => {
-        this.events = events;
-        this.isConnected = true;
-        this.loading = false;
-      },
-      error: () => {
-        this.isConnected = false;
-        this.loading = false;
+    this.googleCalendarService.checkConnection().subscribe(connected => {
+      this.isConnected = connected;
+      if (connected) {
+        this.refreshEvents();
       }
     });
   }

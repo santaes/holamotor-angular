@@ -258,6 +258,11 @@ async function handleApi(req, res, pathname) {
   }
 
   // Google Calendar endpoints
+  if (pathname === '/api/calendar/status' && req.method === 'GET') {
+    const tokens = await getGoogleTokens();
+    return send(res, 200, { connected: !!tokens?.access_token });
+  }
+
   if (pathname === '/api/calendar/auth' && req.method === 'POST') {
     return handleGoogleAuth(req, res);
   }
@@ -481,6 +486,9 @@ async function handleGoogleAuth(req, res) {
   const { code } = await readBody(req);
   if (!code) return sendError(req, res, 400, 'invalidJson');
 
+  // Diagnostics: auth codes are single-use and must arrive uncorrupted.
+  console.log(`[google-auth] code length=${code.length} hasSpace=${/\s/.test(code)} hasPlus=${code.includes('+')} prefix=${code.slice(0, 10)}…`);
+
   try {
     // Exchange authorization code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -498,7 +506,7 @@ async function handleGoogleAuth(req, res) {
     if (!tokenResponse.ok) {
       const error = await tokenResponse.text();
       console.error('Google OAuth error:', error);
-      return sendError(req, res, 400, 'forbidden');
+      return send(res, 400, { error: 'googleOAuth', detail: error });
     }
 
     const tokens = await tokenResponse.json();

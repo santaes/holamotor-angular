@@ -38,8 +38,8 @@ export class GoogleCalendarService {
 
   /** Returns true if the server has a valid Google Calendar token, false otherwise. */
   checkConnection(): Observable<boolean> {
-    return this.http.get<any>(`${this.apiUrl}/events`).pipe(
-      map(() => true),
+    return this.http.get<{ connected: boolean }>(`${this.apiUrl}/status`).pipe(
+      map(response => !!response?.connected),
       catchError(() => of(false))
     );
   }

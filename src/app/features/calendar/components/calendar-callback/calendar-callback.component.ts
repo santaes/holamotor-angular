@@ -97,11 +97,14 @@ export class CalendarCallbackComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {}
 
+  private authCode: string | null = null;
+
   ngOnInit(): void {
     const code = this.route.snapshot.queryParamMap.get('code');
-    if (code) {
+    if (code && code !== this.authCode) {
+      this.authCode = code;
       this.authenticate(code);
-    } else {
+    } else if (!code) {
       this.error = true;
       this.loading = false;
     }
