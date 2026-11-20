@@ -58,8 +58,8 @@ import { t } from '../../../../core/i18n/i18n';
                 <mat-icon matListItemIcon>event</mat-icon>
                 <div matListItemTitle>{{ event.summary }}</div>
                 <div matListItemLine>
-                  {{ event.start.dateTime | date:'dd/MM/yyyy HH:mm' }} -
-                  {{ event.end.dateTime | date:'HH:mm' }}
+                  {{ (event.start?.dateTime || event.start?.date) | date:'dd/MM/yyyy HH:mm' }}
+                  <span *ngIf="event.end?.dateTime"> - {{ event.end.dateTime | date:'HH:mm' }}</span>
                 </div>
                 <div matListItemLine *ngIf="event.description">{{ event.description }}</div>
                 <a matListItemMeta [href]="event.htmlLink" target="_blank">

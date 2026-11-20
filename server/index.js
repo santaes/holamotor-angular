@@ -498,10 +498,13 @@ async function handleGoogleAuth(req, res) {
     if (!tokenResponse.ok) {
       const error = await tokenResponse.text();
       console.error('Google OAuth error:', error);
-      return sendError(req, res, 400, 'invalidJson');
+      return sendError(req, res, 400, 'forbidden');
     }
 
     const tokens = await tokenResponse.json();
+    if (tokens.expires_in) {
+      tokens.expiry_date = Date.now() + (tokens.expires_in * 1000);
+    }
     await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
 
     return send(res, 200, { success: true });
@@ -520,8 +523,9 @@ async function getGoogleTokens() {
   }
   const tokens = JSON.parse(raw);
 
-  // Refresh token if expired
-  if (tokens.expiry_date && Date.now() >= tokens.expiry_date && tokens.refresh_token) {
+  // Refresh token if expired (or within 60s of expiring)
+  const isExpired = !tokens.expiry_date || Date.now() >= (tokens.expiry_date - 60000);
+  if (isExpired && tokens.refresh_token) {
     const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -535,6 +539,9 @@ async function getGoogleTokens() {
 
     if (refreshResponse.ok) {
       const newTokens = await refreshResponse.json();
+      if (newTokens.expires_in) {
+        newTokens.expiry_date = Date.now() + (newTokens.expires_in * 1000);
+      }
       Object.assign(tokens, newTokens);
       await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
     }
@@ -557,7 +564,7 @@ async function handleGoogleCalendar(req, res, action) {
     }
 
     const events = await calendarResponse.json();
-    return send(res, 200, events);
+    return send(res, 200, events.items || []);
   } catch (err) {
     console.error('Google Calendar error:', err);
     return sendError(req, res, 500, 'internalError');

@@ -9,7 +9,8 @@ services:
     volumes:
       - ./data:/data
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - TZ=Europe/Madrid
     depends_on:

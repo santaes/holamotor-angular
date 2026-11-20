@@ -6,7 +6,9 @@
     "start": "concurrently \"ng serve --host 0.0.0.0 --port 4200\" \"cross-env DATA_DIR=./data node --env-file-if-exists=.env server/index.js\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "server": "cross-env DATA_DIR=./data node --env-file-if-exists=.env server/index.js",
     "start:prod": "ng build && cross-env DATA_DIR=./data node --env-file-if-exists=.env server/index.js"
   },
@@ -36,9 +38,13 @@
     "@angular-devkit/build-angular": "^21.2.0",
     "@angular/cli": "^21.2.0",
     "@angular/compiler-cli": "^21.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "concurrently": "^10.0.6",
     "cross-env": "^7.0.3",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "ts-jest": "^29.4.15",
     "typescript": "~5.9.0"
   },
   "allowScripts": {

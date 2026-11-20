@@ -8,8 +8,8 @@ export interface CalendarEvent {
   id: string;
   summary: string;
   description?: string;
-  start: { dateTime: string; timeZone: string };
-  end: { dateTime: string; timeZone: string };
+  start: { dateTime?: string; date?: string; timeZone?: string };
+  end: { dateTime?: string; date?: string; timeZone?: string };
   htmlLink?: string;
 }
 
@@ -31,8 +31,16 @@ export class GoogleCalendarService {
   }
 
   getEvents(): Observable<CalendarEvent[]> {
-    return this.http.get<CalendarEvent[]>(`${this.apiUrl}/events`).pipe(
-      map(response => response || [])
+    return this.http.get<any>(`${this.apiUrl}/events`).pipe(
+      map(response => (Array.isArray(response) ? response : response?.items || []))
+    );
+  }
+
+  /** Returns true if the server has a valid Google Calendar token, false otherwise. */
+  checkConnection(): Observable<boolean> {
+    return this.http.get<any>(`${this.apiUrl}/events`).pipe(
+      map(() => true),
+      catchError(() => of(false))
     );
   }
 

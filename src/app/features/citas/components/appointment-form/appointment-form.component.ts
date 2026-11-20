@@ -276,15 +276,19 @@ export class AppointmentFormComponent implements OnInit {
         this.createRecurringAppointments(appointment);
         return;
       }
-      
-      // Sync to Google Calendar if enabled
-      if (formValue.syncToGoogleCalendar) {
-        this.syncToGoogleCalendarEvent(appointment);
-      }
 
       if (this.isEditMode && this.appointmentId) {
         this.appointmentService.updateAppointment(this.appointmentId, appointment).subscribe({
           next: () => {
+            if (formValue.syncToGoogleCalendar) {
+              this.googleCalendarService.checkConnection().subscribe(connected => {
+                if (connected) {
+                  this.syncToGoogleCalendarEvent(appointment);
+                } else {
+                  this.snackBar.open(t('Conecta Google Calendar en Configuración para sincronizar'), t('Cerrar'), { duration: 4000 });
+                }
+              });
+            }
             this.snackBar.open(t('Cita actualizada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/citas']);
           },
@@ -296,6 +300,15 @@ export class AppointmentFormComponent implements OnInit {
       } else {
         this.appointmentService.createAppointment(appointment).subscribe({
           next: () => {
+            if (formValue.syncToGoogleCalendar) {
+              this.googleCalendarService.checkConnection().subscribe(connected => {
+                if (connected) {
+                  this.syncToGoogleCalendarEvent(appointment);
+                } else {
+                  this.snackBar.open(t('Conecta Google Calendar en Configuración para sincronizar'), t('Cerrar'), { duration: 4000 });
+                }
+              });
+            }
             this.snackBar.open(t('Cita creada exitosamente'), t('Cerrar'), { duration: 3000 });
             this.router.navigate(['/citas']);
           },
@@ -313,6 +326,15 @@ export class AppointmentFormComponent implements OnInit {
     // For now, just create the first one
     this.appointmentService.createAppointment(appointment).subscribe({
       next: () => {
+        if (this.appointmentForm.value.syncToGoogleCalendar) {
+          this.googleCalendarService.checkConnection().subscribe(connected => {
+            if (connected) {
+              this.syncToGoogleCalendarEvent(appointment);
+            } else {
+              this.snackBar.open(t('Conecta Google Calendar en Configuración para sincronizar'), t('Cerrar'), { duration: 4000 });
+            }
+          });
+        }
         this.snackBar.open(t('Cita recurrente creada exitosamente'), t('Cerrar'), { duration: 3000 });
         this.router.navigate(['/citas']);
       },
@@ -324,7 +346,8 @@ export class AppointmentFormComponent implements OnInit {
   }
   
   private syncToGoogleCalendarEvent(appointment: Appointment): void {
-    const dateStr = appointment.fecha.toISOString().split('T')[0];
+    const d = appointment.fecha instanceof Date ? appointment.fecha : new Date(appointment.fecha);
+    const dateStr = d.toISOString().split('T')[0];
     const event: Partial<CalendarEvent> = {
       summary: `${appointment.tipo} - ${appointment.clienteNombre}`,
       description: appointment.descripcion,

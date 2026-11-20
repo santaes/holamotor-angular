@@ -58,6 +58,9 @@ export class AppointmentService {
     if (!appointment.clienteId || !appointment.fecha || !appointment.horaInicio || !appointment.horaFin) {
       return throwError(() => new Error('Cliente, fecha, hora de inicio y hora de fin son requeridos'));
     }
+    if (this.timeOnDate(appointment.fecha, appointment.horaInicio) >= this.timeOnDate(appointment.fecha, appointment.horaFin)) {
+      return throwError(() => new Error('La hora de fin debe ser posterior a la hora de inicio'));
+    }
     if (this.timeOnDate(appointment.fecha, appointment.horaInicio) < Date.now()) {
       return throwError(() => new Error('La fecha de la cita no puede ser en el pasado'));
     }
@@ -76,6 +79,9 @@ export class AppointmentService {
     // Input validation
     if (!appointment.clienteId || !appointment.fecha || !appointment.horaInicio || !appointment.horaFin) {
       return throwError(() => new Error('Cliente, fecha, hora de inicio y hora de fin son requeridos'));
+    }
+    if (this.timeOnDate(appointment.fecha, appointment.horaInicio) >= this.timeOnDate(appointment.fecha, appointment.horaFin)) {
+      return throwError(() => new Error('La hora de fin debe ser posterior a la hora de inicio'));
     }
     if (this.hasTimeConflict(appointment, id)) {
       return throwError(() => new Error('Existe un conflicto de horario con otra cita'));
