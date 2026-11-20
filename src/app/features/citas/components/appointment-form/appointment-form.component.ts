@@ -22,7 +22,7 @@ import { StorageService } from '../../../../core/services/storage.service';
 import { SettingsService } from '../../../../core/services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, of } from 'rxjs';
+import { Observable, of, combineLatest, BehaviorSubject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { QuickCustomerDialogComponent } from '../../../../core/components/quick-customer-dialog/quick-customer-dialog.component';
 import { GoogleCalendarService, CalendarEvent } from '../../../../core/services/google-calendar.service';
@@ -98,19 +98,26 @@ export class AppointmentFormComponent implements OnInit {
 
   customers: any[] = [];
   vehicles: any[] = [];
-  
+  private vehicles$ = new BehaviorSubject<any[]>([]);
+
+  private setVehicles(list: any[]): void {
+    this.vehicles = list;
+    this.vehicles$.next(list);
+  }
+
   private setupCustomerPicker(): void {
     this.customers = this.storage.getItem<any[]>('customers') || [];
     this.storage.changes$.pipe(takeUntilDestroyed()).subscribe(key => {
       if (key === 'customers') {
         this.customers = this.storage.getItem<any[]>('customers') || [];
         const selected = this.customers.find(c => c.id === +this.appointmentForm.get('clienteId')?.value);
-        this.vehicles = selected?.vehiculos || [];
+        this.setVehicles(selected?.vehiculos || []);
       }
     });
     this.appointmentForm.get('clienteId')?.valueChanges.subscribe(id => {
       const customer = this.customers.find(c => c.id === +id);
-      this.vehicles = customer?.vehiculos || [];
+      this.setVehicles(customer?.vehiculos || []);
+      this.appointmentForm.patchValue({ vehiculoId: '', vehiculoInfo: '' }, { emitEvent: false });
       if (customer) {
         this.appointmentForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
       }
@@ -131,10 +138,12 @@ export class AppointmentFormComponent implements OnInit {
     ) || of([]);
     
     // Vehicle autocomplete
-    this.filteredVehicles$ = this.appointmentForm.get('vehiculoInfo')?.valueChanges.pipe(
-      startWith(''),
-      map(value => this.filterVehicles(value))
-    ) || of([]);
+    this.filteredVehicles$ = combineLatest([
+      this.vehicles$,
+      this.appointmentForm.get('vehiculoInfo')?.valueChanges.pipe(startWith('')) || of('')
+    ]).pipe(
+      map(([vehicles, value]) => this.filterVehicles(vehicles, value))
+    );
   }
   
   private filterCustomers(value: any): any[] {
@@ -144,9 +153,9 @@ export class AppointmentFormComponent implements OnInit {
     );
   }
   
-  private filterVehicles(value: any): any[] {
+  private filterVehicles(vehicles: any[], value: any): any[] {
     const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-    return this.vehicles.filter(v => 
+    return vehicles.filter(v =>
       `${v.marca} ${v.modelo} ${v.anio} ${v.placa}`.toLowerCase().includes(filterValue)
     );
   }
@@ -157,9 +166,9 @@ export class AppointmentFormComponent implements OnInit {
       clienteId: customer.id,
       clienteNombre: `${customer.nombre} ${customer.apellido}`
     });
-    this.vehicles = customer.vehiculos || [];
+    this.setVehicles(customer.vehiculos || []);
   }
-  
+
   displayCustomer(customer: any): string {
     if (!customer) return '';
     if (typeof customer === 'string') return customer;
