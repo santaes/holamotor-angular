@@ -51,6 +51,7 @@ export class AppComponent implements OnDestroy {
     { icon: 'inventory_2', label: 'Inventario', route: '/inventario' },
     { icon: 'receipt_long', label: 'Facturación', route: '/facturacion' },
     { icon: 'event', label: 'Citas', route: '/citas' },
+    { icon: 'calendar_month', label: 'Google Calendar', route: '/calendar' },
     { icon: 'settings', label: 'Configuración', route: '/configuracion' }
   ];
 
