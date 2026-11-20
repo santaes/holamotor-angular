@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -191,7 +191,8 @@ export class CalendarComponent implements OnInit {
   constructor(
     private googleCalendarService: GoogleCalendarService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -204,6 +205,7 @@ export class CalendarComponent implements OnInit {
       if (connected) {
         this.refreshEvents();
       }
+      this.cdr.detectChanges();
     });
   }
 
@@ -220,11 +222,13 @@ export class CalendarComponent implements OnInit {
         this.events = events;
         this.loading = false;
         this.isConnected = true;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading events:', error);
         this.loading = false;
         this.snackBar.open(t('Error al cargar eventos'), t('Cerrar'), { duration: 3000 });
+        this.cdr.detectChanges();
       }
     });
   }

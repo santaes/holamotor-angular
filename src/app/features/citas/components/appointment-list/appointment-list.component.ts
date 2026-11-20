@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
@@ -48,7 +48,8 @@ export class AppointmentListComponent implements OnInit {
     private appointmentService: AppointmentService,
     private googleCalendarService: GoogleCalendarService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -71,12 +72,14 @@ export class AppointmentListComponent implements OnInit {
           this.appointments = [...local, ...googleRows]
             .sort((a, b) => this.toMinutes(a.horaInicio) - this.toMinutes(b.horaInicio));
           this.isLoading = false;
+          this.cdr.detectChanges();
         });
       },
       error: (error) => {
         console.error('Error loading appointments:', error);
         this.snackBar.open(t('Error al cargar citas'), t('Cerrar'), { duration: 3000 });
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
