@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface CalendarEvent {
   id: string;
@@ -31,11 +32,7 @@ export class GoogleCalendarService {
 
   getEvents(): Observable<CalendarEvent[]> {
     return this.http.get<CalendarEvent[]>(`${this.apiUrl}/events`).pipe(
-      map(response => response || []),
-      catchError(error => {
-        console.error('Google Calendar error:', error);
-        return of([]);
-      })
+      map(response => response || [])
     );
   }
 
@@ -49,8 +46,8 @@ export class GoogleCalendarService {
   }
 
   getAuthUrl(): string {
-    const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // This should come from environment config
-    const redirectUri = encodeURIComponent('http://localhost:4200/calendar/callback');
+    const clientId = environment.googleClientId;
+    const redirectUri = encodeURIComponent(environment.googleRedirectUri);
     const scope = encodeURIComponent('https://www.googleapis.com/auth/calendar');
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
   }

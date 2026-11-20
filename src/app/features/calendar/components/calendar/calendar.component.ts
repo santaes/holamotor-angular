@@ -199,9 +199,18 @@ export class CalendarComponent implements OnInit {
   }
 
   checkConnection(): void {
-    // Check if user has connected Google Calendar
-    // This would typically check a stored token or connection status
-    this.isConnected = false; // Will be set to true after OAuth
+    this.loading = true;
+    this.googleCalendarService.getEvents().subscribe({
+      next: (events) => {
+        this.events = events;
+        this.isConnected = true;
+        this.loading = false;
+      },
+      error: () => {
+        this.isConnected = false;
+        this.loading = false;
+      }
+    });
   }
 
   connectGoogle(): void {
