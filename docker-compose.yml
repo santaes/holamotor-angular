@@ -8,6 +8,8 @@ services:
       - "80:8080"
     volumes:
       - ./data:/data
+    env_file:
+      - .env
     environment:
       - TZ=Europe/Madrid
     depends_on:
