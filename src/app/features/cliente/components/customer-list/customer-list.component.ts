@@ -117,7 +117,7 @@ export class CustomerListComponent implements OnInit {
       case 'Bronce': return '#b45309';
       case 'Plata': return '#64748b';
       case 'Oro': return '#ca8a04';
-      case 'Platino': return '#7c3aed';
+      case 'Platino': return '#2563eb';
       default: return '#999';
     }
   }

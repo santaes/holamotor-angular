@@ -159,7 +159,7 @@ interface SandboxTestResult {
 
     .sandbox-header {
       margin-bottom: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
       color: white;
     }
 

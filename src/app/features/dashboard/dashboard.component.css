@@ -45,7 +45,7 @@ a.kpi:hover, .quick-card:hover { transform: translateY(-2px); box-shadow: var(--
 .tone-green { background: #f0fdf4; color: #16a34a; }
 .tone-orange { background: #fff7ed; color: #ea580c; }
 .tone-red { background: #fef2f2; color: #dc2626; }
-.tone-violet { background: #f5f3ff; color: #7c3aed; }
+.tone-violet { background: #eff6ff; color: #2563eb; }
 
 .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .quick-card {
