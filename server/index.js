@@ -511,29 +511,42 @@ async function handleGoogleAuth(req, res) {
   }
 }
 
+async function getGoogleTokens() {
+  let raw;
+  try {
+    raw = await fsp.readFile(CALENDAR_TOKENS_FILE, 'utf8');
+  } catch {
+    return null;
+  }
+  const tokens = JSON.parse(raw);
+
+  // Refresh token if expired
+  if (tokens.expiry_date && Date.now() >= tokens.expiry_date && tokens.refresh_token) {
+    const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        refresh_token: tokens.refresh_token,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        grant_type: 'refresh_token'
+      })
+    });
+
+    if (refreshResponse.ok) {
+      const newTokens = await refreshResponse.json();
+      Object.assign(tokens, newTokens);
+      await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
+    }
+  }
+
+  return tokens;
+}
+
 async function handleGoogleCalendar(req, res, action) {
   try {
-    const tokens = JSON.parse(await fsp.readFile(CALENDAR_TOKENS_FILE, 'utf8'));
-
-    // Refresh token if expired
-    if (tokens.expiry_date && Date.now() >= tokens.expiry_date) {
-      const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          refresh_token: tokens.refresh_token,
-          client_id: GOOGLE_CLIENT_ID,
-          client_secret: GOOGLE_CLIENT_SECRET,
-          grant_type: 'refresh_token'
-        })
-      });
-
-      if (refreshResponse.ok) {
-        const newTokens = await refreshResponse.json();
-        Object.assign(tokens, newTokens);
-        await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
-      }
-    }
+    const tokens = await getGoogleTokens();
+    if (!tokens) return sendError(req, res, 401, 'forbidden');
 
     const calendarResponse = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
       headers: { Authorization: `Bearer ${tokens.access_token}` }
@@ -553,19 +566,29 @@ async function handleGoogleCalendar(req, res, action) {
 
 async function handleGoogleCalendarEvent(req, res, action) {
   try {
-    const tokens = JSON.parse(await fsp.readFile(CALENDAR_TOKENS_FILE, 'utf8'));
+    const tokens = await getGoogleTokens();
+    if (!tokens) return sendError(req, res, 401, 'forbidden');
     const body = await readBody(req);
+    if (!body) return sendError(req, res, 400, 'invalidJson');
+
+    // Accept both "2026-01-01T10:00:00" strings and { dateTime, timeZone } objects
+    const startValue = typeof body.start === 'string' ? body.start : body.start?.dateTime;
+    const endValue = typeof body.end === 'string' ? body.end : body.end?.dateTime;
+    const startZone = typeof body.start === 'object' ? body.start?.timeZone : undefined;
+    const endZone = typeof body.end === 'object' ? body.end?.timeZone : undefined;
+
+    if (!startValue || !endValue) return sendError(req, res, 400, 'invalidJson');
 
     const event = {
       summary: body.summary,
       description: body.description,
       start: {
-        dateTime: body.start,
-        timeZone: 'Europe/Madrid'
+        dateTime: startValue,
+        timeZone: startZone || 'Europe/Madrid'
       },
       end: {
-        dateTime: body.end,
-        timeZone: 'Europe/Madrid'
+        dateTime: endValue,
+        timeZone: endZone || 'Europe/Madrid'
       },
       reminders: {
         useDefault: false,
