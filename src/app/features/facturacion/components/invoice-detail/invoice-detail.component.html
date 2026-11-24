@@ -85,9 +85,25 @@
           <span>Subtotal</span>
           <span>{{ invoice.subtotal | money }}</span>
         </div>
+        <div class="total-row" *ngIf="invoice.impuestos">
+          <span>Impuestos</span>
+          <span>{{ invoice.impuestos | money }}</span>
+        </div>
+        <div class="total-row" *ngIf="invoice.descuento">
+          <span>Descuento</span>
+          <span>-{{ invoice.descuento | money }}</span>
+        </div>
         <div class="total-row final">
           <span>Total</span>
           <span><strong>{{ invoice.total | money }}</strong></span>
+        </div>
+        <div class="total-row" *ngIf="totalPagado > 0">
+          <span>Total pagado</span>
+          <span>{{ totalPagado | money }}</span>
+        </div>
+        <div class="total-row pending" *ngIf="pendiente > 0">
+          <span>Pendiente de pago</span>
+          <span><strong>{{ pendiente | money }}</strong></span>
         </div>
       </div>
     </div>

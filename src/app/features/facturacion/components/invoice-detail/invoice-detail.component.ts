@@ -95,6 +95,14 @@ export class InvoiceDetailComponent implements OnInit {
     }
   }
 
+  get totalPagado(): number {
+    return (this.invoice?.pagos || []).reduce((sum, p) => sum + (p.monto || 0), 0);
+  }
+
+  get pendiente(): number {
+    return Math.max(0, (this.invoice?.total || 0) - this.totalPagado);
+  }
+
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'Borrador': return '#9e9e9e';
