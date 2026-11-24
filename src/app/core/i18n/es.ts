@@ -108,5 +108,10 @@ export const es: Record<string, string> = {
   "Cargando pagos...": "Cargando pagos...",
   "Error al cargar pagos": "Error al cargar pagos",
   "No hay pagos registrados": "No hay pagos registrados",
-  "Método de Pago": "Método de Pago"
+  "Método de Pago": "Método de Pago",
+  "Items": "Líneas",
+  "Descripción": "Descripción",
+  "Cantidad": "Cantidad",
+  "Precio Unitario": "Precio Unitario",
+  "Subtotal": "Subtotal"
 };
