@@ -270,4 +270,41 @@
   @page {
     margin: 1cm;
   }
+
+  /* Multi-page invoice handling */
+  .invoice-header {
+    page-break-after: avoid;
+  }
+
+  .invoice-meta {
+    page-break-after: avoid;
+  }
+
+  .invoice-items {
+    page-break-inside: auto;
+  }
+
+  .items-table-print {
+    page-break-inside: auto;
+  }
+
+  .items-table-print thead {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  .items-table-print tbody tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .invoice-totals {
+    page-break-before: auto;
+    page-break-inside: avoid;
+  }
+
+  .invoice-footer {
+    page-break-before: auto;
+    page-break-inside: avoid;
+  }
 }
