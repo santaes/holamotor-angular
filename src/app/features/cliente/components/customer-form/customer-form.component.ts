@@ -73,8 +73,8 @@ export class CustomerFormComponent implements OnInit {
   createForm(): FormGroup {
     return this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
-      apellido: ['', Validators.minLength(2)],
-      email: ['', Validators.email],
+      apellido: [''],
+      email: [''],
       telefono: ['', Validators.pattern(/^(\+[0-9]{1,3}[- ]?)?[0-9]{9,15}$/)],
       direccion: [''],
       ciudad: [''],

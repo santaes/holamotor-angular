@@ -88,7 +88,11 @@ export class CarCatalogService {
     },
     {
       name: 'Fiat',
-      models: ['500', '500X', '500L', 'Panda', 'Punto', 'Tipo', '124 Spider', 'Ducato', 'Doblo', 'Fiorino']
+      models: ['500', '500X', '500L', 'Panda', 'Punto', 'Tipo', '124 Spider', 'Ducato', 'Doblo', 'Fiorino', '500e', '600', 'Panda Hybrid', 'Tipo Hybrid', '500C', '500L Trekking', 'Ducato Electric', 'Doblo Electric']
+    },
+    {
+      name: 'Lancia',
+      models: ['Ypsilon', 'Delta', 'Thema', 'Kappa', 'Lybra', 'Fulvia', 'Stratos', '037', 'Beta', 'Monte Carlo', 'Integrale', 'Dedra', 'Prisma', 'Zagato']
     },
     {
       name: 'Alfa Romeo',
@@ -128,35 +132,35 @@ export class CarCatalogService {
     },
     {
       name: 'Peugeot',
-      models: ['208', '308', '508', '2008', '3008', '5008', '108', '208 GTi', '308 GTi', 'RCZ', 'Partner', 'Expert', 'Boxer']
+      models: ['208', '308', '508', '2008', '3008', '5008', '108', '208 GTi', '308 GTi', 'RCZ', 'Partner', 'Expert', 'Boxer', 'e-208', 'e-2008', 'e-308', 'e-3008', 'e-5008', '408', 'Rifter', 'Traveller', '301', '4007', '4008', '607', '807']
     },
     {
       name: 'Renault',
-      models: ['Clio', 'Megane', 'Captur', 'Kadjar', 'Zoe', 'Scenic', 'Grand Scenic', 'Twingo', 'Talisman', 'Koleos', 'Duster', 'Laguna', 'Fluence', 'Kangoo', 'Trafic', 'Master']
+      models: ['Clio', 'Megane', 'Captur', 'Kadjar', 'Zoe', 'Scenic', 'Grand Scenic', 'Twingo', 'Talisman', 'Koleos', 'Duster', 'Laguna', 'Fluence', 'Kangoo', 'Trafic', 'Master', 'Austral', 'Arkana', 'Espace', 'Rafale', '5', '4', 'Alpine A110', 'Zoe E-Tech', 'Megane E-Tech', 'Captur E-Tech', 'Scenic E-Tech', 'Laguna Grandtour', 'Vel Satis', 'Avantime', 'Modus', 'Wind', 'Kangoo ZE', 'Master ZE', 'Trafic ZE']
     },
     {
       name: 'Citroën',
-      models: ['C3', 'C4', 'C5', 'C3 Aircross', 'C4 Cactus', 'C4 Picasso', 'Grand C4 Picasso', 'Berlingo', 'Jumpy', 'Jumper', 'DS3', 'DS4', 'DS5', 'C1', 'C2', 'C6']
+      models: ['C3', 'C4', 'C5', 'C3 Aircross', 'C4 Cactus', 'C4 Picasso', 'Grand C4 Picasso', 'Berlingo', 'Jumpy', 'Jumper', 'DS3', 'DS4', 'DS5', 'C1', 'C2', 'C6', 'e-C3', 'e-C4', 'C5 X', 'C5 Aircross', 'Ami', 'Oli', 'Berlingo Electric', 'Jumpy Electric', 'Nemo', 'Jumper Electric', 'C-Zero', 'C4 Aircross', 'Grand C4 SpaceTourer', 'C4 SpaceTourer', 'C3 Picasso', 'C3 Pluriel', 'C3 XTR', 'C4 Sedan', 'C5 Tourer', 'C5 Cross Tourer', 'C6', 'C8', 'DS3 Cabrio', 'DS3 Racing']
     },
     {
       name: 'Opel',
-      models: ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Crossland', 'Grandland', 'Zafira', 'Vivaro', 'Movano', 'Adam', 'Karl', 'Combo']
+      models: ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Crossland', 'Grandland', 'Zafira', 'Vivaro', 'Movano', 'Adam', 'Karl', 'Combo', 'Corsa-e', 'Mokka-e', 'Zafira Life', 'Grandland X', 'Astra Sports Tourer', 'Insignia Sports Tourer', 'Combo-e', 'Vivaro-e', 'Agila', 'Meriva', 'Signum', 'Vectra', 'Omega', 'Senator', 'Monza', 'Manta', 'Ascona', 'Kadett', 'Rekord', 'Commodore', 'Cascada']
     },
     {
       name: 'Seat',
-      models: ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Tarraco', 'Alhambra', 'Mii', 'Toledo', 'Altea', 'Exeo']
+      models: ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Tarraco', 'Alhambra', 'Mii', 'Toledo', 'Altea', 'Exeo', 'Cupra Leon', 'Cupra Formentor', 'Cupra Ateca', 'Cupra Tavascan', 'Ibiza Cupra', 'Leon Cupra', 'Altea XL', 'Altea Freetrack', 'Leon ST', 'Leon X-Perience', 'Alhambra 4WD', 'Exeo ST', 'Toledo Twin', 'Cordoba', 'Malaga', 'Ronda', 'Marbella', 'Ibiza ST', 'Leon FR', 'Leon Cupra R', 'Ibiza FR', 'Ibiza Cupra R']
     },
     {
       name: 'Skoda',
-      models: ['Octavia', 'Fabia', 'Superb', 'Yeti', 'Kodiaq', 'Karoq', 'Scala', 'Kamiq', 'Rapid', 'Roomster', 'Citigo', 'Enyaq']
+      models: ['Octavia', 'Fabia', 'Superb', 'Yeti', 'Kodiaq', 'Karoq', 'Scala', 'Kamiq', 'Rapid', 'Roomster', 'Citigo', 'Enyaq', 'Octavia RS', 'Superb Sportline', 'Kodiaq Sportline', 'Scala Monte Carlo', 'Fabia Monte Carlo', 'Enyaq iV', 'Elroq', 'Octavia Combi', 'Octavia Scout', 'Superb Combi', 'Yeti Outdoor', 'Rapid Spaceback', 'Rapid Scout', 'Fabia Combi', 'Roomster Scout', 'Praktik', 'Favorit', 'Felicia', 'Forman', 'Estelle', '120', '130', '136', '1000MB']
     },
     {
       name: 'Suzuki',
-      models: ['Swift', 'Vitara', 'S-Cross', 'Jimny', 'Ignis', 'Baleno', 'SX4', 'Alto', 'Celerio', 'Grand Vitara', 'XL7']
+      models: ['Swift', 'Vitara', 'S-Cross', 'Jimny', 'Ignis', 'Baleno', 'SX4', 'Alto', 'Celerio', 'Grand Vitara', 'XL7', 'Across', 'Swace', 'Wagon R', 'Vitara Brezza', 'Ertiga', 'XL6', 'S-Presso', 'Ciaz', 'Dzire', 'Baleno RS', 'Swift Sport', 'Jimny Sierra', 'Vitara AllGrip', 'Grand Vitara 5-Door', 'XL7 7-Seater', 'Carry', 'Every', 'APV', 'Ertiga Hybrid', 'Swift Hybrid', 'Vitara Hybrid']
     },
     {
       name: 'Mitsubishi',
-      models: ['Lancer', 'Outlander', 'ASX', 'Eclipse Cross', 'Mirage', 'Pajero', 'Montero', 'L200', 'Galant', 'i-MiEV']
+      models: ['Lancer', 'Outlander', 'ASX', 'Eclipse Cross', 'Mirage', 'Pajero', 'Montero', 'L200', 'Galant', 'i-MiEV', 'Lancer Evolution', 'Pajero Sport', 'Triton', 'Montero Sport', 'Chariot', 'Space Star', 'Space Wagon', 'Delica', 'Attrage', 'Mirage G4', 'Outlander PHEV', 'Xpander', 'Xpander Cross', 'eK X', 'Minicab MiEV', 'i-MiEV', 'L200 Triton', 'Pajero Evolution', 'ASX Cross', 'Eclipse', 'Galant Fortis', 'GTO', '3000GT', 'Colt', 'Cordia', 'Tredia', 'Sigma', 'Diamante', 'Magnus', 'Endeavor', 'Montero Limited']
     },
     {
       name: 'Jeep',
@@ -212,11 +216,11 @@ export class CarCatalogService {
     },
     {
       name: 'Dacia',
-      models: ['Sandero', 'Duster', 'Logan', 'Lodgy', 'Dokker', 'Jogger']
+      models: ['Sandero', 'Duster', 'Logan', 'Lodgy', 'Dokker', 'Jogger', 'Sandero Stepway', 'Duster 4x4', 'Logan MCV', 'Lodgy Stepway', 'Dokker Stepway', 'Spring', 'Sandero Eco-G', 'Duster Eco-G', 'Bigster', 'Manifesto']
     },
     {
       name: 'MG',
-      models: ['MG3', 'MG5', 'MG ZS', 'MG GS', 'MG Hector', 'MG Gloster', 'MG Comet']
+      models: ['MG3', 'MG5', 'MG ZS', 'MG GS', 'MG Hector', 'MG Gloster', 'MG Comet', 'MG ZS EV', 'MG5 EV', 'MG4', 'MG7', 'MG6', 'MG GT', 'MG RX5', 'MG RX8', 'MG XPower', 'MG Cyberster', 'MG B', 'MG F', 'MG ZT', 'MG TF', 'MG 550', 'MG MGB', 'MG MGC']
     },
     {
       name: 'Mahindra',
