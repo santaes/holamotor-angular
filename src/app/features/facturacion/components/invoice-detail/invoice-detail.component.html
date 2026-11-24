@@ -112,7 +112,7 @@
       <p class="rebu-notice">EMPRESA ACOGIDA AL R.E.B.U (régimen de bienes usados) según artículo 135 de la ley 37/1992, de 28 de diciembre del impuesto sobre el valor añadido</p>
       <div class="payment-info">
         <p><strong>Forma de pago:</strong> {{ invoice.metodoPago || 'Efectivo' }}</p>
-        <p><strong>Número de cuenta:</strong> [Tu número de cuenta]</p>
+        <p *ngIf="invoice.metodoPago === 'Transferencia'"><strong>Número de cuenta:</strong> [Tu número de cuenta]</p>
         <p><strong>Contacto:</strong> C/Barranquet 3 bj 2, Villajoyosa, 03570</p>
         <p><strong>Teléfono:</strong> 865741988</p>
       </div>
