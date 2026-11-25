@@ -9,12 +9,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, combineLatest } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { t } from '../../../../core/i18n/i18n';
 import { VehicleService } from '../../services/vehicle.service';
+import { VehicleLookupService, VehicleLookupResult } from '../../services/vehicle-lookup.service';
 import { CarCatalogService } from '../../../../core/services/car-catalog.service';
 import { Customer } from '../../../cliente/models/customer.model';
 
@@ -32,6 +34,7 @@ import { Customer } from '../../../cliente/models/customer.model';
     MatIconModule,
     MatSelectModule,
     MatAutocompleteModule,
+    MatTooltipModule,
     TranslatePipe
   ],
   templateUrl: './vehicle-form.component.html',
@@ -49,6 +52,8 @@ export class VehicleFormComponent implements OnInit {
   carMakes: any[] = [];
   makeNames: string[] = [];
   years: number[] = [];
+  isLookingUpVin = false;
+  isLookingUpPlate = false;
 
   filteredMakes$!: Observable<string[]>;
   filteredModels$!: Observable<string[]>;
@@ -58,6 +63,7 @@ export class VehicleFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private vehicleService: VehicleService,
+    private vehicleLookup: VehicleLookupService,
     private carCatalog: CarCatalogService,
     private snackBar: MatSnackBar
   ) {
@@ -137,6 +143,84 @@ export class VehicleFormComponent implements OnInit {
   private filterOptions(options: string[], value: string | null): string[] {
     const v = (value || '').trim().toLowerCase();
     return v ? options.filter(o => o.toLowerCase().includes(v)) : options;
+  }
+
+  lookupVin(): void {
+    const vin = (this.form.get('vin')?.value || '').trim();
+    if (vin.replace(/[^a-zA-Z0-9]/g, '').length < 11) {
+      this.snackBar.open(t('Introduce un VIN válido (mínimo 11 caracteres)'), t('Cerrar'), { duration: 3500 });
+      return;
+    }
+    this.isLookingUpVin = true;
+    this.vehicleLookup.lookupByVin(vin).subscribe({
+      next: (result) => {
+        this.isLookingUpVin = false;
+        if (result.found && result.marca && result.modelo) {
+          this.applyLookupResult(result);
+          this.snackBar.open(t('Datos del vehículo cargados'), t('Cerrar'), { duration: 3000 });
+        } else {
+          this.snackBar.open(t('No se encontraron datos para ese VIN'), t('Cerrar'), { duration: 4000 });
+        }
+      },
+      error: () => {
+        this.isLookingUpVin = false;
+        this.snackBar.open(t('Error al consultar el VIN'), t('Cerrar'), { duration: 3000 });
+      }
+    });
+  }
+
+  lookupPlate(): void {
+    const plate = (this.form.get('placa')?.value || '').trim();
+    if (plate.replace(/[\s-]/g, '').length < 4) {
+      this.snackBar.open(t('Introduce una matrícula válida'), t('Cerrar'), { duration: 3000 });
+      return;
+    }
+    this.isLookingUpPlate = true;
+    this.vehicleLookup.lookupByPlate(plate).subscribe({
+      next: (result) => {
+        this.isLookingUpPlate = false;
+        if (result.found && result.marca && result.modelo) {
+          this.applyLookupResult(result);
+          const owner = result.localMatches?.[0]?.customerName;
+          this.snackBar.open(
+            owner ? t('Datos cargados — esta matrícula ya está registrada a nombre de') + ' ' + owner
+                  : t('Datos del vehículo cargados'),
+            t('Cerrar'),
+            { duration: 5000 }
+          );
+        } else {
+          this.snackBar.open(
+            result.localMatches?.length
+              ? t('Matrícula ya registrada en el taller')
+              : t('No se encontraron datos para esa matrícula'),
+            t('Cerrar'),
+            { duration: 4000 }
+          );
+        }
+      },
+      error: () => {
+        this.isLookingUpPlate = false;
+        this.snackBar.open(t('Error al consultar la matrícula'), t('Cerrar'), { duration: 3000 });
+      }
+    });
+  }
+
+  private applyLookupResult(result: VehicleLookupResult): void {
+    // Canonicalize against the catalog so autocomplete/display use official names
+    // (NHTSA returns e.g. "HONDA" while the catalog has "Honda").
+    const make = result.marca ? this.carCatalog.findMake(result.marca) : undefined;
+    const canonicalModel = make?.models.find(m =>
+      m.toLowerCase() === (result.modelo || '').toLowerCase()
+    );
+
+    // marca must be patched before modelo: changing marca resets modelo in setupCatalogFilters.
+    const patch: Record<string, unknown> = {};
+    if (result.marca) patch['marca'] = make?.name ?? result.marca;
+    if (result.modelo) patch['modelo'] = canonicalModel ?? result.modelo;
+    if (result.anio) patch['anio'] = result.anio;
+    if (result.color) patch['color'] = result.color;
+    if (result.vin) patch['vin'] = result.vin;
+    this.form.patchValue(patch);
   }
 
   loadVehicle(): void {

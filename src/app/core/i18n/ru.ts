@@ -652,5 +652,16 @@ export const ru: Record<string, string> = {
   "Ej: Toyota": "Напр.: Toyota",
   "Ej: Corolla": "Напр.: Corolla",
   "Ej: Blanco": "Напр.: Белый",
-  "Ej: 1234ABC": "Напр.: 1234ABC"
+  "Ej: 1234ABC": "Напр.: 1234ABC",
+  "Buscar por matrícula": "Поиск по номеру",
+  "Buscar por VIN": "Поиск по VIN",
+  "Introduce un VIN válido (mínimo 11 caracteres)": "Введите корректный VIN (минимум 11 символов)",
+  "Introduce una matrícula válida": "Введите корректный номер автомобиля",
+  "Datos del vehículo cargados": "Данные автомобиля загружены",
+  "Datos cargados — esta matrícula ya está registrada a nombre de": "Данные загружены — этот номер уже зарегистрирован на",
+  "No se encontraron datos para ese VIN": "По этому VIN данные не найдены",
+  "No se encontraron datos para esa matrícula": "По этому номеру данные не найдены",
+  "Matrícula ya registrada en el taller": "Номер уже зарегистрирован в мастерской",
+  "Error al consultar el VIN": "Ошибка при запросе VIN",
+  "Error al consultar la matrícula": "Ошибка при запросе номера"
 };

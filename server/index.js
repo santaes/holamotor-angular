@@ -275,6 +275,17 @@ async function handleApi(req, res, pathname) {
     return handleGoogleCalendarEvent(req, res, 'create');
   }
 
+  // Vehicle lookup by VIN / plate (external free databases + local data)
+  if (pathname.startsWith('/api/vehicle-lookup/vin/') && req.method === 'GET') {
+    const vin = pathname.slice('/api/vehicle-lookup/vin/'.length);
+    return handleVinLookup(req, res, vin);
+  }
+
+  if (pathname.startsWith('/api/vehicle-lookup/plate/') && req.method === 'GET') {
+    const plate = pathname.slice('/api/vehicle-lookup/plate/'.length);
+    return handlePlateLookup(req, res, plate);
+  }
+
   // Serve uploaded PDFs (GET/HEAD only; upload is POST and handled above)
   if (pathname.startsWith('/api/pdf/') && (req.method === 'GET' || req.method === 'HEAD')) {
     return serveStatic(req, res, pathname);
@@ -642,6 +653,162 @@ async function handleGoogleCalendarEvent(req, res, action) {
     console.error('Google Calendar event error:', err);
     return sendError(req, res, 500, 'internalError');
   }
+}
+
+// ---------- Vehicle Lookup ----------
+
+// Optional external plate-lookup provider (e.g. APIVehículo).
+// VEHICLE_PLATE_API_URL is a URL template where {plate} is replaced, e.g.
+//   https://api.apivehiculo.com/v1/vehicles/lookup?plate={plate}&country=ES
+// VEHICLE_PLATE_API_KEY is sent as "Authorization: Bearer <key>".
+const VEHICLE_PLATE_API_URL = process.env.VEHICLE_PLATE_API_URL || '';
+const VEHICLE_PLATE_API_KEY = process.env.VEHICLE_PLATE_API_KEY || '';
+
+async function fetchJson(url, headers = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { headers, signal: controller.signal });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function pickField(obj, ...keys) {
+  for (const key of keys) {
+    const value = obj?.[key];
+    if (value !== undefined && value !== null && String(value).trim() !== '') return value;
+  }
+  return undefined;
+}
+
+function toYear(value) {
+  const year = Number(value);
+  return Number.isFinite(year) && year >= 1900 && year <= new Date().getFullYear() + 2 ? year : null;
+}
+
+async function handleVinLookup(req, res, rawVin) {
+  const vin = String(rawVin || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  if (vin.length < 11 || vin.length > 17) {
+    return sendError(req, res, 400, 'invalidJson');
+  }
+
+  // Two free, key-less VIN decoders queried in parallel:
+  //  - db.vin: richer data (color, fuel, body type, version)
+  //  - NHTSA vPIC: authoritative US government decoder
+  const [dbvin, nhtsa] = await Promise.all([
+    fetchJson(`https://db.vin/api/v1/vin/${vin}`),
+    fetchJson(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${vin}?format=json`)
+  ]);
+
+  const nhtsaResult = nhtsa?.Results?.[0] || {};
+
+  // NHTSA vPIC is the authoritative decoder for make/model/year; db.vin fills
+  // gaps and adds color. db.vin is only a fallback because it is sometimes wrong.
+  const result = {
+    vin,
+    found: false,
+    marca: pickField(nhtsaResult, 'Make') || pickField(dbvin, 'brand'),
+    modelo: pickField(nhtsaResult, 'Model') || pickField(dbvin, 'model'),
+    version: pickField(nhtsaResult, 'Trim') || pickField(dbvin, 'version'),
+    anio: toYear(pickField(nhtsaResult, 'ModelYear') ?? pickField(dbvin, 'year')),
+    color: pickField(dbvin, 'color'),
+    combustible: pickField(nhtsaResult, 'FuelTypePrimary') || pickField(dbvin, 'fuelType'),
+    carroceria: pickField(nhtsaResult, 'BodyClass') || pickField(dbvin, 'bodyType'),
+    pais: pickField(dbvin, 'registrationCountry') || pickField(nhtsaResult, 'PlantCountry'),
+    fuente: []
+  };
+
+  if (pickField(dbvin, 'brand') || pickField(dbvin, 'model')) result.fuente.push('db.vin');
+  if (pickField(nhtsaResult, 'Make') || pickField(nhtsaResult, 'Model')) result.fuente.push('nhtsa');
+
+  result.found = !!(result.marca && result.modelo);
+  return send(res, 200, result);
+}
+
+function normalizePlateVehicle(raw, plate) {
+  // Accepts APIVehículo-style payloads ({ data: {...} } or flat) and generic
+  // shapes; every field falls back through common naming variants.
+  const data = raw?.data && typeof raw.data === 'object' ? raw.data : (raw || {});
+  const firstReg = pickField(data, 'firstRegistrationDate', 'first_registration', 'registrationDate');
+  const year = toYear(pickField(data, 'year', 'anio', 'año'))
+    || toYear(firstReg ? String(firstReg).slice(0, 4) : undefined);
+
+  return {
+    plate,
+    found: !!(pickField(data, 'brand', 'marca', 'make') && pickField(data, 'model', 'modelo')),
+    marca: pickField(data, 'brand', 'marca', 'make'),
+    modelo: pickField(data, 'model', 'modelo'),
+    version: pickField(data, 'version', 'trim', 'versionName'),
+    anio: year,
+    color: pickField(data, 'color', 'colour'),
+    vin: pickField(data, 'vin', 'bastidor', 'chasis', 'VIN'),
+    combustible: pickField(data, 'fuelType', 'combustible', 'fuel'),
+    carroceria: pickField(data, 'bodyType', 'carroceria', 'body'),
+    potencia: pickField(data, 'powerHP', 'powerKw', 'potencia'),
+    motor: pickField(data, 'engineCode', 'motorCode', 'engine'),
+    cilindrada: pickField(data, 'displacementCcm', 'cilindrada', 'displacement'),
+    cambio: pickField(data, 'gearboxType', 'transmission', 'cambio'),
+    pais: pickField(data, 'country', 'pais')
+  };
+}
+
+async function handlePlateLookup(req, res, rawPlate) {
+  const plate = String(rawPlate || '').replace(/[\s-]/g, '').toUpperCase();
+  if (!/^[A-Z0-9]{4,12}$/.test(plate)) {
+    return sendError(req, res, 400, 'invalidJson');
+  }
+
+  // 1) Local workshop data: the plate may already be registered to a customer.
+  const customers = await readKey('customers').catch(() => undefined);
+  const localMatches = [];
+  for (const customer of Array.isArray(customers) ? customers : []) {
+    for (const vehicle of customer.vehiculos || []) {
+      const localPlate = String(vehicle.placa || '').replace(/[\s-]/g, '').toUpperCase();
+      if (localPlate === plate) {
+        localMatches.push({
+          customerId: customer.id,
+          customerName: `${customer.nombre || ''} ${customer.apellido || ''}`.trim(),
+          vehicleId: vehicle.id,
+          marca: vehicle.marca,
+          modelo: vehicle.modelo,
+          anio: vehicle.anio,
+          color: vehicle.color,
+          vin: vehicle.vin,
+          kilometraje: vehicle.kilometraje
+        });
+      }
+    }
+  }
+
+  // 2) External registry lookup, only when a provider is configured via env.
+  if (VEHICLE_PLATE_API_URL) {
+    const url = VEHICLE_PLATE_API_URL.replace('{plate}', encodeURIComponent(plate));
+    const headers = VEHICLE_PLATE_API_KEY ? { Authorization: `Bearer ${VEHICLE_PLATE_API_KEY}` } : {};
+    const raw = await fetchJson(url, headers);
+    if (raw) {
+      const external = normalizePlateVehicle(raw, plate);
+      if (external.found) {
+        return send(res, 200, { ...external, source: 'external', localMatches });
+      }
+    }
+  }
+
+  return send(res, 200, {
+    plate,
+    found: localMatches.length > 0,
+    source: localMatches.length > 0 ? 'local' : null,
+    marca: localMatches[0]?.marca,
+    modelo: localMatches[0]?.modelo,
+    anio: localMatches[0]?.anio,
+    color: localMatches[0]?.color,
+    vin: localMatches[0]?.vin,
+    localMatches
+  });
 }
 
 async function serveStatic(req, res, pathname) {
