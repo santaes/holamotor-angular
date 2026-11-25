@@ -540,7 +540,13 @@ async function getGoogleTokens() {
   } catch {
     return null;
   }
-  const tokens = JSON.parse(raw);
+  let tokens;
+  try {
+    tokens = JSON.parse(raw);
+  } catch {
+    console.error('Google Calendar tokens file is corrupt, reconnect required');
+    return null;
+  }
 
   // Refresh token if expired (or within 60s of expiring)
   const isExpired = !tokens.expiry_date || Date.now() >= (tokens.expiry_date - 60000);
@@ -563,6 +569,9 @@ async function getGoogleTokens() {
       }
       Object.assign(tokens, newTokens);
       await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
+    } else {
+      const detail = await refreshResponse.text().catch(() => '');
+      console.error(`Google token refresh failed: ${refreshResponse.status} ${detail.slice(0, 300)}`);
     }
   }
 
@@ -586,7 +595,9 @@ async function handleGoogleCalendar(req, res, action) {
     });
 
     if (!calendarResponse.ok) {
-      return sendError(req, res, 500, 'internalError');
+      const detail = await calendarResponse.text().catch(() => '');
+      console.error(`Google Calendar API error: ${calendarResponse.status} ${detail.slice(0, 500)}`);
+      return send(res, calendarResponse.status, { error: 'googleCalendar', status: calendarResponse.status, detail: detail.slice(0, 300) });
     }
 
     const events = await calendarResponse.json();
