@@ -673,5 +673,7 @@ export const uk: Record<string, string> = {
   "Quitar propietario": "Прибрати власника",
   "¿Quitar el propietario de este vehículo?": "Прибрати власника цього автомобіля?",
   "Vehículo sin asignar": "Автомобіль без власника",
-  "Error al quitar el propietario": "Помилка видалення власника"
+  "Error al quitar el propietario": "Помилка видалення власника",
+  "Texto Original": "Оригінальний текст",
+  "Texto Traducido": "Перекладений текст"
 };

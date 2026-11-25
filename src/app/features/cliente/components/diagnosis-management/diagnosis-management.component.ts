@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -35,7 +36,8 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule, TranslatePipe, ReactiveFormsModule],
+    MatProgressBarModule,
+    MatTooltipModule, TranslatePipe, ReactiveFormsModule],
   templateUrl: './diagnosis-management.component.html',
   styleUrls: ['./diagnosis-management.component.css']
 })
@@ -54,6 +56,7 @@ export class DiagnosisManagementComponent implements OnInit {
   extractedText = '';
   translatedText = '';
   selectedTargetLang = 'en';
+  diagnosisToPrint: CarDiagnosis | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -298,6 +301,38 @@ export class DiagnosisManagementComponent implements OnInit {
         this.snackBar.open(t('Error al eliminar diagnóstico'), t('Cerrar'), { duration: 3000 });
       }
     });
+  }
+
+  printDiagnosis(diagnosis: CarDiagnosis): void {
+    this.diagnosisToPrint = diagnosis;
+    // Let Angular render the printable block before opening the print dialog
+    setTimeout(() => window.print(), 50);
+  }
+
+  printTranslation(): void {
+    if (!this.translatedText) return;
+    const formValue = this.diagnosisForm.value;
+    const customer = this.customers.find(c => c.id === +formValue.clienteId);
+    const vehicle = this.selectedVehicles.find(v => v.id === +formValue.vehiculoId);
+    this.diagnosisToPrint = {
+      fecha: new Date(),
+      titulo: formValue.titulo || 'Diagnóstico',
+      pdfFilename: '',
+      pdfUrl: '',
+      textoOriginal: this.extractedText,
+      textoTraducido: this.translatedText,
+      idiomaOriginal: 'auto',
+      idiomaTraduccion: formValue.idiomaTraduccion,
+      notas: formValue.notas,
+      clienteNombre: customer ? `${customer.nombre} ${customer.apellido || ''}`.trim() : undefined,
+      vehiculoInfo: vehicle ? `${vehicle.marca} ${vehicle.modelo} (${vehicle.anio})` : undefined
+    };
+    setTimeout(() => window.print(), 50);
+  }
+
+  @HostListener('window:afterprint')
+  onAfterPrint(): void {
+    this.diagnosisToPrint = null;
   }
 
   viewDiagnosis(diagnosis: CarDiagnosis): void {

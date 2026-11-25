@@ -672,5 +672,7 @@ export const ru: Record<string, string> = {
   "Quitar propietario": "Убрать владельца",
   "¿Quitar el propietario de este vehículo?": "Убрать владельца этого автомобиля?",
   "Vehículo sin asignar": "Автомобиль без владельца",
-  "Error al quitar el propietario": "Ошибка удаления владельца"
+  "Error al quitar el propietario": "Ошибка удаления владельца",
+  "Texto Original": "Оригинальный текст",
+  "Texto Traducido": "Переведённый текст"
 };

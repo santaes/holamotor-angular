@@ -94,3 +94,81 @@
   line-height: 1.6;
   white-space: pre-wrap;
 }
+
+/* ---------- Printable diagnosis ---------- */
+.printable-diagnosis {
+  display: none;
+}
+
+.print-header {
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #333;
+}
+
+.print-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #111;
+}
+
+.print-meta {
+  font-size: 12px;
+  color: #444;
+}
+
+.print-section {
+  margin-bottom: 28px;
+}
+
+.print-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin: 0 0 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ccc;
+}
+
+.print-lang {
+  font-weight: 400;
+  color: #666;
+}
+
+.print-text {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #222;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+@media print {
+  .diagnosis-management-container {
+    padding: 0;
+  }
+
+  .header-section,
+  .content-grid {
+    display: none !important;
+  }
+
+  .printable-diagnosis {
+    display: block !important;
+  }
+
+  .print-section {
+    page-break-inside: auto;
+  }
+
+  .print-section-title {
+    page-break-after: avoid;
+  }
+
+  .print-text {
+    page-break-inside: auto;
+  }
+}

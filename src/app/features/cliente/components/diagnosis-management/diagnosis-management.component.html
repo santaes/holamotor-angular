@@ -67,6 +67,10 @@
               <mat-icon>translate</mat-icon>
               {{ 'Traducir' | t }}
             </button>
+            <button mat-stroked-button *ngIf="translatedText" (click)="printTranslation()">
+              <mat-icon>print</mat-icon>
+              {{ 'Imprimir' | t }}
+            </button>
           </div>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -103,6 +107,9 @@
             <div class="diagnosis-header">
               <h3>{{ diagnosis.titulo }}</h3>
               <div class="diagnosis-actions">
+                <button mat-icon-button (click)="printDiagnosis(diagnosis)" [matTooltip]="'Imprimir' | t">
+                  <mat-icon>print</mat-icon>
+                </button>
                 <button mat-icon-button (click)="viewDiagnosis(diagnosis)">
                   <mat-icon>visibility</mat-icon>
                 </button>
@@ -129,5 +136,35 @@
         </div>
       </mat-card-content>
     </mat-card>
+  </div>
+
+  <!-- Printable diagnosis document (visible only when printing) -->
+  <div class="printable-diagnosis" *ngIf="diagnosisToPrint">
+    <div class="print-header">
+      <h1 class="print-title">{{ diagnosisToPrint.titulo }}</h1>
+      <div class="print-meta">
+        <span>{{ 'Fecha' | t }}: {{ diagnosisToPrint.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+        <span *ngIf="diagnosisToPrint.clienteNombre"> &nbsp;·&nbsp; {{ diagnosisToPrint.clienteNombre }}</span>
+        <span *ngIf="diagnosisToPrint.vehiculoInfo"> &nbsp;·&nbsp; {{ diagnosisToPrint.vehiculoInfo }}</span>
+      </div>
+    </div>
+
+    <section class="print-section" *ngIf="diagnosisToPrint.textoOriginal">
+      <h2 class="print-section-title">{{ 'Texto Original' | t }}</h2>
+      <div class="print-text">{{ diagnosisToPrint.textoOriginal }}</div>
+    </section>
+
+    <section class="print-section" *ngIf="diagnosisToPrint.textoTraducido">
+      <h2 class="print-section-title">
+        {{ 'Texto Traducido' | t }}
+        <span class="print-lang" *ngIf="diagnosisToPrint.idiomaTraduccion">({{ diagnosisToPrint.idiomaTraduccion | uppercase }})</span>
+      </h2>
+      <div class="print-text">{{ diagnosisToPrint.textoTraducido }}</div>
+    </section>
+
+    <section class="print-section" *ngIf="diagnosisToPrint.notas">
+      <h2 class="print-section-title">{{ 'Notas' | t }}</h2>
+      <div class="print-text">{{ diagnosisToPrint.notas }}</div>
+    </section>
   </div>
 </div>
