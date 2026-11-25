@@ -1,0 +1,179 @@
+<div class="vehicle-detail-container" *ngIf="!isLoading; else loading">
+  <div class="detail-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>{{ 'Ficha del Vehículo' | t }}</h1>
+    <div class="header-actions">
+      <button mat-raised-button color="accent" [routerLink]="['/vehiculos', customerId, vehicleId, 'edit']">
+        <mat-icon>edit</mat-icon>
+        {{ 'Editar' | t }}
+      </button>
+      <button mat-raised-button color="primary" [routerLink]="['/ordenes/new']" [queryParams]="{ clienteId: customerId, vehiculoId: vehicleId }">
+        <mat-icon>add_task</mat-icon>
+        {{ 'Nueva Orden' | t }}
+      </button>
+    </div>
+  </div>
+
+  <div class="vehicle-info-grid" *ngIf="vehicle">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>directions_car</mat-icon>
+        <mat-card-title>{{ vehicle.marca }} {{ vehicle.modelo }} ({{ vehicle.anio }})</mat-card-title>
+        <mat-card-subtitle>
+          <span class="plate-badge">{{ vehicle.placa }}</span>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">{{ 'Color' | t }}:</span>
+          <span>{{ vehicle.color || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'VIN / Bastidor' | t }}:</span>
+          <span>{{ vehicle.vin || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'Kilometraje' | t }}:</span>
+          <span>{{ vehicle.kilometraje | number }} km</span>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="info-row">
+          <span class="label">{{ 'Propietario' | t }}:</span>
+          <a [routerLink]="['/clientes', vehicle.clienteId]" class="owner-link">{{ vehicle.customerName }}</a>
+        </div>
+        <div class="info-row" *ngIf="vehicle.customerPhone">
+          <span class="label">{{ 'Teléfono' | t }}:</span>
+          <span>{{ vehicle.customerPhone }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'Resumen' | t }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-item">
+          <span class="stat-value">{{ procedures.length }}</span>
+          <span class="stat-label">{{ 'Reparaciones realizadas' | t }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ totalSpent | money }}</span>
+          <span class="stat-label">{{ 'Total invertido' | t }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="history-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>history</mat-icon>
+        {{ 'Historial de Reparaciones' | t }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="empty-history" *ngIf="procedures.length === 0">
+        <mat-icon>build_circle</mat-icon>
+        <p>{{ 'No hay reparaciones registradas para este vehículo' | t }}</p>
+      </div>
+
+      <mat-accordion *ngIf="procedures.length > 0">
+        <mat-expansion-panel *ngFor="let proc of procedures" class="procedure-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span class="order-number">#{{ proc.order.numeroOrden }}</span>
+              <span class="order-date">{{ formatDate(proc.order.fechaIngreso) }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              <mat-chip [style.background]="getEstadoColor(proc.order.estado)" class="estado-chip">
+                {{ proc.order.estado | t }}
+              </mat-chip>
+              <span class="order-total">{{ proc.total | money }}</span>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="procedure-details">
+            <div class="procedure-section">
+              <h4>{{ 'Problema Reportado' | t }}</h4>
+              <p>{{ proc.order.descripcionProblema }}</p>
+            </div>
+
+            <div class="procedure-section" *ngIf="proc.order.trabajoRealizado">
+              <h4>{{ 'Trabajo Realizado' | t }}</h4>
+              <p>{{ proc.order.trabajoRealizado }}</p>
+            </div>
+
+            <div class="procedure-section" *ngIf="proc.order.diagnostico">
+              <h4>{{ 'Diagnóstico' | t }}</h4>
+              <p>{{ proc.order.diagnostico }}</p>
+            </div>
+
+            <div class="procedure-section" *ngIf="proc.parts.length > 0">
+              <h4>{{ 'Piezas Utilizadas' | t }}</h4>
+              <table class="parts-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'Pieza' | t }}</th>
+                    <th>{{ 'Cantidad' | t }}</th>
+                    <th>{{ 'Precio Unit.' | t }}</th>
+                    <th>{{ 'Subtotal' | t }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let part of proc.parts">
+                    <td>{{ part.nombre }}</td>
+                    <td>{{ part.cantidad }}</td>
+                    <td>{{ part.precioUnitario | money }}</td>
+                    <td>{{ part.subtotal | money }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="procedure-section" *ngIf="proc.labor.length > 0">
+              <h4>{{ 'Mano de Obra' | t }}</h4>
+              <table class="parts-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'Descripción' | t }}</th>
+                    <th>{{ 'Horas' | t }}</th>
+                    <th>{{ 'Subtotal' | t }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let l of proc.labor">
+                    <td>{{ l.descripcion }}</td>
+                    <td>{{ l.horas }}</td>
+                    <td>{{ l.subtotal | money }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="procedure-section" *ngIf="proc.order.observaciones">
+              <h4>{{ 'Observaciones' | t }}</h4>
+              <p>{{ proc.order.observaciones }}</p>
+            </div>
+
+            <div class="procedure-footer">
+              <span class="total-label">{{ 'Total' | t }}:</span>
+              <span class="total-value">{{ proc.total | money }}</span>
+              <a mat-button [routerLink]="['/ordenes', proc.order.id]" color="primary">
+                {{ 'Ver Orden' | t }}
+              </a>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<ng-template #loading>
+  <div class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+</ng-template>

@@ -1,0 +1,79 @@
+<div class="vehicle-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ pageTitle | t }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Propietario' | t }}</mat-label>
+            <mat-select formControlName="clienteId">
+              <mat-option *ngFor="let c of customers" [value]="c.id">
+                {{ c.nombre }} {{ c.apellido || '' }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('clienteId')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Matrícula' | t }}</mat-label>
+            <input matInput formControlName="placa" [placeholder]="'Ej: 1234ABC'">
+            <mat-error *ngIf="form.get('placa')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Marca' | t }}</mat-label>
+            <input matInput formControlName="marca" [matAutocomplete]="marcaAuto" [placeholder]="'Ej: Toyota'">
+            <mat-autocomplete #marcaAuto="matAutocomplete">
+              <mat-option *ngFor="let m of filteredMakes$ | async" [value]="m">{{ m }}</mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="form.get('marca')?.invalid">{{ getErrorMessage('marca') | t }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Modelo' | t }}</mat-label>
+            <input matInput formControlName="modelo" [matAutocomplete]="modeloAuto" [placeholder]="'Ej: Corolla'">
+            <mat-autocomplete #modeloAuto="matAutocomplete">
+              <mat-option *ngFor="let m of filteredModels$ | async" [value]="m">{{ m }}</mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="form.get('modelo')?.invalid">{{ getErrorMessage('modelo') | t }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Año' | t }}</mat-label>
+            <mat-select formControlName="anio">
+              <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('anio')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Color' | t }}</mat-label>
+            <input matInput formControlName="color" [placeholder]="'Ej: Blanco'">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'VIN / Bastidor' | t }}</mat-label>
+            <input matInput formControlName="vin" [placeholder]="'Número de chasis'">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Kilometraje' | t }}</mat-label>
+            <input matInput type="number" formControlName="kilometraje" min="0">
+            <mat-error *ngIf="form.get('kilometraje')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading">
+            <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+            {{ (isEditMode ? 'Guardar Cambios' : 'Añadir Vehículo') | t }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

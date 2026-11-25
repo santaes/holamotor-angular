@@ -47,6 +47,7 @@ export class AppComponent implements OnDestroy {
   menuItems: MenuItem[] = [
     { icon: 'space_dashboard', label: 'Dashboard', route: '/dashboard' },
     { icon: 'groups', label: 'Clientes', route: '/clientes' },
+    { icon: 'directions_car', label: 'Vehículos', route: '/vehiculos' },
     { icon: 'build_circle', label: 'Órdenes de Reparación', route: '/ordenes' },
     { icon: 'inventory_2', label: 'Inventario', route: '/inventario' },
     { icon: 'receipt_long', label: 'Facturación', route: '/facturacion' },

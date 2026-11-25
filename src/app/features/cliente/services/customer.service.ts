@@ -54,10 +54,10 @@ export class CustomerService {
 
   createCustomer(customer: Customer): Observable<Customer> {
     // Input validation
-    if (!customer.nombre || !customer.apellido || !customer.email || !customer.telefono) {
-      return throwError(() => new Error('Nombre, apellido, email y teléfono son requeridos'));
+    if (!customer.nombre || !customer.telefono) {
+      return throwError(() => new Error('Nombre y teléfono son requeridos'));
     }
-    if (!this.isValidEmail(customer.email)) {
+    if (customer.email && !this.isValidEmail(customer.email)) {
       return throwError(() => new Error('Email inválido'));
     }
     if (!this.isValidPhone(customer.telefono)) {
@@ -84,10 +84,10 @@ export class CustomerService {
 
   updateCustomer(id: number, customer: Customer, expectedVersion?: number): Observable<Customer> {
     // Input validation
-    if (!customer.nombre || !customer.apellido || !customer.email || !customer.telefono) {
-      return throwError(() => new Error('Nombre, apellido, email y teléfono son requeridos'));
+    if (!customer.nombre || !customer.telefono) {
+      return throwError(() => new Error('Nombre y teléfono son requeridos'));
     }
-    if (!this.isValidEmail(customer.email)) {
+    if (customer.email && !this.isValidEmail(customer.email)) {
       return throwError(() => new Error('Email inválido'));
     }
     if (!this.isValidPhone(customer.telefono)) {
@@ -193,6 +193,35 @@ export class CustomerService {
           this.saveCustomers(customers);
           return of(void 0);
         }
+      }
+    }
+    throw new Error('Vehicle not found');
+  }
+
+  // Customer-scoped vehicle operations (vehicle ids are unique only per customer)
+  updateCustomerVehicle(customerId: number, vehicleId: number, vehicle: Vehicle): Observable<Vehicle> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    if (customer?.vehiculos) {
+      const index = customer.vehiculos.findIndex(v => v.id === vehicleId);
+      if (index !== -1) {
+        customer.vehiculos[index] = { ...vehicle, id: vehicleId, clienteId: customerId };
+        this.saveCustomers(customers);
+        return of(customer.vehiculos[index]);
+      }
+    }
+    throw new Error('Vehicle not found');
+  }
+
+  deleteCustomerVehicle(customerId: number, vehicleId: number): Observable<void> {
+    const customers = this.customers$.value;
+    const customer = customers.find(c => c.id === customerId);
+    if (customer?.vehiculos) {
+      const index = customer.vehiculos.findIndex(v => v.id === vehicleId);
+      if (index !== -1) {
+        customer.vehiculos.splice(index, 1);
+        this.saveCustomers(customers);
+        return of(void 0);
       }
     }
     throw new Error('Vehicle not found');

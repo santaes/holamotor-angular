@@ -1,0 +1,226 @@
+.vehicle-detail-container {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-header h1 {
+  flex: 1;
+  margin: 0;
+  font-size: 24px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.vehicle-info-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .vehicle-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-card mat-card-header {
+  margin-bottom: 16px;
+}
+
+.plate-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+}
+
+.owner-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.owner-link:hover {
+  text-decoration: underline;
+}
+
+.stats-card {
+  height: fit-content;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.stat-label {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.history-card mat-card-header {
+  margin-bottom: 16px;
+}
+
+.history-card mat-card-header mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.empty-history {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.empty-history mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+.procedure-panel {
+  margin-bottom: 8px;
+}
+
+.procedure-panel mat-expansion-panel-header {
+  height: auto;
+  padding: 12px 16px;
+}
+
+.order-number {
+  font-weight: 600;
+  margin-right: 16px;
+}
+
+.order-date {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+}
+
+.order-total {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.estado-chip {
+  color: white !important;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.procedure-details {
+  padding: 16px;
+}
+
+.procedure-section {
+  margin-bottom: 20px;
+}
+
+.procedure-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.procedure-section p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.parts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.parts-table th {
+  text-align: left;
+  padding: 8px;
+  background: #f5f5f5;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.parts-table td {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.parts-table tr:last-child td {
+  border-bottom: none;
+}
+
+.procedure-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 20px;
+}
+
+.total-label {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.total-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
