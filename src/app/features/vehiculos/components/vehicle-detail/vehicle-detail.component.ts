@@ -8,12 +8,15 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { MoneyPipe } from '../../../../core/pipes/money.pipe';
 import { t } from '../../../../core/i18n/i18n';
 import { VehicleService } from '../../services/vehicle.service';
 import { VehicleWithOwner, VehicleProcedure } from '../../models/vehicle.model';
 import { RepairOrder } from '../../../orden-reparacion/models/order.model';
+import { AssignVehicleDialogComponent } from '../assign-vehicle-dialog/assign-vehicle-dialog.component';
 
 @Component({
   selector: 'app-vehicle-detail',
@@ -44,7 +47,9 @@ export class VehicleDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private vehicleService: VehicleService
+    private vehicleService: VehicleService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -89,6 +94,46 @@ export class VehicleDetailComponent implements OnInit {
       'Cancelado': '#ef4444'
     };
     return colors[estado] || '#6b7280';
+  }
+
+  openAssignDialog(): void {
+    if (!this.vehicle?.id) return;
+    this.dialog
+      .open(AssignVehicleDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        data: {
+          vehicleId: this.vehicle.id,
+          vehicleLabel: `${this.vehicle.marca} ${this.vehicle.modelo} ${this.vehicle.anio}`
+        }
+      })
+      .afterClosed()
+      .subscribe(customerId => {
+        if (!customerId) return;
+        this.vehicleService.assignVehicle(this.vehicleId, customerId).subscribe({
+          next: (created) => {
+            this.snackBar.open(t('Vehículo asignado'), t('Cerrar'), { duration: 3000 });
+            this.router.navigate(['/vehiculos', customerId, created.id ?? this.vehicleId]);
+          },
+          error: () => {
+            this.snackBar.open(t('Error al asignar vehículo'), t('Cerrar'), { duration: 3000 });
+          }
+        });
+      });
+  }
+
+  unassignVehicle(): void {
+    if (!this.vehicle?.clienteId || this.procedures.length > 0) return;
+    if (!confirm(t('¿Quitar el propietario de este vehículo?'))) return;
+    this.vehicleService.unassignVehicle(this.customerId, this.vehicleId).subscribe({
+      next: (moved) => {
+        this.snackBar.open(t('Vehículo sin asignar'), t('Cerrar'), { duration: 3000 });
+        this.router.navigate(['/vehiculos', 0, moved.id ?? this.vehicleId]);
+      },
+      error: () => {
+        this.snackBar.open(t('Error al quitar el propietario'), t('Cerrar'), { duration: 3000 });
+      }
+    });
   }
 
   goBack(): void {

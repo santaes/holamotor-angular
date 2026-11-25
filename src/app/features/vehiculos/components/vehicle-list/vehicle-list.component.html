@@ -43,7 +43,10 @@
         <ng-container matColumnDef="propietario">
           <th mat-header-cell *matHeaderCellDef>{{ 'Propietario' | t }}</th>
           <td mat-cell *matCellDef="let v">
-            <a class="owner-link" [routerLink]="['/clientes', v.clienteId]">{{ v.customerName }}</a>
+            <a *ngIf="v.clienteId" class="owner-link" [routerLink]="['/clientes', v.clienteId]">{{ v.customerName }}</a>
+            <span *ngIf="!v.clienteId" class="unassigned-owner">
+              <mat-icon>person_off</mat-icon> {{ 'Sin asignar' | t }}
+            </span>
           </td>
         </ng-container>
 
@@ -63,6 +66,9 @@
           <th mat-header-cell *matHeaderCellDef>{{ 'Acciones' | t }}</th>
           <td mat-cell *matCellDef="let v">
             <div class="action-buttons">
+              <button mat-icon-button *ngIf="!v.clienteId" (click)="openAssignDialog(v)" [matTooltip]="'Asignar cliente' | t" color="primary">
+                <mat-icon>person_add</mat-icon>
+              </button>
               <button mat-icon-button [routerLink]="['/vehiculos', v.clienteId, v.id]" [matTooltip]="'Ver historial' | t" color="primary">
                 <mat-icon>history</mat-icon>
               </button>

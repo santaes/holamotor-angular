@@ -11,11 +11,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
 import { t } from '../../../../core/i18n/i18n';
 import { VehicleService } from '../../services/vehicle.service';
 import { VehicleWithOwner } from '../../models/vehicle.model';
+import { AssignVehicleDialogComponent } from '../assign-vehicle-dialog/assign-vehicle-dialog.component';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -47,7 +49,8 @@ export class VehicleListComponent implements OnInit {
 
   constructor(
     private vehicleService: VehicleService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +86,28 @@ export class VehicleListComponent implements OnInit {
 
   vehicleLabel(v: VehicleWithOwner): string {
     return `${v.marca} ${v.modelo} ${v.anio}`;
+  }
+
+  openAssignDialog(vehicle: VehicleWithOwner): void {
+    this.dialog
+      .open(AssignVehicleDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        data: { vehicleId: vehicle.id, vehicleLabel: this.vehicleLabel(vehicle) }
+      })
+      .afterClosed()
+      .subscribe(customerId => {
+        if (!customerId || !vehicle.id) return;
+        this.vehicleService.assignVehicle(vehicle.id, customerId).subscribe({
+          next: () => {
+            this.snackBar.open(t('Vehículo asignado'), t('Cerrar'), { duration: 3000 });
+            this.loadVehicles();
+          },
+          error: () => {
+            this.snackBar.open(t('Error al asignar vehículo'), t('Cerrar'), { duration: 3000 });
+          }
+        });
+      });
   }
 
   confirmDelete(vehicle: VehicleWithOwner): void {

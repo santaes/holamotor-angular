@@ -18,7 +18,7 @@ import { t } from '../../../../core/i18n/i18n';
 import { VehicleService } from '../../services/vehicle.service';
 import { VehicleLookupService, VehicleLookupResult } from '../../services/vehicle-lookup.service';
 import { CarCatalogService } from '../../../../core/services/car-catalog.service';
-import { Customer } from '../../../cliente/models/customer.model';
+import { Customer, Vehicle } from '../../../cliente/models/customer.model';
 
 @Component({
   selector: 'app-vehicle-form',
@@ -96,7 +96,8 @@ export class VehicleFormComponent implements OnInit {
 
   createForm(): FormGroup {
     return this.fb.group({
-      clienteId: [null, [Validators.required]],
+      // 0 = "Sin asignar": vehicles may be created before a customer is known
+      clienteId: [0],
       marca: ['', [Validators.required, Validators.minLength(2)]],
       modelo: ['', [Validators.required, Validators.minLength(2)]],
       anio: [null as number | null, [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]],
@@ -237,7 +238,11 @@ export class VehicleFormComponent implements OnInit {
           color: vehicle.color || '',
           kilometraje: vehicle.kilometraje || 0
         });
-        this.form.get('clienteId')?.disable();
+        // Owner stays editable only while the vehicle has no owner yet —
+        // picking one here assigns the vehicle to that customer.
+        if (this.customerId) {
+          this.form.get('clienteId')?.disable();
+        }
       },
       error: () => {
         this.snackBar.open(t('Error al cargar vehículo'), t('Cerrar'), { duration: 3000 });
@@ -267,14 +272,18 @@ export class VehicleFormComponent implements OnInit {
       vin: v.vin?.trim() || '',
       color: v.color?.trim() || '',
       kilometraje: Number(v.kilometraje),
-      clienteId: Number(v.clienteId)
+      clienteId: Number(v.clienteId) || 0
     };
 
-    const targetCustomerId = this.isEditMode ? this.customerId! : Number(v.clienteId);
-
-    const request = this.isEditMode
-      ? this.vehicleService.updateVehicle(this.customerId!, this.vehicleId!, vehicle)
-      : this.vehicleService.addVehicle(targetCustomerId, vehicle);
+    let request: Observable<Vehicle>;
+    if (this.isEditMode && !this.customerId && vehicle.clienteId > 0) {
+      // Unassigned vehicle being given an owner: move it into that customer's garage
+      request = this.vehicleService.assignVehicle(this.vehicleId!, vehicle.clienteId, vehicle);
+    } else if (this.isEditMode) {
+      request = this.vehicleService.updateVehicle(this.customerId!, this.vehicleId!, vehicle);
+    } else {
+      request = this.vehicleService.addVehicle(Number(v.clienteId) || null, vehicle);
+    }
 
     request.subscribe({
       next: () => {

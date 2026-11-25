@@ -663,5 +663,14 @@ export const ru: Record<string, string> = {
   "No se encontraron datos para esa matrícula": "По этому номеру данные не найдены",
   "Matrícula ya registrada en el taller": "Номер уже зарегистрирован в мастерской",
   "Error al consultar el VIN": "Ошибка при запросе VIN",
-  "Error al consultar la matrícula": "Ошибка при запросе номера"
+  "Error al consultar la matrícula": "Ошибка при запросе номера",
+  "Sin asignar": "Без владельца",
+  "Asignar cliente": "Назначить клиента",
+  "Asignar": "Назначить",
+  "Vehículo asignado": "Автомобиль назначен",
+  "Error al asignar vehículo": "Ошибка назначения автомобиля",
+  "Quitar propietario": "Убрать владельца",
+  "¿Quitar el propietario de este vehículo?": "Убрать владельца этого автомобиля?",
+  "Vehículo sin asignar": "Автомобиль без владельца",
+  "Error al quitar el propietario": "Ошибка удаления владельца"
 };

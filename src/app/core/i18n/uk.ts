@@ -664,5 +664,14 @@ export const uk: Record<string, string> = {
   "No se encontraron datos para esa matrícula": "За цим номером дані не знайдено",
   "Matrícula ya registrada en el taller": "Номер вже зареєстровано в майстерні",
   "Error al consultar el VIN": "Помилка запиту VIN",
-  "Error al consultar la matrícula": "Помилка запиту номера"
+  "Error al consultar la matrícula": "Помилка запиту номера",
+  "Sin asignar": "Без власника",
+  "Asignar cliente": "Призначити клієнта",
+  "Asignar": "Призначити",
+  "Vehículo asignado": "Автомобіль призначено",
+  "Error al asignar vehículo": "Помилка призначення автомобіля",
+  "Quitar propietario": "Прибрати власника",
+  "¿Quitar el propietario de este vehículo?": "Прибрати власника цього автомобіля?",
+  "Vehículo sin asignar": "Автомобіль без власника",
+  "Error al quitar el propietario": "Помилка видалення власника"
 };

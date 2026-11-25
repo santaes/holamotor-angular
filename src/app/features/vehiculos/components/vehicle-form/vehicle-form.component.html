@@ -10,11 +10,11 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'Propietario' | t }}</mat-label>
             <mat-select formControlName="clienteId">
+              <mat-option [value]="0">{{ 'Sin asignar' | t }}</mat-option>
               <mat-option *ngFor="let c of customers" [value]="c.id">
                 {{ c.nombre }} {{ c.apellido || '' }}
               </mat-option>
             </mat-select>
-            <mat-error *ngIf="form.get('clienteId')?.hasError('required')">{{ 'Este campo es requerido' | t }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">

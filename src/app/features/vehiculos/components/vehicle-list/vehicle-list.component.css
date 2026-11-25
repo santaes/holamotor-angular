@@ -67,6 +67,20 @@
   text-decoration: underline;
 }
 
+.unassigned-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(0, 0, 0, 0.5);
+  font-style: italic;
+}
+
+.unassigned-owner mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 .order-chip {
   background: #fef3c7 !important;
   color: #92400e !important;

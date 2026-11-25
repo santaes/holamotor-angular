@@ -5,11 +5,19 @@
     </button>
     <h1>{{ 'Ficha del Vehículo' | t }}</h1>
     <div class="header-actions">
+      <button mat-raised-button *ngIf="vehicle && !vehicle.clienteId" color="primary" (click)="openAssignDialog()">
+        <mat-icon>person_add</mat-icon>
+        {{ 'Asignar cliente' | t }}
+      </button>
+      <button mat-raised-button *ngIf="vehicle?.clienteId && procedures.length === 0" color="warn" (click)="unassignVehicle()">
+        <mat-icon>person_off</mat-icon>
+        {{ 'Quitar propietario' | t }}
+      </button>
       <button mat-raised-button color="accent" [routerLink]="['/vehiculos', customerId, vehicleId, 'edit']">
         <mat-icon>edit</mat-icon>
         {{ 'Editar' | t }}
       </button>
-      <button mat-raised-button color="primary" [routerLink]="['/ordenes/new']" [queryParams]="{ clienteId: customerId, vehiculoId: vehicleId }">
+      <button mat-raised-button *ngIf="vehicle?.clienteId" color="primary" [routerLink]="['/ordenes/new']" [queryParams]="{ clienteId: customerId, vehiculoId: vehicleId }">
         <mat-icon>add_task</mat-icon>
         {{ 'Nueva Orden' | t }}
       </button>
@@ -41,9 +49,12 @@
         <mat-divider></mat-divider>
         <div class="info-row">
           <span class="label">{{ 'Propietario' | t }}:</span>
-          <a [routerLink]="['/clientes', vehicle.clienteId]" class="owner-link">{{ vehicle.customerName }}</a>
+          <a *ngIf="vehicle.clienteId" [routerLink]="['/clientes', vehicle.clienteId]" class="owner-link">{{ vehicle.customerName }}</a>
+          <span *ngIf="!vehicle.clienteId" class="unassigned-owner">
+            <mat-icon>person_off</mat-icon> {{ 'Sin asignar' | t }}
+          </span>
         </div>
-        <div class="info-row" *ngIf="vehicle.customerPhone">
+        <div class="info-row" *ngIf="vehicle.clienteId && vehicle.customerPhone">
           <span class="label">{{ 'Teléfono' | t }}:</span>
           <span>{{ vehicle.customerPhone }}</span>
         </div>
