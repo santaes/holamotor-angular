@@ -122,8 +122,10 @@ export class CustomerDetailComponent implements OnInit {
       if (vehicle && this.customer?.id) {
         vehicle.clienteId = this.customer.id;
         this.customerService.addVehicle(this.customer.id, vehicle).subscribe({
-          next: (newVehicle) => {
-            this.vehicles.push(newVehicle);
+          next: () => {
+            // getCustomerVehicles returns the live array — the service push already
+            // updated it, so re-fetch instead of pushing a second copy.
+            this.loadCustomerData(this.customer!.id);
             this.snackBar.open(t('Vehículo agregado exitosamente'), t('Cerrar'), { duration: 3000 });
           },
           error: (error) => {
@@ -145,8 +147,8 @@ export class CustomerDetailComponent implements OnInit {
       if (communication && this.customer?.id) {
         communication.clienteId = this.customer.id;
         this.customerService.addCommunication(this.customer.id, communication).subscribe({
-          next: (newCommunication) => {
-            this.communications.push(newCommunication);
+          next: () => {
+            this.loadCustomerData(this.customer!.id);
             this.snackBar.open(t('Comunicación agregada exitosamente'), t('Cerrar'), { duration: 3000 });
           },
           error: (error) => {
@@ -194,8 +196,8 @@ export class CustomerDetailComponent implements OnInit {
         tipo: 'PDF'
       };
       this.customerService.addDocument(this.customer.id, document).subscribe({
-        next: (newDocument) => {
-          this.documents.push(newDocument);
+        next: () => {
+          this.loadCustomerData(this.customer!.id);
           this.snackBar.open(t('Documento agregado exitosamente'), t('Cerrar'), { duration: 3000 });
         },
         error: (error) => {
