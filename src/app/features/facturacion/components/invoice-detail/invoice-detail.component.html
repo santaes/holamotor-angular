@@ -190,6 +190,12 @@
     <mat-tab-group [(selectedIndex)]="selectedTab" class="tabs-section">
       <mat-tab [label]="'Items' | t">
         <div class="tab-content">
+          <div class="payment-actions" *ngIf="invoice && invoice.estado !== 'Cancelada'">
+            <button mat-raised-button color="primary" type="button" (click)="addItem()">
+              <mat-icon>add</mat-icon>
+              {{ 'Agregar Posición' | t }}
+            </button>
+          </div>
           <mat-card *ngIf="invoice?.items && invoice.items.length > 0; else noItems">
             <table mat-table [dataSource]="invoice.items" class="items-table">
               <ng-container matColumnDef="descripcion">
@@ -212,8 +218,17 @@
                 <td mat-cell *matCellDef="let item">{{ (item.subtotal || (item.cantidad * item.precioUnitario) || 0) | money }}</td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['descripcion', 'cantidad', 'precioUnitario', 'subtotal']"></tr>
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let item; let i = index">
+                  <button mat-icon-button color="warn" (click)="removeItem(i)" *ngIf="invoice?.estado !== 'Cancelada'">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['descripcion', 'cantidad', 'precioUnitario', 'subtotal', 'acciones']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['descripcion', 'cantidad', 'precioUnitario', 'subtotal', 'acciones']"></tr>
             </table>
           </mat-card>
           <ng-template #noItems>
