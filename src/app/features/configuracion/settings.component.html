@@ -86,15 +86,15 @@
           <mat-label>API Key</mat-label>
           <input matInput formControlName="verifactuApiKey" type="password">
           <mat-icon matPrefix>vpn_key</mat-icon>
-          <mat-hint>API key para el servicio VeriFactu de la AEAT</mat-hint>
+          <mat-hint>{{ 'API key para el servicio VeriFactu de la AEAT' | t }}</mat-hint>
         </mat-form-field>
         <div class="toggles">
           <mat-slide-toggle formControlName="verifactuSandbox" color="primary">
-            Modo Sandbox (pruebas)
+            {{ 'Modo Sandbox (pruebas)' | t }}
           </mat-slide-toggle>
         </div>
         <mat-hint class="full-width">
-          Documentación disponible en <a href="#" (click)="openVerifactuDocs()">docs/VERIFACTU.md</a>
+          {{ 'Documentación disponible en' | t }} <a href="#" (click)="openVerifactuDocs()">docs/VERIFACTU.md</a>
         </mat-hint>
       </mat-card-content>
     </mat-card>

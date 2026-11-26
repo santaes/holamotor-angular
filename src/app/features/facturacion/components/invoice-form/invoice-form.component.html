@@ -82,24 +82,24 @@
         <h2>{{ 'Estado y Método de Pago' | t }}</h2>
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
+            <mat-label>{{ 'Estado' | t }}</mat-label>
             <mat-select formControlName="estado">
-              <mat-option value="Borrador">Borrador</mat-option>
-              <mat-option value="Enviada">Enviada</mat-option>
-              <mat-option value="Pagada">Pagada</mat-option>
-              <mat-option value="Vencida">Vencida</mat-option>
-              <mat-option value="Cancelada">Cancelada</mat-option>
+              <mat-option value="Borrador">{{ 'Borrador' | t }}</mat-option>
+              <mat-option value="Enviada">{{ 'Enviada' | t }}</mat-option>
+              <mat-option value="Pagada">{{ 'Pagada' | t }}</mat-option>
+              <mat-option value="Vencida">{{ 'Vencida' | t }}</mat-option>
+              <mat-option value="Cancelada">{{ 'Cancelada' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Método de Pago</mat-label>
+            <mat-label>{{ 'Método de Pago' | t }}</mat-label>
             <mat-select formControlName="metodoPago">
-              <mat-option value="">Seleccionar</mat-option>
-              <mat-option value="Efectivo">Efectivo</mat-option>
-              <mat-option value="Tarjeta">Tarjeta</mat-option>
-              <mat-option value="Transferencia">Transferencia</mat-option>
-              <mat-option value="Cheque">Cheque</mat-option>
+              <mat-option value="">{{ 'Seleccionar' | t }}</mat-option>
+              <mat-option value="Efectivo">{{ 'Efectivo' | t }}</mat-option>
+              <mat-option value="Tarjeta">{{ 'Tarjeta' | t }}</mat-option>
+              <mat-option value="Transferencia">{{ 'Transferencia' | t }}</mat-option>
+              <mat-option value="Cheque">{{ 'Cheque' | t }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -187,7 +187,7 @@
               <div class="item-info">
                 <strong>{{ item.descripcion }}</strong>
                 <div class="item-details">
-                  <span>{{ 'Tipo:' | t }} {{ item.tipo }}</span>
+                  <span>{{ 'Tipo:' | t }} {{ item.tipo | t }}</span>
                   <span>{{ 'Cantidad:' | t }} {{ item.cantidad }}</span>
                   <span>{{ 'Precio Unitario:' | t }} {{ item.precioUnitario | money }}</span>
                   <span class="item-subtotal">{{ 'Subtotal:' | t }} {{ item.subtotal | money }}</span>

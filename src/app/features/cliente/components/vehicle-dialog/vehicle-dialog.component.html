@@ -23,7 +23,7 @@
       <mat-form-field appearance="outline">
         <mat-label>{{ 'Año' | t }}</mat-label>
         <mat-select formControlName="anio" required>
-          <mat-option value="">Seleccione un año</mat-option>
+          <mat-option value="">{{ 'Seleccione un año' | t }}</mat-option>
           <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
         </mat-select>
         <mat-error>{{ 'Este campo es requerido' | t }}</mat-error>

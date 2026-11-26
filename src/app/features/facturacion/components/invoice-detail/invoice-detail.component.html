@@ -147,12 +147,12 @@
               <span>{{ invoice?.fechaPago ? (invoice.fechaPago | date:'dd/MM/yyyy HH:mm') : ('No pagada' | t) }}</span>
             </div>
             <div class="info-item">
-              <label>Estado:</label>
-              <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado }}</span>
+              <label>{{ 'Estado:' | t }}</label>
+              <span class="badge" [style.--badge]="getEstadoColor(invoice?.estado || '')">{{ invoice?.estado | t }}</span>
             </div>
             <div class="info-item">
-              <label>Método de Pago:</label>
-              <span>{{ invoice?.metodoPago || 'N/A' }}</span>
+              <label>{{ 'Método de Pago:' | t }}</label>
+              <span>{{ (invoice?.metodoPago || 'N/A') | t }}</span>
             </div>
           </div>
         </mat-card-content>
@@ -256,8 +256,8 @@
               </ng-container>
 
               <ng-container matColumnDef="metodo">
-                <th mat-header-cell *matHeaderCellDef>Método</th>
-                <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
+                <th mat-header-cell *matHeaderCellDef>{{ 'Método' | t }}</th>
+                <td mat-cell *matCellDef="let payment">{{ payment.metodo | t }}</td>
               </ng-container>
 
               <ng-container matColumnDef="fecha">

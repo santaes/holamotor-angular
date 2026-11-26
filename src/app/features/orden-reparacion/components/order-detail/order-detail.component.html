@@ -178,7 +178,7 @@
 
             <ng-container matColumnDef="metodo">
               <th mat-header-cell *matHeaderCellDef>{{ 'Método' | t }}</th>
-              <td mat-cell *matCellDef="let payment">{{ payment.metodo }}</td>
+              <td mat-cell *matCellDef="let payment">{{ payment.metodo | t }}</td>
             </ng-container>
 
             <ng-container matColumnDef="fecha">
