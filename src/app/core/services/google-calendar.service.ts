@@ -32,9 +32,26 @@ export class GoogleCalendarService {
 
   getEvents(): Observable<CalendarEvent[]> {
     return this.http.get<any>(`${this.apiUrl}/events`, {
-      params: { timeMin: new Date().toISOString(), singleEvents: 'true', orderBy: 'startTime' }
+      params: { singleEvents: 'true', orderBy: 'startTime' }
     }).pipe(
-      map(response => (Array.isArray(response) ? response : response?.items || []))
+      map(response => {
+        const events: CalendarEvent[] = Array.isArray(response) ? response : response?.items || [];
+        const now = Date.now();
+        const toTime = (dateTime?: string, date?: string) => {
+          const raw = dateTime || date;
+          if (!raw) return 0;
+          return new Date(dateTime ? raw : raw + 'T00:00:00').getTime();
+        };
+        const startTime = (e: CalendarEvent) => toTime(e.start?.dateTime, e.start?.date);
+        const endTime = (e: CalendarEvent) => toTime(e.end?.dateTime, e.end?.date) || startTime(e);
+        return [...events].sort((a, b) => {
+          const aFuture = endTime(a) >= now;
+          const bFuture = endTime(b) >= now;
+          if (aFuture !== bFuture) return aFuture ? -1 : 1;
+          const diff = startTime(a) - startTime(b);
+          return aFuture ? diff : -diff;
+        });
+      })
     );
   }
 
