@@ -307,4 +307,96 @@
     page-break-before: auto;
     page-break-inside: avoid;
   }
+
+  /* Compact layout so a typical invoice fits on a single page */
+  .printable-invoice {
+    padding: 0;
+    border: none;
+    max-width: none;
+  }
+
+  .invoice-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+
+  .company-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .company-details h3 {
+    font-size: 15px;
+  }
+
+  .invoice-title h1 {
+    font-size: 24px;
+  }
+
+  .invoice-meta {
+    margin-bottom: 15px;
+  }
+
+  .client-info h3 {
+    font-size: 12px;
+  }
+
+  .client-info p,
+  .invoice-number p {
+    font-size: 13px;
+  }
+
+  .invoice-items {
+    margin-bottom: 15px;
+  }
+
+  .items-table-print th,
+  .items-table-print td {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .invoice-totals {
+    margin-bottom: 15px;
+    padding-top: 10px;
+  }
+
+  .signature-image {
+    max-width: 160px;
+    max-height: 56px;
+    margin-bottom: 6px;
+  }
+
+  .signature-line p {
+    font-size: 12px;
+  }
+
+  .signature-line::after {
+    width: 160px;
+    margin-top: 10px;
+  }
+
+  .total-row {
+    font-size: 13px;
+    padding: 5px 0;
+  }
+
+  .total-row.final {
+    font-size: 16px;
+    padding-top: 8px;
+  }
+
+  .invoice-footer {
+    padding-top: 10px;
+  }
+
+  .rebu-notice {
+    font-size: 9px;
+    margin-bottom: 10px;
+  }
+
+  .payment-info p {
+    font-size: 12px;
+    margin: 3px 0;
+  }
 }
