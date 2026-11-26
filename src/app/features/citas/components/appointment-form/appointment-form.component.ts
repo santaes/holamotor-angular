@@ -348,9 +348,15 @@ export class AppointmentFormComponent implements OnInit {
   private syncToGoogleCalendarEvent(appointment: Appointment): void {
     const d = appointment.fecha instanceof Date ? appointment.fecha : new Date(appointment.fecha);
     const dateStr = d.toISOString().split('T')[0];
+    const title = appointment.descripcion?.trim() || appointment.tipo;
     const event: Partial<CalendarEvent> = {
-      summary: `${appointment.tipo} - ${appointment.clienteNombre}`,
-      description: appointment.descripcion,
+      summary: `${title} - ${appointment.clienteNombre}`,
+      description: [
+        `Tipo: ${appointment.tipo}`,
+        appointment.vehiculoInfo ? `Vehículo: ${appointment.vehiculoInfo}` : '',
+        appointment.mecanicoNombre ? `Mecánico: ${appointment.mecanicoNombre}` : '',
+        appointment.descripcion ? `\n${appointment.descripcion}` : ''
+      ].filter(s => s).join('\n'),
       start: { 
         dateTime: `${dateStr}T${appointment.horaInicio}:00`,
         timeZone: 'Europe/Madrid'
