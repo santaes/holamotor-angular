@@ -31,7 +31,9 @@ export class GoogleCalendarService {
   }
 
   getEvents(): Observable<CalendarEvent[]> {
-    return this.http.get<any>(`${this.apiUrl}/events`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/events`, {
+      params: { timeMin: new Date().toISOString(), singleEvents: 'true', orderBy: 'startTime' }
+    }).pipe(
       map(response => (Array.isArray(response) ? response : response?.items || []))
     );
   }
