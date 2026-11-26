@@ -434,38 +434,49 @@ async function handleTranslation(req, res) {
       }
     };
 
-    // Function to translate a single chunk using Yandex Translate
-    const translateChunk = async (chunk) => {
+    // Function to translate a single chunk using Google Translate (gtx).
+    // Retries with backoff — the endpoint rate-limits bursts and returns
+    // errors for very long URL-encoded queries.
+    const translateChunk = async (chunk, attempt = 0) => {
       try {
-        // Yandex Translate API (free, no key required for basic usage)
-        const yandexUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(chunk)}`;
-        const response = await fetchWithTimeout(yandexUrl, {}, 10000);
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(chunk)}`;
+        const response = await fetchWithTimeout(url, {}, 15000);
 
         if (response.ok) {
           const result = await response.json();
           if (result && result[0]) {
-            // Google Translate API returns array of arrays, join all translated parts
-            return result[0].map(item => item[0]).join('');
+            const translated = result[0].map(item => item[0]).join('');
+            if (translated && translated.trim()) return translated;
           }
         }
-        return chunk; // Return original if translation fails
+        throw new Error(`HTTP ${response.status}`);
       } catch (err) {
-        console.log('Chunk translation failed:', err.message);
-        return chunk; // Return original on error
+        if (attempt < 3) {
+          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+          return translateChunk(chunk, attempt + 1);
+        }
+        console.log('Chunk translation failed after retries:', err.message);
+        return chunk; // Return original only after all retries exhausted
       }
     };
 
-    // Split text into chunks on line boundaries (Google Translate has ~5000 char limit).
-    // Breaking at newlines keeps the original formatting intact after translation.
-    const chunks = splitTextChunks(text, 4500);
+    // Split into smaller chunks — Cyrillic percent-encodes ~3x, so 2000 chars
+    // keeps the request URL within safe limits.
+    const chunks = splitTextChunks(text, 2000);
 
     console.log(`Translating ${chunks.length} chunks (${text.length} chars total)...`);
 
-    // Translate all chunks
-    const translatedChunks = await Promise.all(chunks.map(chunk => translateChunk(chunk.text)));
+    // Translate with limited concurrency (2 at a time) to avoid rate limiting
+    const translatedChunks = new Array(chunks.length);
+    const CONCURRENCY = 2;
+    for (let i = 0; i < chunks.length; i += CONCURRENCY) {
+      const batch = chunks.slice(i, i + CONCURRENCY);
+      const results = await Promise.all(batch.map(c => translateChunk(c.text)));
+      results.forEach((r, j) => { translatedChunks[i + j] = r; });
+    }
 
     // Reassemble using the original separators so line breaks are preserved
-    const translatedText = translatedChunks.map((t, i) => t + chunks[i].sep).join('');
+    const translatedText = translatedChunks.map((tr, i) => tr + chunks[i].sep).join('');
 
     console.log('Translation complete');
 
