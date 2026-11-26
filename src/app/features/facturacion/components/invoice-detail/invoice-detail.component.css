@@ -210,6 +210,15 @@
   margin-left: 10px;
 }
 
+.info-card mat-card-header {
+  display: flex;
+  align-items: center;
+}
+
+.info-card .spacer {
+  flex: 1;
+}
+
 /* Print styles */
 @media print {
   .no-print {

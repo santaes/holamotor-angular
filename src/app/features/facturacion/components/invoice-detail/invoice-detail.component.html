@@ -123,6 +123,10 @@
       <mat-card class="info-card">
         <mat-card-header>
           <mat-card-title>{{ 'Información de la Factura' | t }}</mat-card-title>
+          <span class="spacer"></span>
+          <button mat-icon-button (click)="editInfo()" [disabled]="invoice?.estado === 'Cancelada'">
+            <mat-icon>edit</mat-icon>
+          </button>
         </mat-card-header>
         <mat-card-content>
           <div class="info-grid">
@@ -221,6 +225,9 @@
               <ng-container matColumnDef="acciones">
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let item; let i = index">
+                  <button mat-icon-button color="primary" (click)="editItem(i)" *ngIf="invoice?.estado !== 'Cancelada'">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                   <button mat-icon-button color="warn" (click)="removeItem(i)" *ngIf="invoice?.estado !== 'Cancelada'">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -270,8 +277,20 @@
                 <td mat-cell *matCellDef="let payment">{{ payment.referencia || '-' }}</td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="['monto', 'metodo', 'fecha', 'referencia']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['monto', 'metodo', 'fecha', 'referencia']"></tr>
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let payment; let i = index">
+                  <button mat-icon-button color="primary" (click)="editPayment(i)" *ngIf="invoice?.estado !== 'Cancelada'">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deletePayment(i)" *ngIf="invoice?.estado !== 'Cancelada'">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['monto', 'metodo', 'fecha', 'referencia', 'acciones']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['monto', 'metodo', 'fecha', 'referencia', 'acciones']"></tr>
             </table>
           </mat-card>
           <ng-template #noPayments>

@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Inject, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,6 +20,9 @@ import { MoneyPipe } from '../../../../core/pipes/money.pipe';
 })
 export class InvoiceItemDialogComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<InvoiceItemDialogComponent>);
+
+  isEdit = false;
 
   form = this.fb.group({
     descripcion: ['', [Validators.required, Validators.minLength(2)]],
@@ -29,8 +32,18 @@ export class InvoiceItemDialogComponent {
   });
 
   constructor(
-    private dialogRef: MatDialogRef<InvoiceItemDialogComponent>
-  ) {}
+    @Optional() @Inject(MAT_DIALOG_DATA) data?: InvoiceItem
+  ) {
+    if (data) {
+      this.isEdit = true;
+      this.form.patchValue({
+        descripcion: data.descripcion,
+        cantidad: data.cantidad,
+        precioUnitario: data.precioUnitario,
+        tipo: data.tipo
+      });
+    }
+  }
 
   save(): void {
     if (this.form.invalid) {

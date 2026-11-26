@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ 'Agregar Posición' | t }}</h2>
+<h2 mat-dialog-title>{{ (isEdit ? 'Editar Posición' : 'Agregar Posición') | t }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form">
     <mat-form-field appearance="outline" class="full-width">
@@ -45,7 +45,7 @@
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()">{{ 'Cancelar' | t }}</button>
   <button mat-raised-button color="primary" (click)="save()">
-    <mat-icon>add</mat-icon>
-    {{ 'Agregar' | t }}
+    <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+    {{ (isEdit ? 'Guardar' : 'Agregar') | t }}
   </button>
 </mat-dialog-actions>

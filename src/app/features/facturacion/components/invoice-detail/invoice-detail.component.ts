@@ -11,11 +11,13 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { t } from '../../../../core/i18n/i18n';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Invoice, InvoiceItem } from '../../models/billing.model';
+import { Invoice, InvoiceItem, InvoicePayment } from '../../models/billing.model';
 import { BillingService } from '../../services/billing.service';
 import { ExcelParserService } from '../../services/excel-parser.service';
 import { SettingsService } from '../../../../core/services/settings.service';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
+import { InvoicePaymentDialogComponent } from '../invoice-payment-dialog/invoice-payment-dialog.component';
+import { InvoiceInfoDialogComponent, InvoiceInfoResult } from '../invoice-info-dialog/invoice-info-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Location } from '@angular/common';
 
@@ -142,6 +144,27 @@ export class InvoiceDetailComponent implements OnInit {
     });
   }
 
+  editItem(index: number): void {
+    if (!this.invoice || this.invoice.estado === 'Cancelada') return;
+    const item = this.invoice.items?.[index];
+    if (!item) return;
+
+    const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: item
+    });
+
+    dialogRef.afterClosed().subscribe((updated: InvoiceItem) => {
+      if (updated && this.invoice) {
+        const items = [...(this.invoice.items || [])];
+        items[index] = { ...updated, id: item.id };
+        this.saveItems(items);
+        this.snackBar.open(t('Posición actualizada'), t('Cerrar'), { duration: 2000 });
+      }
+    });
+  }
+
   removeItem(index: number): void {
     if (!this.invoice || this.invoice.estado === 'Cancelada') return;
     if (!confirm(t('¿Eliminar esta posición de la factura?'))) return;
@@ -160,6 +183,7 @@ export class InvoiceDetailComponent implements OnInit {
     const total = Math.max(0, Math.round((subtotal + impuestos - descuento) * 100) / 100);
 
     const updatedInvoice: Invoice = { ...this.invoice, items, subtotal, impuestos, total };
+    this.syncEstadoFromPayments(updatedInvoice);
 
     this.billingService.updateInvoice(this.invoice.id, updatedInvoice).subscribe({
       next: () => {
@@ -173,56 +197,121 @@ export class InvoiceDetailComponent implements OnInit {
   }
 
   addPayment(): void {
-    if (!this.invoice) return;
-    
-    const paymentMethod = prompt(t('Método de pago (Efectivo, Tarjeta, Transferencia, Cheque):'), 'Efectivo');
-    if (!paymentMethod) return;
-    
-    const validMethods = ['Efectivo', 'Tarjeta', 'Transferencia', 'Cheque'];
-    if (!validMethods.includes(paymentMethod)) {
-      this.snackBar.open(t('Método de pago no válido'), t('Cerrar'), { duration: 3000 });
-      return;
-    }
-    
-    const amount = prompt(t('Monto del pago:'), this.invoice.total.toString());
-    if (!amount) return;
-    
-    const paymentAmount = parseFloat(amount);
-    if (isNaN(paymentAmount) || paymentAmount <= 0) {
-      this.snackBar.open(t('Monto no válido'), t('Cerrar'), { duration: 3000 });
-      return;
-    }
-    
-    const payment = {
-      id: (this.invoice.pagos?.length || 0) + 1,
-      monto: paymentAmount,
-      metodo: paymentMethod as 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Cheque',
-      fecha: new Date(),
-      referencia: `Pago manual factura ${this.invoice.numeroFactura}`,
-      notas: 'Pago registrado manualmente'
-    };
-    
-    const updatedInvoice = {
-      ...this.invoice,
-      pagos: [...(this.invoice.pagos || []), payment]
-    };
-    
-    // Check if fully paid
-    const totalPaid = updatedInvoice.pagos.reduce((sum, p) => sum + p.monto, 0);
-    if (totalPaid >= updatedInvoice.total) {
-      updatedInvoice.estado = 'Pagada';
-      updatedInvoice.fechaPago = new Date();
-    }
-    
-    this.billingService.updateInvoice(this.invoice.id!, updatedInvoice).subscribe({
-      next: () => {
+    if (!this.invoice || this.invoice.estado === 'Cancelada') return;
+
+    const dialogRef = this.dialog.open(InvoicePaymentDialogComponent, {
+      width: '480px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe((payment: InvoicePayment) => {
+      if (payment && this.invoice) {
+        const pagos = [...(this.invoice.pagos || [])];
+        pagos.push({ ...payment, id: pagos.length > 0 ? Math.max(...pagos.map(p => p.id || 0)) + 1 : 1 });
+        this.savePayments(pagos);
         this.snackBar.open(t('Pago registrado exitosamente'), t('Cerrar'), { duration: 3000 });
+      }
+    });
+  }
+
+  editPayment(index: number): void {
+    if (!this.invoice || this.invoice.estado === 'Cancelada') return;
+    const payment = this.invoice.pagos?.[index];
+    if (!payment) return;
+
+    const dialogRef = this.dialog.open(InvoicePaymentDialogComponent, {
+      width: '480px',
+      maxWidth: '95vw',
+      data: payment
+    });
+
+    dialogRef.afterClosed().subscribe((updated: InvoicePayment) => {
+      if (updated && this.invoice) {
+        const pagos = [...(this.invoice.pagos || [])];
+        pagos[index] = { ...updated, id: payment.id };
+        this.savePayments(pagos);
+        this.snackBar.open(t('Pago actualizado'), t('Cerrar'), { duration: 2000 });
+      }
+    });
+  }
+
+  deletePayment(index: number): void {
+    if (!this.invoice || this.invoice.estado === 'Cancelada') return;
+    if (!confirm(t('¿Eliminar este pago?'))) return;
+
+    const pagos = (this.invoice.pagos || []).filter((_, i) => i !== index);
+    this.savePayments(pagos);
+    this.snackBar.open(t('Pago eliminado'), t('Cerrar'), { duration: 2000 });
+  }
+
+  editInfo(): void {
+    if (!this.invoice) return;
+
+    const dialogRef = this.dialog.open(InvoiceInfoDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: this.invoice
+    });
+
+    dialogRef.afterClosed().subscribe((result: InvoiceInfoResult) => {
+      if (!result || !this.invoice?.id) return;
+
+      const total = Math.max(0, Math.round(((this.invoice.subtotal || 0) + (this.invoice.impuestos || 0) - (result.descuento || 0)) * 100) / 100);
+      const fechaPago = result.estado === 'Pagada'
+        ? (result.fechaPago || this.invoice.fechaPago || new Date())
+        : undefined;
+
+      const updatedInvoice: Invoice = {
+        ...this.invoice,
+        estado: result.estado,
+        metodoPago: result.metodoPago,
+        fechaEmision: result.fechaEmision,
+        fechaVencimiento: result.fechaVencimiento,
+        fechaPago,
+        descuento: result.descuento,
+        total,
+        notas: result.notas
+      };
+
+      this.billingService.updateInvoice(this.invoice.id, updatedInvoice).subscribe({
+        next: () => {
+          this.snackBar.open(t('Factura actualizada'), t('Cerrar'), { duration: 2000 });
+          this.loadInvoice(this.invoice!.id!);
+        },
+        error: (error) => {
+          console.error('Error updating invoice:', error);
+          this.snackBar.open(t('Error al actualizar factura'), t('Cerrar'), { duration: 3000 });
+        }
+      });
+    });
+  }
+
+  private savePayments(pagos: InvoicePayment[]): void {
+    if (!this.invoice?.id) return;
+
+    const updatedInvoice: Invoice = { ...this.invoice, pagos };
+    this.syncEstadoFromPayments(updatedInvoice);
+
+    this.billingService.updateInvoice(this.invoice.id, updatedInvoice).subscribe({
+      next: () => {
         this.loadInvoice(this.invoice!.id!);
       },
       error: (error) => {
-        console.error('Error adding payment:', error);
-        this.snackBar.open(t('Error al registrar pago'), t('Cerrar'), { duration: 3000 });
+        console.error('Error updating invoice payments:', error);
+        this.snackBar.open(t('Error al actualizar factura'), t('Cerrar'), { duration: 3000 });
       }
     });
+  }
+
+  private syncEstadoFromPayments(invoice: Invoice): void {
+    if (invoice.estado === 'Cancelada' || invoice.estado === 'Borrador') return;
+    const totalPaid = (invoice.pagos || []).reduce((sum, p) => sum + (p.monto || 0), 0);
+    if (totalPaid >= (invoice.total || 0) && (invoice.total || 0) > 0) {
+      invoice.estado = 'Pagada';
+      if (!invoice.fechaPago) invoice.fechaPago = new Date();
+    } else if (invoice.estado === 'Pagada' && totalPaid < (invoice.total || 0)) {
+      invoice.estado = 'Enviada';
+      invoice.fechaPago = undefined;
+    }
   }
 }

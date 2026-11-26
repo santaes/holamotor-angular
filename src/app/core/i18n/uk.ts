@@ -714,5 +714,12 @@ export const uk: Record<string, string> = {
   "Por favor completa la factura antes de enviarla a VeriFactu": "Будь ласка, заповніть рахунок перед надсиланням до VeriFactu",
   "Configura tu NIF/CIF en Configuración antes de enviar a VeriFactu": "Вкажіть ваш NIF/CIF у налаштуваннях перед надсиланням до VeriFactu",
   "Error al cargar certificado: ": "Помилка завантаження сертифіката: ",
-  "Mínimo 1": "Мінімум 1"
+  "Mínimo 1": "Мінімум 1",
+  "Posición actualizada": "Позицію оновлено",
+  "Pago actualizado": "Платіж оновлено",
+  "¿Eliminar este pago?": "Видалити цей платіж?",
+  "Pago eliminado": "Платіж видалено",
+  "Factura actualizada": "Рахунок оновлено",
+  "Editar Información de la Factura": "Редагувати дані рахунку",
+  "Valor mínimo es 0.01": "Мінімальне значення 0.01"
 };

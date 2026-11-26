@@ -714,5 +714,12 @@ export const ru: Record<string, string> = {
   "Configura tu NIF/CIF en Configuración antes de enviar a VeriFactu": "Укажите ваш NIF/CIF в настройках перед отправкой в VeriFactu",
   "Error al enviar factura a AEAT VeriFactu": "Ошибка отправки счёта в AEAT VeriFactu",
   "Error al cargar certificado: ": "Ошибка загрузки сертификата: ",
-  "Mínimo 1": "Минимум 1"
+  "Mínimo 1": "Минимум 1",
+  "Posición actualizada": "Позиция обновлена",
+  "Pago actualizado": "Платёж обновлён",
+  "¿Eliminar este pago?": "Удалить этот платёж?",
+  "Pago eliminado": "Платёж удалён",
+  "Factura actualizada": "Счёт обновлён",
+  "Editar Información de la Factura": "Редактировать данные счёта",
+  "Valor mínimo es 0.01": "Минимальное значение 0.01"
 };
