@@ -78,6 +78,109 @@
     </mat-card>
   </div>
 
+  <mat-card class="maintenance-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>build</mat-icon>
+        {{ 'Mantenimiento' | t }}
+      </mat-card-title>
+      <span class="spacer"></span>
+      <button mat-stroked-button color="primary" (click)="openMaintenanceDialog()">
+        <mat-icon>add</mat-icon>
+        {{ 'Registrar cambio' | t }}
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="empty-maintenance" *ngIf="mantenimientos.length === 0">
+        <mat-icon>oil_barrel</mat-icon>
+        <p>{{ 'No hay cambios de aceite o filtros registrados' | t }}</p>
+      </div>
+
+      <div class="maintenance-list" *ngIf="mantenimientos.length > 0">
+        <div class="maintenance-item" *ngFor="let m of mantenimientos">
+          <div class="maintenance-main">
+            <div class="maintenance-title">
+              <strong>{{ m.tipo | t }}</strong>
+              <mat-chip class="estado-chip" *ngIf="mantenimientoEstado(m)" [class.vencido]="mantenimientoEstado(m) === 'vencido'" [class.proximo]="mantenimientoEstado(m) === 'proximo'" [class.ok]="mantenimientoEstado(m) === 'ok'">
+                {{ (mantenimientoEstado(m) === 'vencido' ? 'Vencido' : mantenimientoEstado(m) === 'proximo' ? 'Próximo' : 'Al día') | t }}
+              </mat-chip>
+            </div>
+            <div class="maintenance-details">
+              <span>{{ 'Cambio:' | t }} {{ formatDate(m.fecha) }} · {{ m.kilometraje | number }} km</span>
+              <span *ngIf="m.proximoCambioKm != null || m.proximoCambioFecha">
+                → {{ 'Próximo:' | t }}
+                <span *ngIf="m.proximoCambioKm != null">{{ m.proximoCambioKm | number }} km</span>
+                <span *ngIf="m.proximoCambioKm != null && m.proximoCambioFecha"> / </span>
+                <span *ngIf="m.proximoCambioFecha">{{ formatDate(m.proximoCambioFecha) }}</span>
+              </span>
+            </div>
+            <div class="maintenance-next" *ngIf="mantenimientoDetalle(m)">{{ mantenimientoDetalle(m) }}</div>
+            <div class="maintenance-notes" *ngIf="m.notas">{{ m.notas }}</div>
+          </div>
+          <div class="maintenance-actions">
+            <button mat-icon-button color="primary" (click)="openMaintenanceDialog(m)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteMaintenance(m)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="diagnoses-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>description</mat-icon>
+        {{ 'Diagnósticos' | t }}
+      </mat-card-title>
+      <span class="spacer"></span>
+      <input type="file" #diagnosisInput accept=".pdf" style="display: none" (change)="onDiagnosisFileSelected($event)">
+      <button mat-stroked-button color="primary" (click)="diagnosisInput.click()" [disabled]="isUploadingDiagnosis">
+        <mat-icon>{{ isUploadingDiagnosis ? 'hourglass_empty' : 'upload_file' }}</mat-icon>
+        {{ (isUploadingDiagnosis ? 'Subiendo...' : 'Subir diagnóstico') | t }}
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="empty-maintenance" *ngIf="diagnoses.length === 0">
+        <mat-icon>biotech</mat-icon>
+        <p>{{ 'No hay archivos de diagnóstico para este vehículo' | t }}</p>
+      </div>
+
+      <div class="diagnosis-list" *ngIf="diagnoses.length > 0">
+        <div class="diagnosis-item" *ngFor="let d of diagnoses">
+          <div class="diagnosis-main">
+            <div class="diagnosis-title">
+              <mat-icon>picture_as_pdf</mat-icon>
+              <strong>{{ d.titulo }}</strong>
+            </div>
+            <div class="diagnosis-details">
+              <span>{{ formatDate(d.fecha) }}</span>
+              <span *ngIf="d.pdfFilename"> · {{ d.pdfFilename }}</span>
+            </div>
+            <div class="diagnosis-text" *ngIf="d.textoOriginal && expandedDiagnoses.has(d.id!)">
+              <p class="text-preview">{{ d.textoOriginal }}</p>
+              <p class="text-preview translated" *ngIf="d.textoTraducido">{{ d.textoTraducido }}</p>
+            </div>
+          </div>
+          <div class="diagnosis-actions">
+            <button mat-icon-button *ngIf="d.textoOriginal" (click)="toggleDiagnosisText(d)" [matTooltip]="'Texto extraído' | t">
+              <mat-icon>{{ expandedDiagnoses.has(d.id!) ? 'expand_less' : 'subject' }}</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="viewDiagnosis(d)" [matTooltip]="'Ver PDF' | t">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteDiagnosis(d)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <mat-card class="history-card">
     <mat-card-header>
       <mat-card-title>

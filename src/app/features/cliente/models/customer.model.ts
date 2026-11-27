@@ -28,6 +28,16 @@ export interface Document {
   tipo: string;
 }
 
+export interface VehicleMaintenance {
+  id?: number;
+  tipo: 'Aceite' | 'Filtro de aceite' | 'Filtro de aire' | 'Filtro de habitáculo' | 'Pastillas de freno' | 'Neumáticos' | 'Otro';
+  fecha: Date | string;
+  kilometraje: number;
+  proximoCambioKm?: number;
+  proximoCambioFecha?: Date | string;
+  notas?: string;
+}
+
 export interface Vehicle {
   id?: number;
   marca: string;
@@ -38,6 +48,7 @@ export interface Vehicle {
   color: string;
   kilometraje: number;
   clienteId: number;
+  mantenimientos?: VehicleMaintenance[];
 }
 
 export interface Communication {

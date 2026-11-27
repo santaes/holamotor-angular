@@ -113,6 +113,200 @@
   font-size: 14px;
 }
 
+.maintenance-card {
+  margin-bottom: 24px;
+}
+
+.maintenance-card mat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.maintenance-card mat-card-header .spacer {
+  flex: 1;
+}
+
+.maintenance-card mat-card-header mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.empty-maintenance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.empty-maintenance mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.maintenance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.maintenance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.maintenance-main {
+  flex: 1;
+}
+
+.maintenance-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.maintenance-title mat-chip {
+  font-size: 11px;
+  min-height: 22px;
+}
+
+.maintenance-title mat-chip.vencido {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.maintenance-title mat-chip.proximo {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.maintenance-title mat-chip.ok {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.maintenance-details {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.maintenance-next {
+  font-size: 13px;
+  color: #2563eb;
+  margin-top: 4px;
+}
+
+.maintenance-notes {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.maintenance-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.diagnoses-card {
+  margin-bottom: 24px;
+}
+
+.diagnoses-card mat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.diagnoses-card mat-card-header .spacer {
+  flex: 1;
+}
+
+.diagnoses-card mat-card-header mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.diagnosis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diagnosis-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.diagnosis-main {
+  flex: 1;
+}
+
+.diagnosis-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.diagnosis-title mat-icon {
+  color: #b91c1c;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.diagnosis-details {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.diagnosis-text {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.diagnosis-text .text-preview {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diagnosis-text .text-preview.translated {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e5e7eb;
+  color: #1d4ed8;
+}
+
+.diagnosis-actions {
+  display: flex;
+  gap: 4px;
+}
+
 .history-card mat-card-header {
   margin-bottom: 16px;
 }

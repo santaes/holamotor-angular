@@ -1,0 +1,19 @@
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row mat-form-field {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.next-change-title {
+  margin: 8px 0 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--hm-text-2, #555);
+}
