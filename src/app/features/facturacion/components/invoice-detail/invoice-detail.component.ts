@@ -103,6 +103,12 @@ export class InvoiceDetailComponent implements OnInit {
     }
   }
 
+  get hasBillingData(): boolean {
+    const inv = this.invoice;
+    return !!(inv?.clienteNif || inv?.clienteDireccion || inv?.clienteCiudad ||
+      inv?.clienteCodigoPostal || inv?.clienteTelefono || inv?.clienteEmail);
+  }
+
   get totalPagado(): number {
     return (this.invoice?.pagos || []).reduce((sum, p) => sum + (p.monto || 0), 0);
   }

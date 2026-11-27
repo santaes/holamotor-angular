@@ -105,7 +105,15 @@ export class InvoiceFormComponent implements OnInit {
       const customer = this.customers.find(c => c.id === +id);
       this.vehicles = customer?.vehiculos || [];
       if (customer) {
-        this.invoiceForm.patchValue({ clienteNombre: `${customer.nombre} ${customer.apellido}` }, { emitEvent: false });
+        this.invoiceForm.patchValue({
+          clienteNombre: `${customer.nombre} ${customer.apellido || ''}`.trim(),
+          clienteNif: customer.nif || customer.documento || '',
+          clienteDireccion: customer.direccion || '',
+          clienteCiudad: customer.ciudad || '',
+          clienteCodigoPostal: customer.codigoPostal || '',
+          clienteTelefono: customer.telefono || '',
+          clienteEmail: customer.email || ''
+        }, { emitEvent: false });
       }
     });
   }
@@ -179,8 +187,14 @@ export class InvoiceFormComponent implements OnInit {
   createForm(): FormGroup {
     return this.fb.group({
       numeroFactura: ['', [Validators.required]],
-      clienteId: ['', [Validators.required]],
+      clienteId: [''],
       clienteNombre: ['', [Validators.required]],
+      clienteNif: [''],
+      clienteDireccion: [''],
+      clienteCiudad: [''],
+      clienteCodigoPostal: [''],
+      clienteTelefono: [''],
+      clienteEmail: [''],
       ordenReparacionId: [''],
       numeroOrden: [''],
       fechaEmision: [new Date(), [Validators.required]],
@@ -212,10 +226,24 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.saveInvoice(false);
+  }
+
+  printInvoice(): void {
+    if (!this.invoiceForm.valid) {
+      this.invoiceForm.markAllAsTouched();
+      this.snackBar.open(t('Completa los datos de la factura para imprimirla'), t('Cerrar'), { duration: 3000 });
+      return;
+    }
+    this.saveInvoice(true);
+  }
+
+  private saveInvoice(printAfter: boolean): void {
     if (this.invoiceForm.valid) {
       const formValue = this.invoiceForm.value;
       const invoice: Invoice = {
         ...formValue,
+        clienteId: formValue.clienteId ? +formValue.clienteId : 0,
         fechaEmision: new Date(formValue.fechaEmision),
         fechaVencimiento: new Date(formValue.fechaVencimiento),
         fechaPago: formValue.fechaPago ? new Date(formValue.fechaPago) : undefined,
@@ -223,12 +251,24 @@ export class InvoiceFormComponent implements OnInit {
         pagos: this.createPaymentsFromForm(formValue)
       };
 
+      const onSaved = (saved?: Invoice) => {
+        this.snackBar.open(
+          printAfter
+            ? t('Factura guardada. Abriendo impresión...')
+            : t(this.isEditMode ? 'Factura actualizada exitosamente' : 'Factura creada exitosamente'),
+          t('Cerrar'),
+          { duration: 3000 }
+        );
+        if (printAfter && saved?.id) {
+          this.router.navigate(['/facturacion', saved.id], { queryParams: { print: true } });
+        } else {
+          this.router.navigate(['/facturacion']);
+        }
+      };
+
       if (this.isEditMode && this.invoiceId) {
         this.billingService.updateInvoice(this.invoiceId, invoice).subscribe({
-          next: () => {
-            this.snackBar.open(t('Factura actualizada exitosamente'), t('Cerrar'), { duration: 3000 });
-            this.router.navigate(['/facturacion']);
-          },
+          next: (saved) => onSaved(saved),
           error: (error) => {
             console.error('Error updating invoice:', error);
             this.snackBar.open(t('Error al actualizar factura'), t('Cerrar'), { duration: 3000 });
@@ -236,10 +276,7 @@ export class InvoiceFormComponent implements OnInit {
         });
       } else {
         this.billingService.createInvoice(invoice).subscribe({
-          next: () => {
-            this.snackBar.open(t('Factura creada exitosamente'), t('Cerrar'), { duration: 3000 });
-            this.router.navigate(['/facturacion']);
-          },
+          next: (saved) => onSaved(saved),
           error: (error) => {
             console.error('Error creating invoice:', error);
             this.snackBar.open(t('Error al crear factura'), t('Cerrar'), { duration: 3000 });
@@ -290,12 +327,12 @@ export class InvoiceFormComponent implements OnInit {
         nombre_comercial: settings.workshopName || 'Taller'
       },
       receptor: {
-        nif: this.getCustomerNIF(invoice.clienteId),
+        nif: invoice.clienteNif || this.getCustomerNIF(invoice.clienteId),
         nombre: invoice.clienteNombre,
-        direccion: this.getCustomerAddress(invoice.clienteId),
-        provincia: this.getCustomerProvince(invoice.clienteId),
+        direccion: invoice.clienteDireccion || this.getCustomerAddress(invoice.clienteId),
+        provincia: invoice.clienteCiudad || this.getCustomerProvince(invoice.clienteId),
         pais: 'ES',
-        codigo_postal: this.getCustomerPostalCode(invoice.clienteId)
+        codigo_postal: invoice.clienteCodigoPostal || this.getCustomerPostalCode(invoice.clienteId)
       },
       lineas: invoice.items.map(item => ({
         concepto: item.descripcion,

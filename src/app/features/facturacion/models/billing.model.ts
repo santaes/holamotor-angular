@@ -3,6 +3,12 @@ export interface Invoice {
   numeroFactura: string;
   clienteId: number;
   clienteNombre: string;
+  clienteNif?: string;
+  clienteDireccion?: string;
+  clienteCiudad?: string;
+  clienteCodigoPostal?: string;
+  clienteTelefono?: string;
+  clienteEmail?: string;
   ordenReparacionId?: number;
   numeroOrden?: string;
   fechaEmision: Date;

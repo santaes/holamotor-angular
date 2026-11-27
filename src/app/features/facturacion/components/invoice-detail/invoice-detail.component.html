@@ -43,7 +43,14 @@
       <div class="client-info">
         <h3>FACTURAR A</h3>
         <p><strong>{{ invoice.clienteNombre }}</strong></p>
-        <p>ID: {{ invoice.clienteId }}</p>
+        <p *ngIf="invoice.clienteNif">NIF/DNI: {{ invoice.clienteNif }}</p>
+        <p *ngIf="invoice.clienteDireccion">{{ invoice.clienteDireccion }}</p>
+        <p *ngIf="invoice.clienteCodigoPostal || invoice.clienteCiudad">
+          {{ invoice.clienteCodigoPostal }}{{ invoice.clienteCodigoPostal && invoice.clienteCiudad ? ', ' : '' }}{{ invoice.clienteCiudad }}
+        </p>
+        <p *ngIf="invoice.clienteTelefono">Tel: {{ invoice.clienteTelefono }}</p>
+        <p *ngIf="invoice.clienteEmail">{{ invoice.clienteEmail }}</p>
+        <p *ngIf="!hasBillingData">ID: {{ invoice.clienteId }}</p>
         <p>{{ invoice.notas || '' }}</p>
       </div>
       <div class="invoice-number">

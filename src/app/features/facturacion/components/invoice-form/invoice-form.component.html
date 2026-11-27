@@ -46,24 +46,56 @@
 
         <h2>{{ 'Cliente y Orden' | t }}<button type="button" mat-stroked-button color="primary" class="h2-action" (click)="addCustomer()"><mat-icon>person_add</mat-icon> {{ 'Nuevo cliente' | t }}</button></h2>
         <div class="form-row">
-          <mat-form-field appearance="outline" *ngIf="customers.length; else manualClienteId">
+          <mat-form-field appearance="outline" *ngIf="customers.length">
             <mat-label>{{ 'Cliente' | t }}</mat-label>
-            <mat-select formControlName="clienteId" required>
+            <mat-select formControlName="clienteId">
+              <mat-option [value]="null">{{ '— Sin cliente registrado —' | t }}</mat-option>
               <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.nombre }} {{ c.apellido }} · {{ c.telefono }}</mat-option>
             </mat-select>
             <mat-icon matPrefix>person</mat-icon>
-            <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
           </mat-form-field>
-          <ng-template #manualClienteId><mat-form-field appearance="outline">
-            <mat-label>{{ 'ID Cliente' | t }}</mat-label>
-            <input matInput formControlName="clienteId" required type="number">
-            <mat-error>{{ getErrorMessage('clienteId') }}</mat-error>
-          </mat-form-field></ng-template>
 
-          <mat-form-field appearance="outline" *ngIf="!customers.length">
+          <mat-form-field appearance="outline">
             <mat-label>{{ 'Nombre Cliente' | t }}</mat-label>
             <input matInput formControlName="clienteNombre" required>
             <mat-error>{{ getErrorMessage('clienteNombre') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <h2>{{ 'Datos de Facturación' | t }}</h2>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'NIF / DNI' | t }}</mat-label>
+            <input matInput formControlName="clienteNif">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Teléfono' | t }}</mat-label>
+            <input matInput formControlName="clienteTelefono">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'Dirección' | t }}</mat-label>
+            <input matInput formControlName="clienteDireccion">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Ciudad' | t }}</mat-label>
+            <input matInput formControlName="clienteCiudad">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Código Postal' | t }}</mat-label>
+            <input matInput formControlName="clienteCodigoPostal">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'Email' | t }}</mat-label>
+            <input matInput formControlName="clienteEmail" type="email">
           </mat-form-field>
         </div>
 
@@ -207,6 +239,10 @@
 
       <mat-card-actions align="end">
         <button mat-button type="button" (click)="cancel()">{{ 'Cancelar' | t }}</button>
+        <button mat-stroked-button color="primary" type="button" (click)="printInvoice()">
+          <mat-icon>print</mat-icon>
+          {{ 'Guardar e Imprimir' | t }}
+        </button>
         <button mat-stroked-button color="accent" type="button" (click)="sendToVerifactu()" [disabled]="isSendingToVerifactu">
           <mat-icon>receipt_long</mat-icon>
           {{ 'Enviar a AEAT' | t }}
