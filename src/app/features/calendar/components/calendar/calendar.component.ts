@@ -227,7 +227,13 @@ export class CalendarComponent implements OnInit {
       error: (error) => {
         console.error('Error loading events:', error);
         this.loading = false;
-        this.snackBar.open(t('Error al cargar eventos'), t('Cerrar'), { duration: 3000 });
+        if (error?.status === 401) {
+          // Token was rejected by Google — ask the user to reconnect
+          this.isConnected = false;
+          this.snackBar.open(t('La conexión con Google Calendar expiró. Vuelve a conectarla.'), t('Cerrar'), { duration: 5000 });
+        } else {
+          this.snackBar.open(t('Error al cargar eventos'), t('Cerrar'), { duration: 3000 });
+        }
         this.cdr.detectChanges();
       }
     });

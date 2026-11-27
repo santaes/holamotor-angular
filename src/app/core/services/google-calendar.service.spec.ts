@@ -31,7 +31,10 @@ describe('GoogleCalendarService', () => {
     mockHttp.post.mockReturnValue(of({ success: true }));
 
     const res = await firstValueFrom(service.authenticate('test-auth-code'));
-    expect(mockHttp.post).toHaveBeenCalledWith('/api/calendar/auth', { code: 'test-auth-code' });
+    expect(mockHttp.post).toHaveBeenCalledWith('/api/calendar/auth', {
+      code: 'test-auth-code',
+      redirectUri: `${window.location.origin}/calendar/callback`
+    });
     expect(res).toEqual({ success: true });
   });
 
@@ -91,10 +94,11 @@ describe('GoogleCalendarService', () => {
     expect(created.id).toBe('event-123');
   });
 
-  it('checkConnection should return true when /api/calendar/events succeeds', async () => {
-    mockHttp.get.mockReturnValue(of([]));
+  it('checkConnection should return true when /api/calendar/status reports connected', async () => {
+    mockHttp.get.mockReturnValue(of({ connected: true }));
     const connected = await firstValueFrom(service.checkConnection());
     expect(connected).toBe(true);
+    expect(mockHttp.get).toHaveBeenCalledWith('/api/calendar/status');
   });
 
   it('checkConnection should return false when /api/calendar/events returns 401', async () => {

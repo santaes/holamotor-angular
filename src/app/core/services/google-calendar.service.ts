@@ -22,7 +22,7 @@ export class GoogleCalendarService {
   constructor(private http: HttpClient) {}
 
   authenticate(code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth`, { code }).pipe(
+    return this.http.post(`${this.apiUrl}/auth`, { code, redirectUri: this.getRedirectUri() }).pipe(
       catchError(error => {
         console.error('Google auth error:', error);
         return of(null);
@@ -82,8 +82,13 @@ export class GoogleCalendarService {
 
   getAuthUrl(): string {
     const clientId = environment.googleClientId;
-    const redirectUri = encodeURIComponent(environment.googleRedirectUri);
+    const redirectUri = encodeURIComponent(this.getRedirectUri());
     const scope = encodeURIComponent('https://www.googleapis.com/auth/calendar');
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+  }
+
+  /** Redirect back to this app's own origin so OAuth works on any host/port. */
+  private getRedirectUri(): string {
+    return `${window.location.origin}/calendar/callback`;
   }
 }

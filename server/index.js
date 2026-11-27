@@ -505,8 +505,12 @@ const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost
 const CALENDAR_TOKENS_FILE = path.join(DATA_DIR, 'google-calendar-tokens.json');
 
 async function handleGoogleAuth(req, res) {
-  const { code } = await readBody(req);
+  const { code, redirectUri } = await readBody(req) || {};
   if (!code) return sendError(req, res, 400, 'invalidJson');
+
+  // The client sends the redirect_uri it used in the auth request; it must
+  // match for the code exchange. Fall back to the configured value.
+  const effectiveRedirectUri = redirectUri || GOOGLE_REDIRECT_URI;
 
   // Diagnostics: auth codes are single-use and must arrive uncorrupted.
   console.log(`[google-auth] code length=${code.length} hasSpace=${/\s/.test(code)} hasPlus=${code.includes('+')} prefix=${code.slice(0, 10)}…`);
@@ -520,7 +524,7 @@ async function handleGoogleAuth(req, res) {
         code,
         client_id: GOOGLE_CLIENT_ID,
         client_secret: GOOGLE_CLIENT_SECRET,
-        redirect_uri: GOOGLE_REDIRECT_URI,
+        redirect_uri: effectiveRedirectUri,
         grant_type: 'authorization_code'
       })
     });
@@ -544,7 +548,42 @@ async function handleGoogleAuth(req, res) {
   }
 }
 
-async function getGoogleTokens() {
+async function refreshGoogleToken(tokens) {
+  try {
+    const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        refresh_token: tokens.refresh_token,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        grant_type: 'refresh_token'
+      })
+    });
+
+    if (!refreshResponse.ok) {
+      const detail = await refreshResponse.text().catch(() => '');
+      console.error(`Google token refresh failed: ${refreshResponse.status} ${detail.slice(0, 300)}`);
+      return false;
+    }
+
+    const newTokens = await refreshResponse.json();
+    if (newTokens.expires_in) {
+      newTokens.expiry_date = Date.now() + (newTokens.expires_in * 1000);
+    }
+    Object.assign(tokens, newTokens);
+    await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
+    return true;
+  } catch (err) {
+    console.error('Google token refresh error:', err);
+    return false;
+  }
+}
+
+// Returns null when there is no usable token: missing/corrupt file, expired
+// token that cannot be refreshed, or (with forceRefresh) a token Google just
+// rejected with 401. Callers treat null as "not connected".
+async function getGoogleTokens(forceRefresh = false) {
   let raw;
   try {
     raw = await fsp.readFile(CALENDAR_TOKENS_FILE, 'utf8');
@@ -559,39 +598,28 @@ async function getGoogleTokens() {
     return null;
   }
 
-  // Refresh token if expired (or within 60s of expiring)
   const isExpired = !tokens.expiry_date || Date.now() >= (tokens.expiry_date - 60000);
-  if (isExpired && tokens.refresh_token) {
-    const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        refresh_token: tokens.refresh_token,
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
-        grant_type: 'refresh_token'
-      })
-    });
-
-    if (refreshResponse.ok) {
-      const newTokens = await refreshResponse.json();
-      if (newTokens.expires_in) {
-        newTokens.expiry_date = Date.now() + (newTokens.expires_in * 1000);
-      }
-      Object.assign(tokens, newTokens);
-      await fsp.writeFile(CALENDAR_TOKENS_FILE, JSON.stringify(tokens, null, 2));
-    } else {
-      const detail = await refreshResponse.text().catch(() => '');
-      console.error(`Google token refresh failed: ${refreshResponse.status} ${detail.slice(0, 300)}`);
-    }
+  if (isExpired && !tokens.refresh_token) {
+    // Expired access token with no way to renew it
+    return null;
+  }
+  if ((forceRefresh || isExpired) && tokens.refresh_token) {
+    const refreshed = await refreshGoogleToken(tokens);
+    if (!refreshed) return null;
   }
 
   return tokens;
 }
 
+async function fetchGoogleEvents(tokens, params) {
+  return fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
+    headers: { Authorization: `Bearer ${tokens.access_token}` }
+  });
+}
+
 async function handleGoogleCalendar(req, res, action) {
   try {
-    const tokens = await getGoogleTokens();
+    let tokens = await getGoogleTokens();
     if (!tokens) return send(res, 200, []);
 
     const query = new URL(req.url, 'http://localhost').searchParams;
@@ -601,9 +629,14 @@ async function handleGoogleCalendar(req, res, action) {
       if (value) params.set(key, value);
     }
 
-    const calendarResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
-      headers: { Authorization: `Bearer ${tokens.access_token}` }
-    });
+    let calendarResponse = await fetchGoogleEvents(tokens, params);
+
+    if (calendarResponse.status === 401) {
+      // Google rejected the access token — force a refresh and retry once
+      tokens = await getGoogleTokens(true);
+      if (!tokens) return send(res, 200, []);
+      calendarResponse = await fetchGoogleEvents(tokens, params);
+    }
 
     if (!calendarResponse.ok) {
       const detail = await calendarResponse.text().catch(() => '');
