@@ -32,6 +32,10 @@ id holamotor >/dev/null 2>&1 || useradd --system --home "$APP_DIR" --shell /usr/
 mkdir -p "$APP_DIR" "$DATA_DIR"
 rm -rf "$APP_DIR/server" "$APP_DIR/dist"
 cp -r "$SRC_DIR/server" "$SRC_DIR/dist" "$APP_DIR/"
+# Optional env file (Google Calendar OAuth, vehicle lookup keys, ...)
+if [[ -f "$SRC_DIR/.env" ]]; then
+  cp "$SRC_DIR/.env" "$APP_DIR/.env"
+fi
 chown -R holamotor:holamotor "$DATA_DIR"
 
 cp "$SRC_DIR/deploy/holamotor.service" /etc/systemd/system/holamotor.service

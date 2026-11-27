@@ -24,7 +24,7 @@ export class GoogleCalendarService {
   authenticate(code: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth`, { code, redirectUri: this.getRedirectUri() }).pipe(
       catchError(error => {
-        console.error('Google auth error:', error);
+        console.error('Google auth error:', error.error?.detail || error.error || error);
         return of(null);
       })
     );

@@ -45,6 +45,7 @@ Environment="HOST=0.0.0.0"
 Environment="DATA_DIR=$HM_DATA_DIR"
 Environment="STATIC_DIR=$PROJECT_DIR/dist/holamotor-taller"
 Environment="HOLAMOTOR_LANG=es"
+EnvironmentFile=-$PROJECT_DIR/.env
 ExecStart=/usr/bin/node $PROJECT_DIR/server/index.js
 Restart=always
 RestartSec=10
